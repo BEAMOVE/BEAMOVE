@@ -1,1801 +1,339 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>BEAMOVE • sua rede fitness</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    
-    <!-- Cloudinary Upload Widget -->
-    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-    
-    <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        /* ===== RESET E PALETA OBRIGATÓRIA ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BEAMOVE</title>
 
-        :root {
-            --offwhite: #F6F1EC;
-            --marrom: #6B4C3B;
-            --marrom-escuro: #3E2A22;
-            --rose: #C49A8A;
-            --rose-claro: #E8D5CE;
-            --shadow: 0 4px 12px rgba(107, 76, 59, 0.1);
-            --shadow-hover: 0 8px 24px rgba(107, 76, 59, 0.15);
-        }
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-        body {
-            background-color: var(--offwhite);
-            color: var(--marrom-escuro);
-            transition: all 0.3s ease;
-            min-height: 100vh;
-        }
+<style>
+:root{
+--offwhite: #F6F1EC;
+--marrom: #6B4C3B;
+--marrom-escuro: #3E2A22;
+--rose: #C49A8A;
+}
 
-        /* Modo escuro */
-        body.dark-mode {
-            background-color: #1a1a1a;
-            color: var(--offwhite);
-        }
-        body.dark-mode .card {
-            background: #2C241F;
-            color: var(--offwhite);
-        }
-        body.dark-mode .navbar {
-            background: #2C241F;
-            border-top-color: var(--marrom);
-        }
-        body.dark-mode input,
-        body.dark-mode textarea,
-        body.dark-mode select,
-        body.dark-mode .settings-modal {
-            background: #3a302b;
-            color: var(--offwhite);
-            border-color: var(--marrom);
-        }
-        body.dark-mode .settings-modal {
-            background: #2C241F;
-        }
-        body.dark-mode .conversation-item:hover {
-            background: #3a302b;
-        }
-        body.dark-mode .post-actions span:hover {
-            background: #3a302b;
-        }
-        body.dark-mode .message.received .message-text {
-            background: #3a302b;
-            color: var(--offwhite);
-        }
-        body.dark-mode .chat-input-area {
-            background: #2C241F;
-        }
+body{
+margin:0;
+font-family: Arial, Helvetica, sans-serif;
+background: var(--offwhite);
+color: var(--marrom-escuro);
+}
 
-        /* ===== COMPONENTES GLOBAIS ===== */
-        .hidden {
-            display: none !important;
-        }
+header{
+background: var(--marrom);
+color:white;
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
 
-        .center {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+.container{padding:15px;}
 
-        .btn {
-            cursor: pointer;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            background: var(--rose);
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
-            margin: 8px 0;
-            width: 100%;
-        }
+input, button{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid var(--rose);
+}
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-            background: var(--marrom);
-        }
+button{
+background: var(--marrom);
+color:white;
+border:none;
+font-weight:bold;
+cursor:pointer;
+}
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--rose);
-            color: var(--marrom);
-        }
+button:hover{
+background: var(--marrom-escuro);
+}
 
-        body.dark-mode .btn-outline {
-            color: var(--rose);
-        }
+.card-slider{
+display:flex;
+overflow-x:auto;
+gap:10px;
+}
 
-        .btn-outline:hover {
-            background: var(--rose);
-            color: white;
-        }
+.card{
+min-width:200px;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+cursor:pointer;
+}
 
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            width: auto;
-        }
+.feed-post{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:10px;
+}
 
-        input, textarea, select {
-            width: 100%;
-            padding: 14px 18px;
-            margin: 8px 0;
-            border-radius: 30px;
-            border: 1px solid var(--rose);
-            background: white;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-        }
+nav{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+justify-content:space-around;
+background:var(--marrom);
+padding:10px 0;
+}
 
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--marrom);
-            box-shadow: 0 0 0 3px rgba(107, 76, 59, 0.1);
-        }
+nav button{
+background:none;
+border:none;
+color:white;
+font-weight:bold;
+width:auto;
+}
 
-        /* Logo */
-        .logo {
-            font-size: 2.8rem;
-            font-weight: 300;
-            letter-spacing: -0.02em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        .logo .bea {
-            color: var(--marrom);
-            font-weight: 400;
-        }
-        .logo .move {
-            color: var(--rose);
-            position: relative;
-            display: inline-block;
-        }
-        .logo .move .o-circle {
-            display: inline-block;
-            border: 2px solid var(--rose);
-            border-radius: 50%;
-            width: 1.1em;
-            height: 1.1em;
-            text-align: center;
-            line-height: 1;
-            margin-left: 2px;
-            transform: translateY(2px);
-            font-size: 0.9em;
-        }
-        .tagline {
-            font-size: 0.9rem;
-            color: var(--marrom);
-            letter-spacing: 0.05rem;
-            margin-top: 0.3rem;
-            font-style: italic;
-        }
+.hidden{display:none;}
 
-        /* ===== SPLASH ===== */
-        .splash {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, var(--offwhite) 0%, var(--rose-claro) 100%);
-            z-index: 2000;
-            flex-direction: column;
-            text-align: center;
-            padding: 40px;
-            animation: fadeIn 1.5s ease;
-            transition: opacity 0.6s;
-        }
-        .splash.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .splash-name {
-            font-size: 2rem;
-            color: var(--marrom);
-            margin: 1rem 0;
-            font-weight: 300;
-        }
-
-        /* ===== LOGIN ===== */
-        .auth-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 30px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 100vh;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== APP CONTAINER ===== */
-        .app-container {
-            max-width: 500px;
-            margin: 0 auto;
-            min-height: 100vh;
-            padding-bottom: 90px;
-            position: relative;
-        }
-
-        /* Cards Horizontais */
-        .horizontal-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 16px;
-            padding: 10px 5px 25px;
-            scrollbar-width: thin;
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x mandatory;
-        }
-        .horizontal-scroll::-webkit-scrollbar {
-            height: 4px;
-        }
-        .horizontal-scroll::-webkit-scrollbar-thumb {
-            background: var(--rose);
-            border-radius: 10px;
-        }
-        .info-card {
-            min-width: 160px;
-            background: white;
-            border-radius: 25px;
-            padding: 20px 15px;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: all 0.3s;
-            scroll-snap-align: start;
-            border: 1px solid rgba(196, 154, 138, 0.2);
-        }
-        body.dark-mode .info-card {
-            background: #2C241F;
-        }
-        .info-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: var(--shadow-hover);
-        }
-        .info-card .icon {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
-            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.1));
-        }
-        .info-card h4 {
-            color: var(--marrom);
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-        .info-card p {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            line-height: 1.4;
-        }
-
-        /* Seções */
-        .section {
-            padding: 20px 15px 80px;
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .section.active {
-            display: block;
-        }
-
-        /* Cards */
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 30px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(196, 154, 138, 0.2);
-            transition: all 0.3s;
-        }
-        .card:hover {
-            box-shadow: var(--shadow-hover);
-        }
-
-        /* Feed */
-        .feed-img {
-            width: 100%;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            transition: transform 0.3s;
-        }
-        .feed-img:hover {
-            transform: scale(1.02);
-        }
-
-        /* Post da Comunidade */
-        .community-post {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .post-avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--rose);
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .post-avatar:hover {
-            transform: scale(1.1);
-        }
-        .post-content {
-            flex: 1;
-        }
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
-        .post-username {
-            font-weight: 600;
-            color: var(--marrom);
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
-        .post-username:hover {
-            text-decoration: underline;
-        }
-        .post-category {
-            font-size: 0.75rem;
-            background: var(--rose);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-weight: 500;
-        }
-        .post-text {
-            margin: 12px 0;
-            word-break: break-word;
-            line-height: 1.5;
-            font-size: 0.95rem;
-        }
-        .post-actions {
-            display: flex;
-            gap: 25px;
-            margin-top: 15px;
-            color: var(--marrom);
-            flex-wrap: wrap;
-        }
-        .post-actions span {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 15px;
-            border-radius: 25px;
-            transition: all 0.2s;
-            font-size: 0.9rem;
-        }
-        .post-actions span:hover {
-            background: var(--rose-claro);
-            transform: scale(1.05);
-        }
-
-        /* Perfil */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        .profile-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--rose);
-            cursor: pointer;
-            border: 3px solid var(--rose);
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
-        }
-        .profile-img:hover {
-            transform: scale(1.05);
-            border-color: var(--marrom);
-        }
-        .profile-info {
-            flex: 1;
-        }
-        .profile-username {
-            color: var(--marrom);
-            font-size: 1rem;
-            margin: 8px 0;
-            opacity: 0.9;
-        }
-        .profile-bio {
-            margin: 8px 0;
-            font-size: 0.95rem;
-            word-break: break-word;
-            line-height: 1.5;
-        }
-        .profile-link {
-            color: var(--rose);
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-top: 8px;
-            word-break: break-all;
-            transition: color 0.3s;
-        }
-        .profile-link:hover {
-            color: var(--marrom);
-            text-decoration: underline;
-        }
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-            padding: 15px 0;
-            border-top: 1px solid var(--rose-claro);
-            border-bottom: 1px solid var(--rose-claro);
-        }
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-        .stat-number {
-            font-weight: bold;
-            font-size: 1.4rem;
-            color: var(--marrom);
-        }
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--marrom);
-            opacity: 0.8;
-        }
-
-        /* Grid de fotos */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 15px;
-        }
-        .grid-item {
-            aspect-ratio: 1;
-            border-radius: 16px;
-            overflow: hidden;
-            background: var(--rose-claro);
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .grid-item:hover {
-            transform: scale(1.05);
-        }
-        .grid-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Menu inferior */
-        .navbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0 15px;
-            border-top: 2px solid var(--rose-claro);
-            max-width: 500px;
-            margin: 0 auto;
-            z-index: 100;
-            border-radius: 30px 30px 0 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-        }
-        .nav-item {
-            font-size: 0.7rem;
-            text-align: center;
-            color: var(--marrom);
-            cursor: pointer;
-            opacity: 0.5;
-            transition: all 0.3s;
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-        .nav-item.active {
-            opacity: 1;
-            color: var(--rose);
-            transform: translateY(-3px);
-        }
-        .nav-item i { 
-            font-size: 1.8rem; 
-            display: block;
-            margin-bottom: 4px;
-        }
-        .nav-item:hover {
-            opacity: 0.8;
-            background: var(--rose-claro);
-        }
-
-        /* Modal de Configurações */
-        .settings-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 40px;
-            max-width: 90%;
-            width: 400px;
-            z-index: 1000;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalPop 0.3s ease;
-        }
-        @keyframes modalPop {
-            from { opacity: 0; transform: translate(-50%, -40%); }
-            to { opacity: 1; transform: translate(-50%, -50%); }
-        }
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            z-index: 999;
-        }
-
-        /* Chat */
-        .conversation-list {
-            max-height: 70vh;
-            overflow-y: auto;
-            padding: 5px;
-        }
-        .conversation-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 10px;
-            background: white;
-            box-shadow: var(--shadow);
-        }
-        body.dark-mode .conversation-item {
-            background: #2C241F;
-        }
-        .conversation-item:hover {
-            transform: translateX(5px);
-            background: var(--rose-claro);
-        }
-        .conversation-item img {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--rose);
-        }
-        .conversation-info {
-            flex: 1;
-        }
-        .conversation-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-        }
-        .conversation-last-message {
-            font-size: 0.85rem;
-            opacity: 0.7;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-        }
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 70vh;
-            background: white;
-            border-radius: 30px;
-            padding: 15px;
-        }
-        body.dark-mode .chat-container {
-            background: #2C241F;
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .message {
-            display: flex;
-            margin-bottom: 5px;
-            animation: messageSlide 0.3s ease;
-        }
-        @keyframes messageSlide {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .message.sent {
-            justify-content: flex-end;
-        }
-        .message.received {
-            justify-content: flex-start;
-        }
-        .message-text {
-            max-width: 70%;
-            padding: 12px 18px;
-            border-radius: 25px;
-            background: var(--rose);
-            color: white;
-            word-break: break-word;
-            box-shadow: var(--shadow);
-        }
-        .message.received .message-text {
-            background: var(--rose-claro);
-            color: var(--marrom-escuro);
-        }
-        .message.sent .message-text {
-            border-bottom-right-radius: 5px;
-        }
-        .message.received .message-text {
-            border-bottom-left-radius: 5px;
-        }
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 40px;
-            margin-top: 10px;
-            box-shadow: var(--shadow);
-        }
-        .chat-input-area input {
-            margin: 0;
-            flex: 1;
-            background: var(--offwhite);
-        }
-        .chat-input-area button {
-            width: auto;
-            margin: 0;
-            padding: 12px 20px;
-        }
-
-        /* Engrenagem */
-        .settings-icon {
-            position: absolute;
-            top: 20px;
-            right: 15px;
-            font-size: 2rem;
-            color: var(--marrom);
-            cursor: pointer;
-            z-index: 10;
-            transition: transform 0.3s;
-            background: var(--rose-claro);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .settings-icon:hover {
-            transform: rotate(90deg);
-            background: var(--rose);
-            color: white;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: var(--marrom);
-            font-size: 1.1rem;
-        }
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--rose);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Empty states */
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--marrom);
-            opacity: 0.7;
-            font-size: 1.1rem;
-        }
-
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--marrom);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            box-shadow: var(--shadow-hover);
-            z-index: 2000;
-            animation: slideUp 0.3s ease;
-            max-width: 90%;
-            text-align: center;
-        }
-    </style>
+.chat-box{
+height:250px;
+overflow-y:auto;
+background:white;
+padding:10px;
+border-radius:10px;
+margin-bottom:10px;
+}
+</style>
 </head>
+
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splash" class="splash center">
-    <div>
-        <div class="logo">
-            <span class="bea">BEA</span><span class="move">MOVE<span class="o-circle">O</span></span>
-        </div>
-        <div class="tagline">“Sem extremismos. Resultados sustentáveis.”</div>
-        <div style="margin-top: 50px;">
-            <p class="splash-name">Olá, sou a Beatriz Antunes</p>
-            <p style="margin-top: 25px; max-width: 320px; color: var(--marrom-escuro); line-height: 1.6;">
-                Personal Trainer & Fundadora do BEAMOVE<br>
-                Especialista em transformação muito além do corpo.
-            </p>
-        </div>
-    </div>
+<header>BEAMOVE</header>
+
+<!-- LOGIN -->
+<div class="container" id="loginScreen">
+<h2>Entrar</h2>
+<input type="email" id="loginEmail" placeholder="Email">
+<input type="password" id="loginPassword" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+<p onclick="showRegister()" style="cursor:pointer;">Criar conta</p>
+<p onclick="resetPassword()" style="cursor:pointer;">Esqueci minha senha</p>
 </div>
 
-<!-- TELA DE LOGIN/REGISTRO -->
-<div id="authSection" class="auth-container">
-    <div class="logo" style="margin-bottom: 20px;">
-        <span class="bea">BEA</span><span class="move">MOVE<span class="o-circle">O</span></span>
-    </div>
-    <div class="tagline" style="margin-bottom: 30px;">“Sem extremismos. Resultados sustentáveis.”</div>
-    
-    <input type="email" id="email" placeholder="Seu e-mail" value="teste@beamove.com">
-    <input type="password" id="password" placeholder="Sua senha" value="123456">
-    <div id="registerFields" class="hidden">
-        <input type="text" id="registerUsername" placeholder="@username (ex: @maria)">
-        <input type="text" id="registerName" placeholder="Nome de exibição">
-    </div>
-    
-    <button class="btn" onclick="handleLogin()">Entrar</button>
-    <button class="btn btn-outline" onclick="toggleRegisterForm()">Criar conta</button>
-    <button class="btn btn-outline" onclick="handleResetPassword()" style="background: transparent;">Esqueci minha senha</button>
-    
-    <div id="loginError" style="color: #c00; margin-top: 10px;"></div>
+<!-- CADASTRO -->
+<div class="container hidden" id="registerScreen">
+<h2>Criar Conta</h2>
+<input type="text" id="username" placeholder="@usuario (obrigatório)">
+<input type="email" id="registerEmail" placeholder="Email">
+<input type="password" id="registerPassword" placeholder="Senha">
+<button onclick="register()">Cadastrar</button>
+<p onclick="showLogin()" style="cursor:pointer;">Voltar</p>
 </div>
 
-<!-- APLICAÇÃO PRINCIPAL -->
-<div id="app" class="app-container hidden">
+<!-- APP -->
+<div id="appScreen" class="hidden">
 
-    <!-- FEED / INÍCIO -->
-    <div id="inicio" class="section active">
-        <h2 style="margin-bottom: 20px;">Início</h2>
-        
-        <!-- Cards de Informação Horizontal -->
-        <div class="horizontal-scroll" id="infoCards">
-            <div class="info-card" onclick="openInfoPage('treinos')">
-                <div class="icon">💪</div>
-                <h4>Treinos</h4>
-                <p>Dicas e exercícios para potencializar seus resultados</p>
-            </div>
-            <div class="info-card" onclick="openInfoPage('receitas')">
-                <div class="icon">🥗</div>
-                <h4>Receitas</h4>
-                <p>Pratos saudáveis e saborosos para o dia a dia</p>
-            </div>
-            <div class="info-card" onclick="openInfoPage('dietas')">
-                <div class="icon">📋</div>
-                <h4>Dietas</h4>
-                <p>Planos alimentares para diferentes objetivos</p>
-            </div>
-            <div class="info-card" onclick="openInfoPage('tipos-dieta')">
-                <div class="icon">🔬</div>
-                <h4>Tipos de Dieta</h4>
-                <p>Low carb, cetogênica, jejum intermitente e mais</p>
-            </div>
-            <div class="info-card" onclick="openInfoPage('exercicios')">
-                <div class="icon">🏋️</div>
-                <h4>Exercícios</h4>
-                <p>Explicações detalhadas de cada movimento</p>
-            </div>
-        </div>
+<div class="container" id="home">
 
-        <h3 style="margin: 20px 0 10px;">Feed da Comunidade</h3>
-        <div id="feed" class="loading">Carregando...</div>
-    </div>
+<h3>Início</h3>
 
-    <!-- EXPLORAR -->
-    <div id="explorar" class="section">
-        <h2 style="margin-bottom: 20px;">Explorar</h2>
-        
-        <!-- Plano Nutricional -->
-        <div class="card">
-            <h3 style="color: var(--marrom);">🥗 Acompanhamento Nutricional</h3>
-            <p style="margin: 15px 0;">Plano individualizado com Beatriz Antunes</p>
-            <button class="btn" onclick="window.open('https://pay.hotmart.com/beamove-nutri', '_blank')">Adquirir via Hotmart</button>
-            <button class="btn btn-outline" onclick="window.open('https://kiwify.com.br/beamove-nutri', '_blank')">Adquirir via Kiwify</button>
-        </div>
-
-        <!-- Cursos -->
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400" class="feed-img" onerror="this.src='https://via.placeholder.com/400?text=Yoga'">
-            <h4>Yoga para mulher moderna</h4>
-            <p>Transformação sustentável • 8 semanas</p>
-            <p style="color: var(--marrom);">⭐ 4.9 (234 avaliações)</p>
-            <button class="btn" onclick="window.open('https://cursos.beamove.com/yoga', '_blank')">Comprar Agora</button>
-        </div>
-
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400" class="feed-img" onerror="this.src='https://via.placeholder.com/400?text=Emagrecimento'">
-            <h4>Emagrecimento sustentável</h4>
-            <p>Método sem extremismos</p>
-            <button class="btn" onclick="window.open('https://cursos.beamove.com/emagrecer', '_blank')">Comprar Agora</button>
-        </div>
-    </div>
-
-    <!-- CRIAR POST -->
-    <div id="criar" class="section">
-        <h2 style="margin-bottom: 20px;">Novo Post</h2>
-        <div class="card">
-            <button id="uploadCloudinaryBtn" class="btn btn-outline" style="margin-bottom: 15px;">
-                <i class="fas fa-camera"></i> Escolher imagem
-            </button>
-            <div id="uploadStatus" style="margin: 10px 0; color: var(--marrom);"></div>
-            <input type="text" id="mediaUrl" placeholder="URL da imagem" readonly style="background: #f5f5f5;">
-            <textarea id="caption" placeholder="Escreva uma legenda..." rows="3"></textarea>
-            <button class="btn" onclick="createPost()">Publicar</button>
-        </div>
-    </div>
-
-    <!-- COMUNIDADE -->
-    <div id="comunidade" class="section">
-        <h2 style="margin-bottom: 20px;">Comunidade BEAMOVE</h2>
-        <div class="card">
-            <select id="postCategory">
-                <option value="Motivação">🔥 Motivação</option>
-                <option value="Dieta">🥗 Dieta</option>
-                <option value="Receita">🍳 Receita</option>
-                <option value="Treino">💪 Treino</option>
-                <option value="Dúvida">❓ Dúvida</option>
-            </select>
-            <textarea id="communityText" placeholder="Compartilhe algo com a comunidade..." rows="3"></textarea>
-            <button class="btn" onclick="postToCommunity()">Publicar</button>
-        </div>
-        <div id="communityPosts"></div>
-    </div>
-
-    <!-- CHAT -->
-    <div id="chat" class="section">
-        <div id="conversationsView">
-            <h2 style="margin-bottom: 20px;">Conversas</h2>
-            <div id="conversationsList" class="conversation-list">
-                <div class="loading">Carregando conversas...</div>
-            </div>
-        </div>
-        <div id="chatView" class="hidden">
-            <button class="btn btn-small btn-outline" onclick="backToConversations()" style="margin-bottom: 10px;">← Voltar</button>
-            <div id="currentChat" class="chat-container">
-                <div id="chatMessages" class="chat-messages"></div>
-                <div class="chat-input-area">
-                    <input type="text" id="messageInput" placeholder="Digite sua mensagem..." onkeypress="if(event.key==='Enter') sendMessage()">
-                    <button class="btn btn-small" onclick="sendMessage()">Enviar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PERFIL -->
-    <div id="perfil" class="section">
-        <div class="settings-icon" onclick="openSettings()">⚙️</div>
-        
-        <div class="profile-header">
-            <img id="profileImage" class="profile-img" src="https://res.cloudinary.com/dgfm3rorv/image/upload/v1710101040/avatar.jpg" onclick="uploadProfileImage()">
-            <div class="profile-info">
-                <h3 id="profileDisplayName">Carregando...</h3>
-                <p id="profileUsername" class="profile-username"></p>
-                <p id="profileBio" class="profile-bio"></p>
-                <a id="profileLink" class="profile-link" target="_blank"></a>
-            </div>
-        </div>
-
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-number" id="followersCount">0</div>
-                <div class="stat-label">seguidores</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="followingCount">0</div>
-                <div class="stat-label">seguindo</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="postsCount">0</div>
-                <div class="stat-label">posts</div>
-            </div>
-        </div>
-
-        <button class="btn btn-outline" onclick="showEditProfile()" style="margin: 15px 0;">Editar Perfil</button>
-
-        <!-- Formulário do plano nutricional -->
-        <div class="card">
-            <h4>📋 Plano Nutricional Personalizado</h4>
-            <p>Preencha para receber via WhatsApp</p>
-            <input type="number" id="weight" placeholder="Peso (kg)">
-            <input type="number" id="height" placeholder="Altura (cm)">
-            <input type="text" id="goal" placeholder="Objetivo">
-            <input type="text" id="restrictions" placeholder="Restrições alimentares">
-            <textarea id="routine" placeholder="Rotina diária"></textarea>
-            <button class="btn" onclick="sendToWhatsApp()">Enviar para consultoria</button>
-        </div>
-
-        <!-- Grid de fotos -->
-        <h4 style="margin: 20px 0 10px;">Minhas fotos</h4>
-        <div class="grid" id="profilePosts"></div>
-    </div>
-
-    <!-- MENU INFERIOR -->
-    <div class="navbar">
-        <div class="nav-item active" onclick="showSection('inicio')">
-            <i>🏠</i><span>Início</span>
-        </div>
-        <div class="nav-item" onclick="showSection('explorar')">
-            <i>🔍</i><span>Explorar</span>
-        </div>
-        <div class="nav-item" onclick="showSection('criar')">
-            <i>➕</i><span>Criar</span>
-        </div>
-        <div class="nav-item" onclick="showSection('comunidade')">
-            <i>👥</i><span>Comunidade</span>
-        </div>
-        <div class="nav-item" onclick="showSection('perfil')">
-            <i>👤</i><span>Perfil</span>
-        </div>
-    </div>
+<div class="card-slider">
+<div class="card">Treinos</div>
+<div class="card">Receitas</div>
+<div class="card">Dietas</div>
+<div class="card">Tipos de Dietas</div>
+<div class="card">Exercícios</div>
 </div>
 
-<!-- MODAL DE CONFIGURAÇÕES -->
-<div id="settingsModal" class="hidden">
-    <div class="modal-overlay" onclick="closeSettings()"></div>
-    <div class="settings-modal">
-        <h3 style="margin-bottom: 20px;">Configurações</h3>
-        <div style="margin: 20px 0;">
-            <label>Modo Noturno</label>
-            <button class="btn btn-small" onclick="toggleDarkMode()" id="darkModeBtn">🌓 Ativar</button>
-        </div>
-        <button class="btn btn-outline" onclick="logout()">Sair da conta</button>
-        <button class="btn btn-small" onclick="closeSettings()" style="margin-top: 10px;">Fechar</button>
-    </div>
+<h3>Feed da Comunidade</h3>
+<div id="feed"></div>
+
+<input type="text" id="postInput" placeholder="Compartilhe algo...">
+<button onclick="addPost()">Postar</button>
+
 </div>
 
-<!-- MODAL DE EDIÇÃO DE PERFIL -->
-<div id="editProfileModal" class="hidden">
-    <div class="modal-overlay" onclick="closeEditProfile()"></div>
-    <div class="settings-modal">
-        <h3 style="margin-bottom: 20px;">Editar Perfil</h3>
-        <input type="text" id="editDisplayName" placeholder="Nome de exibição">
-        <textarea id="editBio" placeholder="Bio (até 250 caracteres)" maxlength="250" rows="3"></textarea>
-        <input type="url" id="editLink" placeholder="Link (opcional)">
-        <button class="btn" onclick="saveProfile()">Salvar</button>
-        <button class="btn btn-outline" onclick="closeEditProfile()">Cancelar</button>
-    </div>
+<div class="container hidden" id="explorar">
+<h3>Explorar</h3>
+
+<div class="card">Acompanhamento Nutricional (Hotmart)</div>
+<div class="card">Curso de Yoga</div>
+<div class="card">Emagrecimento</div>
+<div class="card">Outros Cursos</div>
+
 </div>
 
-<!-- TOAST NOTIFICATION -->
-<div id="toast" class="toast hidden"></div>
+<div class="container hidden" id="comunidade">
+<h3>Comunidade</h3>
+<div class="chat-box" id="chatBox"></div>
+<input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+<button onclick="sendMessage()">Enviar</button>
+</div>
+
+<div class="container hidden" id="perfil">
+<h3>Perfil</h3>
+<p id="profileInfo"></p>
+<button onclick="logout()">Sair</button>
+</div>
+
+<nav>
+<button onclick="showTab('home')">Início</button>
+<button onclick="showTab('explorar')">Explorar</button>
+<button onclick="showTab('comunidade')">Comunidade</button>
+<button onclick="showTab('perfil')">Perfil</button>
+</nav>
+
+</div>
 
 <script>
-    // ========== CONFIGURAÇÕES FIREBASE ==========
-    const firebaseConfig = {
-        apiKey: "AIzaSyBdIH1kKv_e4f25nubgQ9ED8hyfl-3FmbM",
-        authDomain: "beamove-pro.firebaseapp.com",
-        projectId: "beamove-pro",
-        storageBucket: "beamove-pro.firebasestorage.app",
-        messagingSenderId: "816563837877",
-        appId: "1:816563837877:web:7d812c57fecc0338f117fc"
-    };
+const firebaseConfig = {
+apiKey: "AIzaSyBdIH1kKv_e4f25nubgQ9ED8hyfl-3FmbM",
+authDomain: "beamove-pro.firebaseapp.com",
+projectId: "beamove-pro",
+storageBucket: "beamove-pro.firebasestorage.app",
+messagingSenderId: "816563837877",
+appId: "1:816563837877:web:7d812c57fecc0338f117fc"
+};
 
-    // Inicializar Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    // ========== VARIÁVEIS GLOBAIS ==========
-    let currentUser = null;
-    let cloudinaryWidget = null;
-    let currentChatWith = null;
-    let currentConversationId = null;
-    let unsubscribeChat = null;
-    let unsubscribeCommunity = null;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-    // ========== FUNÇÕES DE UTILIDADE ==========
-    function showToast(message, duration = 3000) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.remove('hidden');
-        
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, duration);
-    }
+/* TELAS */
+function showRegister(){
+loginScreen.classList.add("hidden");
+registerScreen.classList.remove("hidden");
+}
 
-    // ========== SPLASH ==========
-    setTimeout(() => {
-        document.getElementById('splash').classList.add('fade-out');
-        setTimeout(() => {
-            document.getElementById('splash').style.display = 'none';
-        }, 600);
-    }, 3000);
+function showLogin(){
+registerScreen.classList.add("hidden");
+loginScreen.classList.remove("hidden");
+}
 
-    // ========== CONFIGURAÇÃO CLOUDINARY ==========
-    if (window.cloudinary) {
-        cloudinaryWidget = cloudinary.createUploadWidget(
-            {
-                cloudName: "dgfm3rorv",
-                uploadPreset: "beamove_preset",
-                sources: ['local', 'camera', 'url'],
-                multiple: false,
-                maxFiles: 1,
-                clientAllowedFormats: ['images'],
-                maxFileSize: 10000000,
-                theme: 'minimal',
-                language: 'pt'
-            },
-            (error, result) => {
-                if (!error && result && result.event === "success") {
-                    const imageUrl = result.info.secure_url;
-                    document.getElementById('mediaUrl').value = imageUrl;
-                    document.getElementById('uploadStatus').innerHTML = '✅ Imagem carregada com sucesso!';
-                    
-                    if (window.uploadingProfile) {
-                        db.collection('users').doc(currentUser.uid).update({
-                            photoURL: imageUrl
-                        }).then(() => {
-                            document.getElementById('profileImage').src = imageUrl;
-                            showToast('Foto atualizada com sucesso!');
-                        });
-                        window.uploadingProfile = false;
-                    }
-                }
-            }
-        );
-    }
+function showTab(tab){
+["home","explorar","comunidade","perfil"].forEach(id=>{
+document.getElementById(id).classList.add("hidden");
+});
+document.getElementById(tab).classList.remove("hidden");
+}
 
-    document.getElementById('uploadCloudinaryBtn')?.addEventListener('click', () => {
-        if (!currentUser) {
-            showToast('Faça login primeiro');
-            return;
-        }
-        window.uploadingProfile = false;
-        document.getElementById('uploadStatus').innerHTML = '';
-        if (cloudinaryWidget) cloudinaryWidget.open();
-    });
+/* AUTH */
+function register(){
+let user = username.value.trim();
+if(!user.startsWith("@")){
+alert("O nome de usuário deve começar com @");
+return;
+}
 
-    window.uploadProfileImage = function() {
-        if (!currentUser) return;
-        window.uploadingProfile = true;
-        if (cloudinaryWidget) cloudinaryWidget.open();
-    };
+db.collection("users").where("username","==",user).get()
+.then(snapshot=>{
+if(!snapshot.empty){
+alert("Username já existe!");
+return;
+}
 
-    // ========== AUTENTICAÇÃO ==========
-    window.toggleRegisterForm = function() {
-        const registerFields = document.getElementById('registerFields');
-        registerFields.classList.toggle('hidden');
-    };
+auth.createUserWithEmailAndPassword(registerEmail.value, registerPassword.value)
+.then(cred=>{
+db.collection("users").doc(cred.user.uid).set({
+username:user,
+email:registerEmail.value
+});
+alert("Conta criada!");
+showLogin();
+});
+});
+}
 
-    window.handleLogin = function() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        auth.signInWithEmailAndPassword(email, password)
-            .then(() => {
-                showToast('Login realizado com sucesso!');
-            })
-            .catch(error => {
-                document.getElementById('loginError').innerHTML = 'Erro: ' + error.message;
-            });
-    };
+function login(){
+auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value);
+}
 
-    window.handleRegister = async function() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const username = document.getElementById('registerUsername').value.trim();
-        const displayName = document.getElementById('registerName').value.trim() || email.split('@')[0];
-        
-        if (!email || !password || !username) {
-            document.getElementById('loginError').innerHTML = 'Preencha email, senha e username';
-            return;
-        }
-        
-        if (!username.startsWith('@')) {
-            document.getElementById('loginError').innerHTML = 'Username deve começar com @';
-            return;
-        }
-        
-        try {
-            const usernameDoc = await db.collection('usernames').doc(username.toLowerCase()).get();
-            if (usernameDoc.exists) {
-                document.getElementById('loginError').innerHTML = 'Este username já está em uso';
-                return;
-            }
-            
-            const cred = await auth.createUserWithEmailAndPassword(email, password);
-            
-            await db.collection('usernames').doc(username.toLowerCase()).set({
-                uid: cred.user.uid
-            });
-            
-            await db.collection('users').doc(cred.user.uid).set({
-                email: email,
-                username: username,
-                displayName: displayName,
-                bio: 'Movimento com propósito 🌱',
-                link: '',
-                photoURL: '',
-                followers: 0,
-                following: 0,
-                postsCount: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            showToast('Conta criada com sucesso!');
-            
-        } catch (error) {
-            document.getElementById('loginError').innerHTML = 'Erro: ' + error.message;
-        }
-    };
+function resetPassword(){
+let email = prompt("Digite seu email:");
+auth.sendPasswordResetEmail(email);
+alert("Email enviado!");
+}
 
-    window.handleResetPassword = function() {
-        const email = document.getElementById('email').value;
-        if (!email) {
-            alert('Digite seu e-mail primeiro');
-            return;
-        }
-        auth.sendPasswordResetEmail(email)
-            .then(() => alert('E-mail de recuperação enviado!'))
-            .catch(error => alert('Erro: ' + error.message));
-    };
+function logout(){
+auth.signOut();
+}
 
-    auth.onAuthStateChanged(async user => {
-        if (user) {
-            currentUser = user;
-            
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            if (!userDoc.exists) {
-                return;
-            }
-            
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            
-            loadFeed();
-            loadProfile();
-            loadCommunityPosts();
-            loadConversations();
-        } else {
-            currentUser = null;
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('app').classList.add('hidden');
-            
-            if (unsubscribeCommunity) {
-                unsubscribeCommunity();
-                unsubscribeCommunity = null;
-            }
-            
-            document.getElementById('email').value = 'teste@beamove.com';
-            document.getElementById('password').value = '123456';
-            document.getElementById('registerFields').classList.add('hidden');
-        }
-    });
+/* AUTH STATE */
+auth.onAuthStateChanged(user=>{
+if(user){
+loginScreen.classList.add("hidden");
+registerScreen.classList.add("hidden");
+appScreen.classList.remove("hidden");
+loadFeed();
+loadChat();
+loadProfile();
+}else{
+appScreen.classList.add("hidden");
+loginScreen.classList.remove("hidden");
+}
+});
 
-    // ========== NAVEGAÇÃO ==========
-    window.showSection = function(sectionId) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
-        
-        document.querySelectorAll('.nav-item').forEach((item, index) => {
-            const sections = ['inicio', 'explorar', 'criar', 'comunidade', 'perfil'];
-            item.classList.toggle('active', sections[index] === sectionId);
-        });
-        
-        if (sectionId === 'inicio') loadFeed();
-        if (sectionId === 'comunidade') loadCommunityPosts();
-        if (sectionId === 'chat') {
-            loadConversations();
-            backToConversations();
-        }
-        if (sectionId === 'perfil') loadProfile();
-    };
+/* FEED */
+function addPost(){
+let text = postInput.value;
+if(text==="") return;
 
-    // ========== CARDS DE INFORMAÇÃO ==========
-    window.openInfoPage = function(topic) {
-        const content = {
-            treinos: {
-                title: '💪 Treinos Eficientes',
-                text: 'Descubra treinos adaptados para sua rotina:\n\n• Treino de Força: 3x por semana\n• HIIT: 20 minutos, 2x por semana\n• Cardio: 30 minutos diários\n\nLembre-se: consistência é mais importante que intensidade!'
-            },
-            receitas: {
-                title: '🥗 Receitas Saudáveis',
-                text: 'Panqueca de Banana Fitness:\n• 1 banana amassada\n• 2 ovos\n• Canela a gosto\n• 1 colher de aveia\n\nModo: Bata tudo e asse em frigideira antiaderente.\n\nLow carb e delicioso!'
-            },
-            dietas: {
-                title: '📋 Planos Alimentares',
-                text: 'Uma dieta equilibrada deve conter:\n\n• Proteínas: frango, peixe, ovos\n• Carboidratos complexos: batata doce, arroz integral\n• Gorduras boas: abacate, azeite, castanhas\n• Fibras: vegetais, legumes'
-            },
-            'tipos-dieta': {
-                title: '🔬 Tipos de Dieta',
-                text: 'Low Carb: Redução de carboidratos (50-100g/dia)\nCetogênica: Alta em gorduras, muito baixo carboidrato\nJejum Intermitente: 16h jejum / 8h alimentação\nDieta Mediterrânea: Rica em azeite, peixes e vegetais'
-            },
-            exercicios: {
-                title: '🏋️ Explicação de Exercícios',
-                text: 'Agachamento: Pés na largura dos ombros, costas retas, desça como se fosse sentar numa cadeira.\n\nFlexão: Corpo reto, mãos na largura dos ombros, cotovelos a 45° do corpo.\n\nPrancha: Cotovelos no chão, corpo reto, contraia abdômen.'
-            }
-        };
-        
-        const data = content[topic];
-        alert(`${data.title}\n\n${data.text}`);
-    };
+db.collection("posts").add({
+text:text,
+user:auth.currentUser.uid,
+created:firebase.firestore.FieldValue.serverTimestamp()
+});
+postInput.value="";
+}
 
-    // ========== FEED ==========
-    function loadFeed() {
-        const feed = document.getElementById('feed');
-        
-        db.collection('posts').orderBy('created', 'desc').limit(20).onSnapshot(snapshot => {
-            if (snapshot.empty) {
-                feed.innerHTML = '<div class="card empty-state">Nenhum post ainda. Seja o primeiro!</div>';
-                return;
-            }
-            
-            let html = '';
-            snapshot.forEach(doc => {
-                const post = doc.data();
-                const postId = doc.id;
-                html += `
-                    <div class="card">
-                        <p><strong>${post.userName || 'Usuário'}</strong></p>
-                        <img src="${post.media}" class="feed-img" onerror="this.src='https://via.placeholder.com/400?text=Imagem'">
-                        <p>${post.caption || ''}</p>
-                        <div class="post-actions">
-                            <span onclick="likePost('${postId}')"><i class="fas fa-heart"></i> ${post.likes || 0}</span>
-                            <span onclick="commentPost('${postId}')"><i class="fas fa-comment"></i> ${post.comments || 0}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            feed.innerHTML = html;
-        });
-    }
+function loadFeed(){
+db.collection("posts").orderBy("created","desc")
+.onSnapshot(snapshot=>{
+feed.innerHTML="";
+snapshot.forEach(doc=>{
+let div=document.createElement("div");
+div.className="feed-post";
+div.innerText=doc.data().text;
+feed.appendChild(div);
+});
+});
+}
 
-    // ========== CRIAÇÃO DE POST ==========
-    window.createPost = function() {
-        const mediaUrl = document.getElementById('mediaUrl').value;
-        const caption = document.getElementById('caption').value;
-        
-        if (!mediaUrl) {
-            showToast('Selecione uma imagem primeiro!');
-            return;
-        }
-        
-        db.collection('posts').add({
-            userId: currentUser.uid,
-            userName: currentUser.email.split('@')[0],
-            media: mediaUrl,
-            caption: caption,
-            likes: 0,
-            comments: 0,
-            created: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            showToast('Post publicado!');
-            document.getElementById('mediaUrl').value = '';
-            document.getElementById('caption').value = '';
-            document.getElementById('uploadStatus').innerHTML = '';
-            
-            // Atualizar contador de posts do usuário
-            db.collection('users').doc(currentUser.uid).update({
-                postsCount: firebase.firestore.FieldValue.increment(1)
-            });
-            
-            showSection('perfil');
-        }).catch(error => {
-            showToast('Erro: ' + error.message);
-        });
-    };
+/* CHAT */
+function sendMessage(){
+let msg=chatInput.value;
+if(msg==="") return;
 
-    // ========== COMUNIDADE ==========
-    window.postToCommunity = async function() {
-        const text = document.getElementById('communityText').value;
-        const category = document.getElementById('postCategory').value;
-        
-        if (!text.trim()) {
-            showToast('Digite algo para publicar');
-            return;
-        }
-        
-        try {
-            const userDoc = await db.collection('users').doc(currentUser.uid).get();
-            const userData = userDoc.data();
-            
-            await db.collection('communityPosts').add({
-                userId: currentUser.uid,
-                username: userData.username,
-                displayName: userData.displayName,
-                photoURL: userData.photoURL || '',
-                text: text,
-                category: category,
-                likes: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            document.getElementById('communityText').value = '';
-            showToast('Post publicado com sucesso!');
-            
-        } catch (error) {
-            showToast('Erro ao publicar: ' + error.message);
-        }
-    };
+db.collection("chat").add({
+message:msg,
+user:auth.currentUser.uid,
+created:firebase.firestore.FieldValue.serverTimestamp()
+});
+chatInput.value="";
+}
 
-    function loadCommunityPosts() {
-        const postsDiv = document.getElementById('communityPosts');
-        
-        unsubscribeCommunity = db.collection('communityPosts').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-            if (snapshot.empty) {
-                postsDiv.innerHTML = '<div class="card empty-state">Nenhuma postagem ainda. Seja o primeiro!</div>';
-                return;
-            }
-            
-            let html = '';
-            snapshot.forEach(doc => {
-                const post = doc.data();
-                const postId = doc.id;
-                html += `
-                    <div class="card">
-                        <div class="community-post">
-                            <img src="${post.photoURL || 'https://res.cloudinary.com/dgfm3rorv/image/upload/v1710101040/avatar.jpg'}" class="post-avatar" onclick="viewProfile('${post.userId}')">
-                            <div class="post-content">
-                                <div class="post-header">
-                                    <span class="post-username" onclick="viewProfile('${post.userId}')">${post.username || post.displayName}</span>
-                                    <span class="post-category">${post.category || 'Geral'}</span>
-                                </div>
-                                <div class="post-text">${post.text.replace(/\n/g, '<br>')}</div>
-                                <div class="post-actions">
-                                    <span onclick="likeCommunityPost('${postId}')"><i class="fas fa-heart"></i> <span id="community-likes-${postId}">${post.likes || 0}</span></span>
-                                    <span onclick="startChat('${post.userId}')"><i class="fas fa-comment"></i> Mensagem</span>
-                                    ${post.userId !== currentUser?.uid ? `
-                                        <span onclick="followUser('${post.userId}')" id="community-follow-${post.userId}">
-                                            <i class="fas fa-user-plus"></i> <span>${post.isFollowing ? 'Seguindo' : 'Seguir'}</span>
-                                        </span>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            postsDiv.innerHTML = html;
-            
-            snapshot.forEach(doc => {
-                const post = doc.data();
-                if (post.userId !== currentUser?.uid) {
-                    checkFollowStatus(post.userId);
-                }
-            });
-        });
-    }
+function loadChat(){
+db.collection("chat").orderBy("created")
+.onSnapshot(snapshot=>{
+chatBox.innerHTML="";
+snapshot.forEach(doc=>{
+let p=document.createElement("p");
+p.innerText=doc.data().message;
+chatBox.appendChild(p);
+});
+});
+}
 
-    window.likeCommunityPost = async function(postId) {
-        try {
-            const postRef = db.collection('communityPosts').doc(postId);
-            await postRef.update({
-                likes: firebase.firestore.FieldValue.increment(1)
-            });
-            
-            showToast('Post curtido!');
-        } catch (error) {
-            console.error('Erro ao curtir:', error);
-        }
-    };
-
-    window.likePost = function(postId) {
-        db.collection('posts').doc(postId).update({
-            likes: firebase.firestore.FieldValue.increment(1)
-        });
-    };
-
-    window.commentPost = function(postId) {
-        showToast('Funcionalidade de comentários em breve!');
-    };
-
-    // ========== PERFIL ==========
-    function loadProfile() {
-        if (!currentUser) return;
-        
-        db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                document.getElementById('profileDisplayName').innerText = data.displayName || data.username || currentUser.email;
-                document.getElementById('profileUsername').innerText = data.username || '';
-                document.getElementById('profileBio').innerText = data.bio || '';
-                const linkElement = document.getElementById('profileLink');
-                if (data.link) {
-                    linkElement.innerText = data.link;
-                    linkElement.href = data.link.startsWith('http') ? data.link : 'https://' + data.link;
-                    linkElement.classList.remove('hidden');
-                } else {
-                    linkElement.classList.add('hidden');
-                }
-                document.getElementById('followersCount').innerText = data.followers || 0;
-                document.getElementById('followingCount').innerText = data.following || 0;
-                document.getElementById('postsCount').innerText = data.postsCount || 0;
-                
-                if (data.photoURL) {
-                    document.getElementById('profileImage').src = data.photoURL;
-                }
-            }
-        });
-        
-        // Posts do usuário
-        db.collection('posts').where('userId', '==', currentUser.uid).orderBy('created', 'desc').onSnapshot(snapshot => {
-            const profilePosts = document.getElementById('profilePosts');
-            profilePosts.innerHTML = '';
-            
-            snapshot.forEach(doc => {
-                const post = doc.data();
-                profilePosts.innerHTML += `
-                    <div class="grid-item" onclick="viewPost('${doc.id}')">
-                        <img src="${post.media}" onerror="this.src='https://via.placeholder.com/150'">
-                    </div>
-                `;
-            });
-        });
-    }
-
-    window.viewPost = function(postId) {
-        showToast('Visualizar post (em breve)');
-    };
-
-    window.showEditProfile = function() {
-        db.collection('users').doc(currentUser.uid).get().then(doc => {
-            const data = doc.data();
-            document.getElementById('editDisplayName').value = data.displayName || '';
-            document.getElementById('editBio').value = data.bio || '';
-            document.getElementById('editLink').value = data.link || '';
-            document.getElementById('editProfileModal').classList.remove('hidden');
-        });
-    };
-
-    window.closeEditProfile = function() {
-        document.getElementById('editProfileModal').classList.add('hidden');
-    };
-
-    window.saveProfile = function() {
-        const displayName = document.getElementById('editDisplayName').value;
-        const bio = document.getElementById('editBio').value;
-        const link = document.getElementById('editLink').value;
-        
-        if (bio.length > 250) {
-            showToast('Bio deve ter no máximo 250 caracteres');
-            return;
-        }
-        
-        db.collection('users').doc(currentUser.uid).update({
-            displayName: displayName,
-            bio: bio,
-            link: link
-        }).then(() => {
-            closeEditProfile();
-            loadProfile();
-            showToast('Perfil atualizado com sucesso!');
-        }).catch(error => {
-            showToast('Erro ao salvar: ' + error.message);
-        });
-    };
-
-    window.viewProfile = function(userId) {
-        if (userId === currentUser?.uid) {
-            showSection('perfil');
-        } else {
-            showToast('Visualizar perfil de outro usuário (em breve)');
-        }
-    };
-
-    // ========== SEGUIR USUÁRIOS ==========
-    async function checkFollowStatus(userId) {
-        if (!currentUser) return;
-        
-        const followRef = db.collection('followers').doc(userId).collection('userFollowers').doc(currentUser.uid);
-        const doc = await followRef.get();
-        
-        const followButton = document.getElementById(`community-follow-${userId}`);
-        if (followButton) {
-            const textSpan = followButton.querySelector('span');
-            if (textSpan) {
-                textSpan.innerHTML = doc.exists ? 'Seguindo' : 'Seguir';
-            }
-        }
-    }
-
-    window.followUser = async function(userId) {
-        if (userId === currentUser.uid) {
-            showToast('Você não pode seguir a si mesmo');
-            return;
-        }
-        
-        try {
-            const followRef = db.collection('followers').doc(userId).collection('userFollowers').doc(currentUser.uid);
-            const followingRef = db.collection('following').doc(currentUser.uid).collection('userFollowing').doc(userId);
-            
-            const followDoc = await followRef.get();
-            
-            if (followDoc.exists) {
-                await followRef.delete();
-                await followingRef.delete();
-                await db.collection('users').doc(userId).update({
-                    followers: firebase.firestore.FieldValue.increment(-1)
-                });
-                await db.collection('users').doc(currentUser.uid).update({
-                    following: firebase.firestore.FieldValue.increment(-1)
-                });
-                showToast('Você deixou de seguir');
-            } else {
-                await followRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                await followingRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                await db.collection('users').doc(userId).update({
-                    followers: firebase.firestore.FieldValue.increment(1)
-                });
-                await db.collection('users').doc(currentUser.uid).update({
-                    following: firebase.firestore.FieldValue.increment(1)
-                });
-                showToast('Você começou a seguir');
-            }
-            
-            checkFollowStatus(userId);
-            
-        } catch (error) {
-            console.error('Erro ao seguir:', error);
-            showToast('Erro ao seguir usuário');
-        }
-    };
-
-    // ========== CHAT ==========
-    function loadConversations() {
-        const listDiv = document.getElementById('conversationsList');
-        
-        if (!currentUser) return;
-        
-        db.collection('conversations')
-            .where('participants', 'array-contains', currentUser.uid)
-            .orderBy('updatedAt', 'desc')
-            .onSnapshot(snapshot => {
-                if (snapshot.empty) {
-                    listDiv.innerHTML = '<div class="card empty-state">Nenhuma conversa ainda. Clique em "Mensagem" em um post para começar!</div>';
-                    return;
-                }
-                
-                let html = '';
-                let loadedCount = 0;
-                const totalConversations = snapshot.size;
-                
-                snapshot.forEach(doc => {
-                    const conv = doc.data();
-                    const convId = doc.id;
-                    const otherUserId = conv.participants.find(id => id !== currentUser.uid);
-                    
-                    db.collection('users').doc(otherUserId).get().then(userDoc => {
-                        if (userDoc.exists) {
-                            const user = userDoc.data();
-                            html += `
-                                <div class="conversation-item" onclick="openChat('${convId}', '${otherUserId}')">
-                                    <img src="${user.photoURL || 'https://res.cloudinary.com/dgfm3rorv/image/upload/v1710101040/avatar.jpg'}">
-                                    <div class="conversation-info">
-                                        <div class="conversation-name">${user.displayName || user.username}</div>
-                                        <div class="conversation-last-message">${conv.lastMessage || 'Clique para iniciar conversa'}</div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                        
-                        loadedCount++;
-                        if (loadedCount === totalConversations) {
-                            listDiv.innerHTML = html;
-                        }
-                    });
-                });
-            });
-    }
-
-    window.startChat = async function(otherUserId) {
-        if (!currentUser) return;
-        
-        try {
-            const conversationId = [currentUser.uid, otherUserId].sort().join('_');
-            const convRef = db.collection('conversations').doc(conversationId);
-            const conv = await convRef.get();
-            
-            if (!conv.exists) {
-                await convRef.set({
-                    participants: [currentUser.uid, otherUserId],
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastMessage: ''
-                });
-            }
-            
-            openChat(conversationId, otherUserId);
-            showSection('chat');
-        } catch (error) {
-            showToast('Erro ao iniciar chat: ' + error.message);
-        }
-    };
-
-    window.openChat = function(conversationId, otherUserId) {
-        currentChatWith = otherUserId;
-        currentConversationId = conversationId;
-        
-        document.getElementById('conversationsView').classList.add('hidden');
-        document.getElementById('chatView').classList.remove('hidden');
-        
-        const messagesDiv = document.getElementById('chatMessages');
-        messagesDiv.innerHTML = '<div class="loading">Carregando mensagens...</div>';
-        
-        if (unsubscribeChat) {
-            unsubscribeChat();
-        }
-        
-        unsubscribeChat = db.collection('conversations').doc(conversationId)
-            .collection('messages')
-            .orderBy('createdAt')
-            .onSnapshot(snapshot => {
-                if (snapshot.empty) {
-                    messagesDiv.innerHTML = '<div class="empty-state">Nenhuma mensagem ainda. Envie a primeira!</div>';
-                    return;
-                }
-                
-                let html = '';
-                snapshot.forEach(doc => {
-                    const msg = doc.data();
-                    const isSent = msg.senderId === currentUser.uid;
-                    const time = msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString() : '';
-                    
-                    html += `
-                        <div class="message ${isSent ? 'sent' : 'received'}">
-                            <div class="message-text">
-                                ${msg.text}
-                                <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px;">${time}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                messagesDiv.innerHTML = html;
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            });
-    };
-
-    window.sendMessage = async function() {
-        const text = document.getElementById('messageInput').value;
-        if (!text.trim() || !currentChatWith || !currentConversationId) return;
-        
-        try {
-            await db.collection('conversations').doc(currentConversationId)
-                .collection('messages')
-                .add({
-                    text: text,
-                    senderId: currentUser.uid,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            
-            await db.collection('conversations').doc(currentConversationId).update({
-                lastMessage: text,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            document.getElementById('messageInput').value = '';
-            
-        } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
-            showToast('Erro ao enviar mensagem');
-        }
-    };
-
-    window.backToConversations = function() {
-        document.getElementById('conversationsView').classList.remove('hidden');
-        document.getElementById('chatView').classList.add('hidden');
-        
-        if (unsubscribeChat) {
-            unsubscribeChat();
-            unsubscribeChat = null;
-        }
-        
-        currentChatWith = null;
-        currentConversationId = null;
-        loadConversations();
-    };
-
-    // ========== WHATSAPP ==========
-    window.sendToWhatsApp = function() {
-        const weight = document.getElementById('weight').value;
-        const height = document.getElementById('height').value;
-        const goal = document.getElementById('goal').value;
-        const restrictions = document.getElementById('restrictions').value;
-        const routine = document.getElementById('routine').value;
-        
-        if (!weight || !height || !goal) {
-            showToast('Preencha pelo menos peso, altura e objetivo');
-            return;
-        }
-        
-        const message = `*Dados do Plano Nutricional*%0A%0A` +
-            `Peso: ${weight} kg%0A` +
-            `Altura: ${height} cm%0A` +
-            `Objetivo: ${goal}%0A` +
-            `Restrições: ${restrictions || 'Nenhuma'}%0A` +
-            `Rotina: ${routine || 'Não informada'}`;
-        
-        window.open(`https://wa.me/5511999999999?text=${message}`, '_blank');
-    };
-
-    // ========== CONFIGURAÇÕES E MODO ESCURO ==========
-    window.openSettings = function() {
-        document.getElementById('settingsModal').classList.remove('hidden');
-    };
-
-    window.closeSettings = function() {
-        document.getElementById('settingsModal').classList.add('hidden');
-    };
-
-    window.toggleDarkMode = function() {
-        document.body.classList.toggle('dark-mode');
-        const btn = document.getElementById('darkModeBtn');
-        btn.innerText = document.body.classList.contains('dark-mode') ? '☀️ Desativar' : '🌓 Ativar';
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    };
-
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('darkModeBtn').innerText = '☀️ Desativar';
-    }
-
-    window.logout = function() {
-        auth.signOut();
-        closeSettings();
-        showToast('Você saiu da conta');
-    };
-
-    console.log('🚀 BEAMOVE versão completa carregada com sucesso!');
+/* PERFIL */
+function loadProfile(){
+db.collection("users").doc(auth.currentUser.uid).get()
+.then(doc=>{
+profileInfo.innerText="Usuário: "+doc.data().username+"\nEmail: "+doc.data().email;
+});
+}
 </script>
 
 </body>
