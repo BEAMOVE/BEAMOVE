@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BEAMOVE • Sua Jornada Fitness</title>
 
 <!-- Firebase -->
@@ -38,10 +38,6 @@
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --hover-shadow: 0 20px 60px -10px rgba(139, 92, 246, 0.3);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --glass-bg: rgba(255, 255, 255, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    --bg-secondary-rgb: 255, 255, 255;
 }
 
 .dark {
@@ -51,9 +47,6 @@
     --text-secondary: #94a3b8;
     --border: #334155;
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-    --glass-bg: rgba(30, 41, 59, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --bg-secondary-rgb: 30, 41, 59;
 }
 
 body {
@@ -62,20 +55,9 @@ body {
     color: var(--text-primary);
     transition: var(--transition);
     line-height: 1.6;
-    min-height: 100vh;
-    position: relative;
 }
 
-/* Glassmorphism Effect */
-.glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-}
-
-/* Auth Styles */
+/* Login/Register Styles */
 .auth-container {
     min-height: 100vh;
     display: flex;
@@ -83,55 +65,99 @@ body {
     justify-content: center;
     background: var(--accent-gradient);
     padding: 20px;
-    position: relative;
-    overflow: hidden;
-}
-
-.auth-container::before {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(255,255,255,0.1) 0px,
-        rgba(255,255,255,0.1) 20px,
-        transparent 20px,
-        transparent 40px
-    );
-    animation: moveBackground 20s linear infinite;
-}
-
-@keyframes moveBackground {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .auth-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: var(--bg-secondary);
     padding: 40px;
     border-radius: 30px;
     width: 100%;
     max-width: 400px;
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--card-shadow);
     animation: slideUp 0.5s ease;
-    position: relative;
-    z-index: 1;
-    border: 1px solid var(--glass-border);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-card h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+    transition: var(--transition);
+}
+
+.auth-card input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin: 10px 0;
+}
+
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
+.btn-secondary {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 /* Header */
 header {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 15px 20px;
+    background: var(--bg-secondary);
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-secondary-rgb), 0.8);
 }
 
 .header-content {
@@ -143,7 +169,7 @@ header {
 }
 
 .logo {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 800;
     background: var(--accent-gradient);
     -webkit-background-clip: text;
@@ -153,176 +179,36 @@ header {
 
 .header-actions {
     display: flex;
-    gap: 10px;
+    gap: 15px;
 }
 
 .icon-btn {
-    background: var(--glass-bg);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--glass-border);
+    background: none;
+    border: none;
     color: var(--text-primary);
     cursor: pointer;
-    padding: 8px 15px;
-    border-radius: 50px;
+    padding: 8px;
+    border-radius: 12px;
     transition: var(--transition);
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
 }
 
 .icon-btn:hover {
-    background: var(--accent);
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Main Container */
-.main-container {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 20px;
-    padding-bottom: 80px;
-}
-
-/* Stories Grid */
-.stories-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.story-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: var(--transition);
-    animation: fadeIn 0.5s ease;
-}
-
-.story-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--hover-shadow);
-    background: var(--accent-gradient);
-    color: white;
-}
-
-.story-icon {
-    font-size: 32px;
-    margin-bottom: 10px;
-}
-
-.story-card h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.story-card p {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
-/* Category Pages */
-.category-page {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     background: var(--bg-primary);
-    z-index: 1000;
-    overflow-y: auto;
-    padding: 20px;
-    padding-top: 80px;
-    animation: slideIn 0.3s ease;
+    color: var(--accent);
 }
 
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
-
-.category-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.back-btn {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 50px;
-    padding: 10px 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-}
-
-.back-btn:hover {
-    background: var(--accent);
-    color: white;
-}
-
-.category-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.info-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 25px;
-    transition: var(--transition);
-}
-
-.info-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--hover-shadow);
-}
-
-.info-card h3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.info-list {
-    list-style: none;
-}
-
-.info-list li {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.info-list li:last-child {
-    border-bottom: none;
-}
-
-/* Products Section */
+/* Cards de Produtos */
 .products-section {
-    margin: 30px 0;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
 }
 
 .section-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     margin-bottom: 20px;
     display: flex;
@@ -332,10 +218,10 @@ header {
 
 .featured-card {
     background: var(--accent-gradient);
-    border-radius: 25px;
-    padding: 25px;
+    border-radius: 30px;
+    padding: 30px;
     color: white;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -344,22 +230,68 @@ header {
     animation: pulse 2s infinite;
 }
 
+@keyframes pulse {
+    0% { box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3); }
+    50% { box-shadow: 0 20px 60px -10px rgba(139, 92, 246, 0.6); }
+    100% { box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3); }
+}
+
+.featured-card h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.featured-card p {
+    opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+.featured-card .btn {
+    width: auto;
+    padding: 15px 40px;
+    background: white;
+    color: var(--accent);
+    margin: 0;
+}
+
+.featured-card .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
 }
 
 .product-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
     transition: var(--transition);
     cursor: pointer;
     position: relative;
+    overflow: hidden;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--accent-gradient);
+    transform: scaleX(0);
+    transition: var(--transition);
+}
+
+.product-card:hover::before {
+    transform: scaleX(1);
 }
 
 .product-card:hover {
@@ -367,21 +299,113 @@ header {
     box-shadow: var(--hover-shadow);
 }
 
-/* Evolution Section */
-.evolution-section {
-    margin: 30px 0;
+.product-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: white;
 }
 
-.create-evolution {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
+.product-card h4 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.product-card p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.product-price {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 15px;
+}
+
+.product-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Feed de Conteúdo */
+.feed-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.stories {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    scrollbar-width: none;
+}
+
+.stories::-webkit-scrollbar {
+    display: none;
+}
+
+.story-item {
+    min-width: 80px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.story-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    border: 3px solid var(--bg-secondary);
+    transition: var(--transition);
+}
+
+.story-item:hover .story-circle {
+    transform: scale(1.05);
+}
+
+.story-circle span {
+    color: white;
+    font-weight: 600;
+    font-size: 24px;
+}
+
+.story-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.create-post {
+    background: var(--bg-secondary);
     border-radius: 20px;
     padding: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
 }
 
-.create-evolution textarea {
+.create-post textarea {
     width: 100%;
     padding: 15px;
     border: 2px solid var(--border);
@@ -391,35 +415,27 @@ header {
     font-size: 16px;
     resize: none;
     margin-bottom: 15px;
-    font-family: 'Inter', sans-serif;
 }
 
-.evolution-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.evolution-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
+.post-card {
+    background: var(--bg-secondary);
     border-radius: 20px;
     padding: 20px;
-    transition: var(--transition);
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
     animation: fadeIn 0.5s ease;
 }
 
-.evolution-header {
+.post-header {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 15px;
 }
 
-.evolution-avatar {
-    width: 45px;
-    height: 45px;
+.post-avatar {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
@@ -427,59 +443,111 @@ header {
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
 }
 
-.evolution-info h4 {
+.post-info h4 {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 4px;
 }
 
-.evolution-date {
+.post-info span {
     font-size: 12px;
     color: var(--text-secondary);
 }
 
-.evolution-content {
+.post-content {
     margin-bottom: 15px;
     line-height: 1.6;
 }
 
-.evolution-stats {
+.post-actions {
     display: flex;
-    gap: 15px;
-    padding-top: 15px;
+    gap: 20px;
     border-top: 1px solid var(--border);
+    padding-top: 15px;
 }
 
-.stat-badge {
-    background: var(--bg-primary);
-    padding: 5px 12px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 600;
+.post-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.post-action:hover {
     color: var(--accent);
 }
 
-/* Chat Section */
-.chat-section {
-    margin: 20px 0;
-    height: calc(100vh - 200px);
-    min-height: 500px;
-    position: relative;
+/* Chat */
+.chat-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    height: calc(100vh - 140px);
 }
 
-.chat-container {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
+.chat-sidebar {
+    background: var(--bg-secondary);
     border-radius: 25px;
-    height: 100%;
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.chat-sidebar h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.chat-users {
+    list-style: none;
+}
+
+.chat-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 5px;
+}
+
+.chat-user:hover {
+    background: var(--bg-primary);
+}
+
+.chat-user.active {
+    background: var(--accent);
+    color: white;
+}
+
+.chat-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+.chat-main {
+    background: var(--bg-secondary);
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--card-shadow);
     overflow: hidden;
-    box-shadow: var(--glass-shadow);
 }
 
 .chat-messages {
@@ -496,18 +564,6 @@ header {
     align-items: flex-start;
     gap: 10px;
     max-width: 80%;
-    animation: messagePop 0.3s ease;
-}
-
-@keyframes messagePop {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .message.sent {
@@ -530,30 +586,19 @@ header {
 }
 
 .message-content {
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
     padding: 12px 15px;
     border-radius: 20px;
-    border: 1px solid var(--border);
     position: relative;
-    word-break: break-word;
 }
 
 .message.sent .message-content {
-    background: var(--accent-gradient);
+    background: var(--accent);
     color: white;
 }
 
-.message-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
+.message-content p {
     margin-bottom: 5px;
-    font-size: 12px;
-}
-
-.message-author {
-    font-weight: 600;
 }
 
 .message-time {
@@ -561,15 +606,14 @@ header {
     opacity: 0.7;
 }
 
-.chat-input-area {
+.chat-input {
     padding: 20px;
     border-top: 1px solid var(--border);
     display: flex;
     gap: 10px;
-    background: var(--glass-bg);
 }
 
-.chat-input-area input {
+.chat-input input {
     flex: 1;
     padding: 15px;
     border: 2px solid var(--border);
@@ -577,16 +621,9 @@ header {
     background: var(--bg-primary);
     color: var(--text-primary);
     font-size: 16px;
-    transition: var(--transition);
 }
 
-.chat-input-area input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-}
-
-.chat-input-area button {
+.chat-input button {
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -600,74 +637,84 @@ header {
     transition: var(--transition);
 }
 
-.chat-input-area button:hover {
+.chat-input button:hover {
     transform: scale(1.1);
 }
 
-/* Profile Section */
-.profile-section {
-    margin: 20px 0;
+/* Perfil */
+.profile-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
 }
 
-.profile-glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
+.profile-header {
+    background: var(--bg-secondary);
     border-radius: 30px;
+    padding: 40px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 30px;
+    position: relative;
     overflow: hidden;
-    box-shadow: var(--glass-shadow);
+}
+
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: var(--accent-gradient);
+    opacity: 0.1;
 }
 
 .profile-cover {
-    height: 150px;
-    background: var(--accent-gradient);
     position: relative;
+    height: 200px;
+    background: var(--accent-gradient);
+    border-radius: 20px;
+    margin-bottom: 70px;
 }
 
 .profile-avatar-large {
-    width: 100px;
-    height: 100px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
     background: var(--accent-gradient);
-    border: 4px solid var(--bg-secondary);
+    border: 5px solid var(--bg-secondary);
     position: absolute;
-    bottom: -50px;
-    left: 30px;
+    bottom: -65px;
+    left: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 40px;
+    font-size: 50px;
     font-weight: 700;
     box-shadow: var(--card-shadow);
 }
 
 .profile-info {
-    padding: 60px 30px 30px 30px;
-}
-
-.profile-name-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
+    margin-top: 30px;
 }
 
 .profile-name {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     margin-bottom: 5px;
 }
 
-.profile-username {
+.profile-bio {
     color: var(--text-secondary);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    max-width: 500px;
 }
 
 .profile-stats {
     display: flex;
     gap: 30px;
-    margin: 20px 0;
+    margin-bottom: 20px;
 }
 
 .stat-item {
@@ -681,283 +728,163 @@ header {
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-secondary);
-}
-
-.profile-bio {
-    margin: 20px 0;
-    line-height: 1.6;
-}
-
-.profile-link {
-    color: var(--accent);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.profile-link:hover {
-    text-decoration: underline;
 }
 
 .profile-edit-btn {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 50px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
     padding: 12px 24px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
     cursor: pointer;
+    transition: var(--transition);
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: var(--transition);
-    font-weight: 600;
 }
 
 .profile-edit-btn:hover {
-    background: var(--accent);
-    color: white;
-}
-
-/* Registration Form */
-.registration-form {
-    padding: 30px;
-    border-top: 1px solid var(--border);
-    animation: slideDown 0.3s ease;
-}
-
-.registration-form h3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 14px;
-    transition: var(--transition);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-}
-
-/* Progress Cards */
-.progress-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.progress-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 20px;
-    transition: var(--transition);
-}
-
-.progress-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: var(--hover-shadow);
 }
 
-.progress-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
+.edit-profile-form {
+    background: var(--bg-secondary);
+    border-radius: 30px;
+    padding: 30px;
+    margin-top: 20px;
+    animation: slideDown 0.3s ease;
 }
 
-.progress-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: var(--accent-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.progress-title {
-    font-weight: 600;
+.edit-profile-form input,
+.edit-profile-form textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     font-size: 16px;
 }
 
-.progress-date {
-    font-size: 12px;
-    color: var(--text-secondary);
+.edit-profile-form textarea {
+    min-height: 100px;
+    resize: vertical;
 }
 
-.progress-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.progress-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-}
-
-.progress-label {
-    color: var(--text-secondary);
-}
-
-.progress-value {
-    font-weight: 600;
-    color: var(--accent);
-}
-
-/* Bottom Navigation */
+/* Navigation */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    padding: 12px 20px;
+    background: var(--bg-secondary);
+    padding: 15px 30px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    border-top: 1px solid var(--glass-border);
-    z-index: 99;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-secondary-rgb), 0.9);
+    z-index: 100;
 }
 
 .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
+    position: relative;
     padding: 8px 16px;
     border-radius: 50px;
-    background: transparent;
 }
 
 .nav-item.active {
     color: var(--accent);
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-primary);
 }
 
 .nav-item i {
-    font-size: 20px;
+    font-size: 24px;
 }
 
 .nav-item span {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
 }
 
-/* Utils */
+.nav-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 50px;
+}
+
+/* Utilitários */
 .hidden {
     display: none !important;
 }
 
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 50px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    font-size: 14px;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-bottom: 100px;
 }
 
-.btn-primary {
-    background: var(--accent-gradient);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--hover-shadow);
-}
-
-.btn-secondary {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-    background: var(--accent);
-    color: white;
-}
-
-/* Responsive */
+/* Responsividade */
 @media (max-width: 768px) {
-    .stories-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .chat-container {
+        grid-template-columns: 1fr;
     }
     
-    .profile-name-section {
+    .chat-sidebar {
+        display: none;
+    }
+    
+    .featured-card {
         flex-direction: column;
-        gap: 15px;
+        text-align: center;
+    }
+    
+    .featured-card .btn {
+        width: 100%;
+    }
+    
+    .profile-header {
+        padding: 20px;
     }
     
     .profile-avatar-large {
         left: 20px;
-        width: 80px;
-        height: 80px;
-        font-size: 32px;
-    }
-    
-    .profile-info {
-        padding: 50px 20px 20px;
-    }
-    
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .message {
-        max-width: 90%;
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
     }
 }
 </style>
@@ -967,26 +894,26 @@ header {
 
 <!-- Login Screen -->
 <div id="loginScreen" class="auth-container">
-    <div class="auth-card glass">
-        <h2 style="font-size: 36px; margin-bottom: 10px;">BEAMOVE</h2>
-        <p style="margin-bottom: 30px; opacity: 0.9;">Sua jornada fitness começa aqui</p>
-        <input type="email" id="loginEmail" placeholder="Seu email" style="width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px);">
-        <input type="password" id="loginPassword" placeholder="Sua senha" style="width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px);">
-        <button class="btn btn-primary" onclick="login()" style="width: 100%; margin: 10px 0;">Entrar</button>
-        <button class="btn btn-secondary" onclick="showRegister()" style="width: 100%;">Criar nova conta</button>
+    <div class="auth-card">
+        <h2>BEAMOVE</h2>
+        <p style="margin-bottom: 30px; color: var(--text-secondary);">Faça login para continuar</p>
+        <input type="email" id="loginEmail" placeholder="Seu email">
+        <input type="password" id="loginPassword" placeholder="Sua senha">
+        <button class="btn btn-primary" onclick="login()">Entrar</button>
+        <button class="btn btn-secondary" onclick="showRegister()">Criar nova conta</button>
     </div>
 </div>
 
 <!-- Register Screen -->
 <div id="registerScreen" class="auth-container hidden">
-    <div class="auth-card glass">
-        <h2 style="font-size: 36px; margin-bottom: 10px;">Criar Conta</h2>
-        <p style="margin-bottom: 30px; opacity: 0.9;">Comece sua jornada fitness</p>
-        <input type="text" id="username" placeholder="@usuario" style="width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px);">
-        <input type="email" id="registerEmail" placeholder="Email" style="width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px);">
-        <input type="password" id="registerPassword" placeholder="Senha" style="width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px);">
-        <button class="btn btn-primary" onclick="register()" style="width: 100%; margin: 10px 0;">Cadastrar</button>
-        <button class="btn btn-secondary" onclick="showLogin()" style="width: 100%;">Voltar ao login</button>
+    <div class="auth-card">
+        <h2>Criar Conta</h2>
+        <p style="margin-bottom: 30px; color: var(--text-secondary);">Comece sua jornada fitness</p>
+        <input type="text" id="username" placeholder="@usuario">
+        <input type="email" id="registerEmail" placeholder="Email">
+        <input type="password" id="registerPassword" placeholder="Senha">
+        <button class="btn btn-primary" onclick="register()">Cadastrar</button>
+        <button class="btn btn-secondary" onclick="showLogin()">Voltar ao login</button>
     </div>
 </div>
 
@@ -1007,218 +934,166 @@ header {
         </div>
     </header>
 
-    <div class="main-container">
-        <!-- Home Section -->
-        <div id="home">
-            <!-- Stories -->
-            <div class="stories-grid">
-                <div class="story-card" onclick="openCategory('treino')">
-                    <div class="story-icon">💪</div>
-                    <h3>Treinos</h3>
-                    <p>Exercícios e rotinas</p>
-                </div>
-                <div class="story-card" onclick="openCategory('receitas')">
-                    <div class="story-icon">🥗</div>
-                    <h3>Receitas</h3>
-                    <p>Comidas saudáveis</p>
-                </div>
-                <div class="story-card" onclick="openCategory('yoga')">
-                    <div class="story-icon">🧘</div>
-                    <h3>Yoga</h3>
-                    <p>Equilíbrio e flexibilidade</p>
-                </div>
-                <div class="story-card" onclick="openCategory('dicas')">
-                    <div class="story-icon">📚</div>
-                    <h3>Dicas</h3>
-                    <p>Saúde e bem-estar</p>
+    <!-- Home Section -->
+    <div id="home" class="container">
+        <!-- Featured Product Card -->
+        <div class="featured-card">
+            <div>
+                <h3>🥗 Acompanhamento Nutricional</h3>
+                <p>Planos personalizados com nutricionistas especializados</p>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn" onclick="window.open('https://hotmart.com', '_blank')">Comprar via Hotmart</button>
+                    <button class="btn" onclick="window.open('https://kiwify.com', '_blank')">Comprar via Kiwify</button>
                 </div>
             </div>
+            <i data-lucide="apple" style="width: 80px; height: 80px; opacity: 0.5;"></i>
+        </div>
 
-            <!-- Featured Product Card -->
-            <div class="featured-card">
-                <div>
-                    <h3 style="font-size: 24px;">🥗 Acompanhamento Nutricional</h3>
-                    <p style="margin-bottom: 20px;">Planos personalizados com nutricionistas especializados</p>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <button class="btn" onclick="window.open('https://hotmart.com', '_blank')" style="background: white; color: var(--accent);">Comprar via Hotmart</button>
-                        <button class="btn" onclick="window.open('https://kiwify.com', '_blank')" style="background: white; color: var(--accent);">Comprar via Kiwify</button>
-                    </div>
+        <!-- Products Grid -->
+        <h2 class="section-title">
+            <i data-lucide="package"></i>
+            Nossos Produtos
+        </h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-badge">Novo</div>
+                <div class="product-icon">
+                    <i data-lucide="activity"></i>
                 </div>
-                <i data-lucide="apple" style="width: 60px; height: 60px; opacity: 0.5;"></i>
+                <h4>Yoga para Iniciantes</h4>
+                <p>Curso completo de yoga para todos os níveis</p>
+                <div class="product-price">R$ 97,00</div>
+                <button class="btn btn-primary" onclick="window.open('https://hotmart.com', '_blank')">Comprar</button>
             </div>
 
-            <!-- Products Grid -->
-            <div class="products-section">
-                <h2 class="section-title">
-                    <i data-lucide="package"></i>
-                    Nossos Produtos
-                </h2>
-                <div class="products-grid">
-                    <div class="product-card">
-                        <div style="position: absolute; top: 15px; right: 15px; background: var(--success); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px;">Novo</div>
-                        <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: white;">
-                            <i data-lucide="activity"></i>
-                        </div>
-                        <h4 style="margin-bottom: 10px;">Yoga para Iniciantes</h4>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 14px;">Curso completo de yoga para todos os níveis</p>
-                        <div style="font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 15px;">R$ 97,00</div>
-                        <button class="btn btn-primary" onclick="window.open('https://hotmart.com', '_blank')" style="width: 100%;">Comprar</button>
-                    </div>
-
-                    <div class="product-card">
-                        <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: white;">
-                            <i data-lucide="flame"></i>
-                        </div>
-                        <h4 style="margin-bottom: 10px;">Emagrecimento Total</h4>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 14px;">Programa completo para queima de gordura</p>
-                        <div style="font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 15px;">R$ 147,00</div>
-                        <button class="btn btn-primary" onclick="window.open('https://hotmart.com', '_blank')" style="width: 100%;">Comprar</button>
-                    </div>
-
-                    <div class="product-card">
-                        <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: white;">
-                            <i data-lucide="book-open"></i>
-                        </div>
-                        <h4 style="margin-bottom: 10px;">E-books Fitness</h4>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 14px;">Guias práticos para sua transformação</p>
-                        <div style="font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 15px;">R$ 37,00</div>
-                        <button class="btn btn-primary" onclick="window.open('https://kiwify.com', '_blank')" style="width: 100%;">Comprar</button>
-                    </div>
+            <div class="product-card">
+                <div class="product-icon">
+                    <i data-lucide="flame"></i>
                 </div>
+                <h4>Emagrecimento Total</h4>
+                <p>Programa completo para queima de gordura</p>
+                <div class="product-price">R$ 147,00</div>
+                <button class="btn btn-primary" onclick="window.open('https://hotmart.com', '_blank')">Comprar</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">
+                    <i data-lucide="book-open"></i>
+                </div>
+                <h4>E-books Fitness</h4>
+                <p>Guias práticos para sua transformação</p>
+                <div class="product-price">R$ 37,00</div>
+                <button class="btn btn-primary" onclick="window.open('https://kiwify.com', '_blank')">Comprar</button>
             </div>
         </div>
 
-        <!-- Evolution Section -->
-        <div id="evolution" class="hidden">
-            <div class="evolution-section">
-                <div class="create-evolution">
-                    <h3 style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i data-lucide="trending-up"></i>
-                        Compartilhe sua Evolução
-                    </h3>
-                    <textarea id="evolutionInput" placeholder="Compartilhe seu progresso, conquistas ou desafios... (ex: hoje consegui fazer 10 flexões!)" rows="3"></textarea>
-                    <button class="btn btn-primary" onclick="addEvolution()" style="width: 100%;">Publicar Evolução</button>
+        <!-- Stories -->
+        <div class="stories">
+            <div class="story-item">
+                <div class="story-circle">
+                    <span>💪</span>
                 </div>
-                <div id="evolutionFeed" class="evolution-grid"></div>
+                <span class="story-label">Treino</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <span>🥗</span>
+                </div>
+                <span class="story-label">Receitas</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <span>🧘</span>
+                </div>
+                <span class="story-label">Yoga</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <span>📚</span>
+                </div>
+                <span class="story-label">Dicas</span>
             </div>
         </div>
 
-        <!-- Chat Section -->
-        <div id="chat" class="hidden">
-            <div class="chat-section">
-                <div class="chat-container">
-                    <div class="chat-messages" id="chatBox"></div>
-                    <div class="chat-input-area">
-                        <input type="text" id="chatInput" placeholder="Digite sua mensagem..." autocomplete="off">
-                        <button onclick="sendMessage()">
-                            <i data-lucide="send"></i>
-                        </button>
-                    </div>
+        <!-- Feed -->
+        <div class="create-post">
+            <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
+            <button class="btn btn-primary" onclick="addPost()">Publicar</button>
+        </div>
+        <div id="feed"></div>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat" class="hidden">
+        <div class="chat-container">
+            <div class="chat-sidebar">
+                <h3>Conversas</h3>
+                <ul class="chat-users" id="chatUsersList">
+                    <li class="chat-user active">
+                        <div class="chat-user-avatar">G</div>
+                        <div>
+                            <strong>Geral</strong>
+                            <span style="font-size: 12px; display: block;">Todos os membros</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="chat-main">
+                <div class="chat-messages" id="chatBox"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+                    <button onclick="sendMessage()">
+                        <i data-lucide="send"></i>
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Profile Section -->
-        <div id="profile" class="hidden">
-            <div class="profile-section">
-                <div class="profile-glass">
-                    <div class="profile-cover"></div>
-                    <div class="profile-avatar-large" id="profileAvatar"></div>
+    <!-- Profile Section -->
+    <div id="profile" class="hidden">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-cover"></div>
+                <div class="profile-avatar-large" id="profileAvatar"></div>
+                
+                <button class="profile-edit-btn" onclick="toggleEditProfile()">
+                    <i data-lucide="edit-2"></i>
+                    Editar Perfil
+                </button>
+                
+                <div class="profile-info">
+                    <h1 class="profile-name" id="profileUsername"></h1>
+                    <p class="profile-bio" id="profileBio"></p>
                     
-                    <div class="profile-info">
-                        <div class="profile-name-section">
-                            <div>
-                                <h1 class="profile-name" id="profileUsername"></h1>
-                                <div class="profile-username" id="profileUserHandle"></div>
-                            </div>
-                            <button class="profile-edit-btn" onclick="toggleEditProfile()">
-                                <i data-lucide="edit-2"></i>
-                                Editar Perfil
-                            </button>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="profilePosts">0</div>
+                            <div class="stat-label">Posts</div>
                         </div>
-                        
-                        <div class="profile-stats">
-                            <div class="stat-item">
-                                <div class="stat-value" id="profilePosts">0</div>
-                                <div class="stat-label">Posts</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="profileFollowers">128</div>
-                                <div class="stat-label">Seguidores</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="profileFollowing">56</div>
-                                <div class="stat-label">Seguindo</div>
-                            </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="profileFollowers">0</div>
+                            <div class="stat-label">Seguidores</div>
                         </div>
-                        
-                        <div class="profile-bio" id="profileBio">
-                            Olá, estou usando BEAMOVE! 💪
+                        <div class="stat-item">
+                            <div class="stat-value" id="profileFollowing">0</div>
+                            <div class="stat-label">Seguindo</div>
                         </div>
-                        
-                        <a class="profile-link" id="profileLink" target="_blank">
-                            <i data-lucide="globe"></i>
-                            <span>Adicione seu link</span>
-                        </a>
                     </div>
-
-                    <!-- Registration Form -->
-                    <div id="registrationForm" class="registration-form hidden">
-                        <h3>
-                            <i data-lucide="clipboard-list"></i>
-                            Ficha de Cadastro
-                        </h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Data de Nascimento</label>
-                                <input type="date" id="userBirthDate">
-                            </div>
-                            <div class="form-group">
-                                <label>Altura (cm)</label>
-                                <input type="number" id="userHeight" placeholder="Ex: 170">
-                            </div>
-                            <div class="form-group">
-                                <label>Peso (kg)</label>
-                                <input type="number" id="userWeight" placeholder="Ex: 70" step="0.1">
-                            </div>
-                            <div class="form-group">
-                                <label>Objetivo Principal</label>
-                                <select id="userGoal">
-                                    <option value="emagrecer">Emagrecer</option>
-                                    <option value="ganharMassa">Ganhar Massa</option>
-                                    <option value="definir">Definir</option>
-                                    <option value="saude">Saúde</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Nível de Atividade</label>
-                                <select id="userActivity">
-                                    <option value="sedentario">Sedentário</option>
-                                    <option value="leve">Levemente Ativo</option>
-                                    <option value="moderado">Moderadamente Ativo</option>
-                                    <option value="intenso">Intensamente Ativo</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="saveUserMetrics()">Salvar Ficha</button>
-                    </div>
-
-                    <!-- Progress Cards -->
-                    <div id="progressCards" class="progress-grid" style="padding: 30px;"></div>
+                    
+                    <a id="profileLink" target="_blank" style="color: var(--accent); text-decoration: none;">🌐 website</a>
                 </div>
+            </div>
 
-                <!-- Edit Profile Form -->
-                <div id="editProfileForm" class="profile-glass hidden" style="margin-top: 20px; padding: 30px;">
-                    <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                        <i data-lucide="settings"></i>
-                        Editar Perfil
-                    </h3>
-                    <input type="text" id="editName" placeholder="Seu nome" style="width: 100%; padding: 15px; margin: 10px 0; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-primary); color: var(--text-primary);">
-                    <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)" style="width: 100%; padding: 15px; margin: 10px 0; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-primary); color: var(--text-primary); min-height: 100px;"></textarea>
-                    <input type="text" id="editLink" placeholder="Link do seu site" style="width: 100%; padding: 15px; margin: 10px 0; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-primary); color: var(--text-primary);">
-                    <button class="btn btn-primary" onclick="saveProfile()" style="margin-right: 10px;">Salvar Alterações</button>
-                    <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
-                </div>
+            <!-- Edit Profile Form -->
+            <div id="editProfileForm" class="edit-profile-form hidden">
+                <h3 style="margin-bottom: 20px;">Editar Perfil</h3>
+                <input type="text" id="editName" placeholder="Seu nome">
+                <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
+                <input type="text" id="editLink" placeholder="Link do seu site">
+                <button class="btn btn-primary" onclick="saveProfile()">Salvar Alterações</button>
+                <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1229,10 +1104,6 @@ header {
             <i data-lucide="home"></i>
             <span>Início</span>
         </div>
-        <div class="nav-item" onclick="showTab('evolution')">
-            <i data-lucide="trending-up"></i>
-            <span>Evolução</span>
-        </div>
         <div class="nav-item" onclick="showTab('chat')">
             <i data-lucide="message-circle"></i>
             <span>Chat</span>
@@ -1242,170 +1113,6 @@ header {
             <span>Perfil</span>
         </div>
     </nav>
-</div>
-
-<!-- Category Pages -->
-<div id="treinoPage" class="category-page hidden">
-    <div class="category-header">
-        <button class="back-btn" onclick="closeCategory()">
-            <i data-lucide="arrow-left"></i>
-            Voltar
-        </button>
-        <h2>💪 Treinos</h2>
-    </div>
-    <div class="category-content">
-        <div class="info-card">
-            <h3><i data-lucide="calendar"></i> Rotina Semanal</h3>
-            <ul class="info-list">
-                <li>Segunda: Peito e Tríceps</li>
-                <li>Terça: Costas e Bíceps</li>
-                <li>Quarta: Pernas e Glúteos</li>
-                <li>Quinta: Ombro e Trapézio</li>
-                <li>Sexta: Cardio e Abdômen</li>
-                <li>Sábado: Treino Funcional</li>
-                <li>Domingo: Descanso</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="dumbbell"></i> Exercícios Básicos</h3>
-            <ul class="info-list">
-                <li>Supino reto - 4x12</li>
-                <li>Puxada frontal - 4x12</li>
-                <li>Agachamento - 4x15</li>
-                <li>Desenvolvimento - 4x12</li>
-                <li>Rosca direta - 3x15</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="clock"></i> Dicas de Treino</h3>
-            <ul class="info-list">
-                <li>Sempre faça aquecimento</li>
-                <li>Mantenha a postura correta</li>
-                <li>Respeite seus limites</li>
-                <li>Hidrate-se durante o treino</li>
-                <li>Descanse entre as séries</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div id="receitasPage" class="category-page hidden">
-    <div class="category-header">
-        <button class="back-btn" onclick="closeCategory()">
-            <i data-lucide="arrow-left"></i>
-            Voltar
-        </button>
-        <h2>🥗 Receitas</h2>
-    </div>
-    <div class="category-content">
-        <div class="info-card">
-            <h3><i data-lucide="coffee"></i> Café da Manhã</h3>
-            <ul class="info-list">
-                <li>Overnight oats com frutas</li>
-                <li>Panqueca de banana e aveia</li>
-                <li>Smoothie bowl proteico</li>
-                <li>Ovos mexidos com abacate</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="utensils"></i> Almoço</h3>
-            <ul class="info-list">
-                <li>Frango grelhado com quinoa</li>
-                <li>Salmão com batata doce</li>
-                <li>Stir fry de legumes com tofu</li>
-                <li>Salada completa com proteína</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="moon"></i> Jantar</h3>
-            <ul class="info-list">
-                <li>Sopa de legumes com frango</li>
-                <li>Omelete de claras com espinafre</li>
-                <li>Wrap integral de atum</li>
-                <li>Crepioca com queijo cottage</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div id="yogaPage" class="category-page hidden">
-    <div class="category-header">
-        <button class="back-btn" onclick="closeCategory()">
-            <i data-lucide="arrow-left"></i>
-            Voltar
-        </button>
-        <h2>🧘 Yoga</h2>
-    </div>
-    <div class="category-content">
-        <div class="info-card">
-            <h3><i data-lucide="sun"></i> Posturas Básicas</h3>
-            <ul class="info-list">
-                <li>Adho Mukha Svanasana (Cachorro)</li>
-                <li>Tadasana (Montanha)</li>
-                <li>Vrikshasana (Árvore)</li>
-                <li>Balasana (Criança)</li>
-                <li>Trikonasana (Triângulo)</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="wind"></i> Benefícios</h3>
-            <ul class="info-list">
-                <li>Redução do estresse</li>
-                <li>Aumento da flexibilidade</li>
-                <li>Melhora da postura</li>
-                <li>Fortalecimento muscular</li>
-                <li>Equilíbrio emocional</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="heart"></i> Meditação</h3>
-            <ul class="info-list">
-                <li>Meditação guiada 5min</li>
-                <li>Respiração consciente</li>
-                <li>Mindfulness no dia a dia</li>
-                <li>Yoga Nidra para relaxar</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div id="dicasPage" class="category-page hidden">
-    <div class="category-header">
-        <button class="back-btn" onclick="closeCategory()">
-            <i data-lucide="arrow-left"></i>
-            Voltar
-        </button>
-        <h2>📚 Dicas</h2>
-    </div>
-    <div class="category-content">
-        <div class="info-card">
-            <h3><i data-lucide="droplet"></i> Hidratação</h3>
-            <ul class="info-list">
-                <li>Beba 2 litros de água por dia</li>
-                <li>Água com limão em jejum</li>
-                <li>Evite refrigerantes</li>
-                <li>Chás naturais sem açúcar</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="moon"></i> Sono</h3>
-            <ul class="info-list">
-                <li>Durma 7-8 horas por noite</li>
-                <li>Evite telas antes de dormir</li>
-                <li>Crie uma rotina noturna</li>
-                <li>Quarto escuro e silencioso</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i data-lucide="smile"></i> Bem-estar</h3>
-            <ul class="info-list">
-                <li>Pratique gratidão diária</li>
-                <li>Faça pausas durante o dia</li>
-                <li>Mantenha contato com amigos</li>
-                <li>Tenha um hobby relaxante</li>
-            </ul>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -1435,10 +1142,9 @@ auth.onAuthStateChanged(user => {
         document.getElementById('appScreen').classList.remove('hidden');
         
         loadFeed();
-        loadEvolution();
         loadChat();
         loadProfile();
-        loadUserMetrics();
+        loadUsersList();
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
@@ -1518,123 +1224,85 @@ function toggleDark() {
 
 // Show Tab
 function showTab(tabName) {
+    // Hide all sections
     document.getElementById('home').classList.add('hidden');
-    document.getElementById('evolution').classList.add('hidden');
     document.getElementById('chat').classList.add('hidden');
     document.getElementById('profile').classList.add('hidden');
     
+    // Show selected section
     document.getElementById(tabName).classList.remove('hidden');
     
+    // Update nav active state
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
     event.currentTarget.classList.add('active');
     
-    lucide.createIcons();
-    
-    if (tabName === 'chat') {
-        scrollChatToBottom();
-    }
-}
-
-// Category Functions
-function openCategory(category) {
-    document.getElementById(category + 'Page').classList.remove('hidden');
+    // Refresh icons
     lucide.createIcons();
 }
 
-function closeCategory() {
-    document.querySelectorAll('.category-page').forEach(page => {
-        page.classList.add('hidden');
-    });
-    lucide.createIcons();
-}
-
-// Evolution Functions
-function addEvolution() {
-    const input = document.getElementById('evolutionInput');
-    if (!input.value.trim()) {
-        alert('Digite algo para compartilhar!');
-        return;
-    }
-    
-    db.collection('evolutions').add({
-        text: input.value,
-        user: auth.currentUser.uid,
-        created: new Date(),
-        likes: 0,
-        comments: 0
-    })
-    .then(() => {
-        input.value = '';
-    })
-    .catch(error => {
-        alert('Erro ao publicar: ' + error.message);
-    });
-}
-
-function loadEvolution() {
-    db.collection('evolutions').orderBy('created', 'desc')
-        .onSnapshot(async snapshot => {
-            const feed = document.getElementById('evolutionFeed');
+// Load Feed
+function loadFeed() {
+    db.collection('posts').orderBy('created', 'desc')
+        .onSnapshot(snapshot => {
+            const feed = document.getElementById('feed');
             feed.innerHTML = '';
             
-            for (const doc of snapshot.docs) {
-                const evolution = doc.data();
-                const userDoc = await db.collection('users').doc(evolution.user).get();
+            snapshot.forEach(async doc => {
+                const post = doc.data();
+                const userDoc = await db.collection('users').doc(post.user).get();
                 const userData = userDoc.data();
                 
-                const card = document.createElement('div');
-                card.className = 'evolution-card';
-                card.innerHTML = `
-                    <div class="evolution-header">
-                        <div class="evolution-avatar">${userData.username.charAt(1).toUpperCase()}</div>
-                        <div class="evolution-info">
+                const postElement = document.createElement('div');
+                postElement.className = 'post-card';
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-avatar">${userData.username.charAt(1).toUpperCase()}</div>
+                        <div class="post-info">
                             <h4>${userData.username}</h4>
-                            <div class="evolution-date">${formatDate(evolution.created)}</div>
+                            <span>${formatDate(post.created)}</span>
                         </div>
                     </div>
-                    <div class="evolution-content">${evolution.text}</div>
-                    <div class="evolution-stats">
-                        <div class="stat-badge">
-                            <i data-lucide="heart" style="width: 14px; height: 14px;"></i>
-                            ${evolution.likes || 0}
+                    <div class="post-content">${post.text}</div>
+                    <div class="post-actions">
+                        <div class="post-action" onclick="likePost('${doc.id}')">
+                            <i data-lucide="heart"></i>
+                            <span>${post.likes || 0}</span>
                         </div>
-                        <div class="stat-badge">
-                            <i data-lucide="message-circle" style="width: 14px; height: 14px;"></i>
-                            ${evolution.comments || 0}
+                        <div class="post-action" onclick="commentPost('${doc.id}')">
+                            <i data-lucide="message-circle"></i>
+                            <span>${post.comments || 0}</span>
+                        </div>
+                        <div class="post-action" onclick="sharePost('${doc.id}')">
+                            <i data-lucide="share-2"></i>
                         </div>
                     </div>
                 `;
-                feed.appendChild(card);
-            }
+                feed.appendChild(postElement);
+            });
             
             lucide.createIcons();
         });
 }
 
-// Chat Functions
-function sendMessage() {
-    const chatInput = document.getElementById('chatInput');
-    if (!chatInput.value.trim()) {
-        alert('Digite uma mensagem!');
-        return;
-    }
+// Add Post
+function addPost() {
+    const postInput = document.getElementById('postInput');
+    if (!postInput.value.trim()) return;
     
-    db.collection('chat').add({
-        text: chatInput.value,
+    db.collection('posts').add({
+        text: postInput.value,
         user: auth.currentUser.uid,
-        created: new Date()
-    })
-    .then(() => {
-        chatInput.value = '';
-        scrollChatToBottom();
-    })
-    .catch(error => {
-        alert('Erro ao enviar mensagem: ' + error.message);
+        created: new Date(),
+        likes: 0,
+        comments: 0
     });
+    
+    postInput.value = '';
 }
 
+// Load Chat
 function loadChat() {
     db.collection('chat').orderBy('created')
         .onSnapshot(async snapshot => {
@@ -1651,58 +1319,98 @@ function loadChat() {
                 messageElement.innerHTML = `
                     <div class="message-avatar">${userData.username.charAt(1).toUpperCase()}</div>
                     <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-author">${userData.username}</span>
-                            <span class="message-time">${formatDate(message.created)}</span>
-                        </div>
                         <p>${message.text}</p>
+                        <span class="message-time">${formatDate(message.created)}</span>
                     </div>
                 `;
                 chatBox.appendChild(messageElement);
             }
             
-            scrollChatToBottom();
+            // Scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
 }
 
-function scrollChatToBottom() {
-    const chatBox = document.getElementById('chatBox');
-    setTimeout(() => {
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }, 100);
+// Send Message
+function sendMessage() {
+    const chatInput = document.getElementById('chatInput');
+    if (!chatInput.value.trim()) return;
+    
+    db.collection('chat').add({
+        text: chatInput.value,
+        user: auth.currentUser.uid,
+        created: new Date()
+    });
+    
+    chatInput.value = '';
 }
 
-// Profile Functions
+// Load Users List
+function loadUsersList() {
+    db.collection('users').onSnapshot(snapshot => {
+        const usersList = document.getElementById('chatUsersList');
+        usersList.innerHTML = '<li class="chat-user active"><div class="chat-user-avatar">G</div><div><strong>Geral</strong><span style="font-size: 12px; display: block;">Todos os membros</span></div></li>';
+        
+        snapshot.forEach(doc => {
+            if (doc.id !== auth.currentUser.uid) {
+                const user = doc.data();
+                const userElement = document.createElement('li');
+                userElement.className = 'chat-user';
+                userElement.onclick = () => startPrivateChat(doc.id, user.username);
+                userElement.innerHTML = `
+                    <div class="chat-user-avatar">${user.username.charAt(1).toUpperCase()}</div>
+                    <div>
+                        <strong>${user.username}</strong>
+                        <span style="font-size: 12px; display: block;">Membro</span>
+                    </div>
+                `;
+                usersList.appendChild(userElement);
+            }
+        });
+    });
+}
+
+// Start Private Chat
+function startPrivateChat(userId, username) {
+    alert(`Iniciando chat privado com ${username} (Em breve disponível!)`);
+}
+
+// Load Profile
 function loadProfile() {
     const user = auth.currentUser;
     
     db.collection('users').doc(user.uid).get()
         .then(doc => {
             const data = doc.data();
-            document.getElementById('profileUsername').innerText = data.name || data.username;
-            document.getElementById('profileUserHandle').innerText = data.username;
+            document.getElementById('profileUsername').innerText = data.username;
             document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
-            document.getElementById('profileAvatar').innerText = (data.name || data.username).charAt(1).toUpperCase();
+            document.getElementById('profileLink').innerText = data.link || 'Adicione seu link';
+            document.getElementById('profileLink').href = data.link || '#';
+            document.getElementById('profileAvatar').innerText = data.username.charAt(1).toUpperCase();
             
-            const linkElement = document.getElementById('profileLink');
-            if (data.link) {
-                linkElement.href = data.link;
-                linkElement.querySelector('span').innerText = data.link.replace('https://', '');
-            }
-            
+            // Load stats
             loadProfileStats();
         });
     
-    document.getElementById('editName').value = '';
+    // Set edit form values
+    document.getElementById('editName').value = user.displayName || '';
     document.getElementById('editBio').value = '';
     document.getElementById('editLink').value = '';
 }
 
+// Load Profile Stats
 function loadProfileStats() {
-    db.collection('evolutions').where('user', '==', auth.currentUser.uid).get()
+    const user = auth.currentUser;
+    
+    // Count posts
+    db.collection('posts').where('user', '==', user.uid).get()
         .then(snapshot => {
             document.getElementById('profilePosts').innerText = snapshot.size;
         });
+    
+    // Set followers/following (mock data)
+    document.getElementById('profileFollowers').innerText = '128';
+    document.getElementById('profileFollowing').innerText = '56';
 }
 
 // Toggle Edit Profile
@@ -1717,118 +1425,19 @@ function saveProfile() {
     const bio = document.getElementById('editBio').value;
     const link = document.getElementById('editLink').value;
     
-    const updates = {};
-    if (name) updates.name = name;
-    if (bio) updates.bio = bio;
-    if (link) updates.link = link;
-    
-    db.collection('users').doc(auth.currentUser.uid).update(updates)
-        .then(() => {
-            loadProfile();
-            toggleEditProfile();
-            alert('Perfil atualizado com sucesso!');
-        })
-        .catch(error => {
-            alert('Erro ao atualizar perfil: ' + error.message);
-        });
-}
-
-// User Metrics Functions
-function saveUserMetrics() {
-    const birthDate = document.getElementById('userBirthDate').value;
-    const height = document.getElementById('userHeight').value;
-    const weight = document.getElementById('userWeight').value;
-    const goal = document.getElementById('userGoal').value;
-    const activity = document.getElementById('userActivity').value;
-    
-    if (!birthDate || !height || !weight) {
-        alert('Preencha todos os campos obrigatórios!');
-        return;
-    }
-    
-    const metrics = {
-        birthDate: birthDate,
-        height: parseFloat(height),
-        weight: parseFloat(weight),
-        goal: goal,
-        activity: activity,
-        recordedAt: new Date(),
-        bmi: calculateBMI(weight, height)
-    };
-    
-    db.collection('users').doc(auth.currentUser.uid).collection('metrics').add(metrics)
-        .then(() => {
-            alert('Ficha salva com sucesso!');
-            loadUserMetrics();
-            document.getElementById('registrationForm').classList.add('hidden');
-        })
-        .catch(error => {
-            alert('Erro ao salvar: ' + error.message);
-        });
-}
-
-function loadUserMetrics() {
-    db.collection('users').doc(auth.currentUser.uid).collection('metrics')
-        .orderBy('recordedAt', 'desc')
-        .limit(5)
-        .get()
-        .then(snapshot => {
-            const container = document.getElementById('progressCards');
-            container.innerHTML = '';
-            
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const card = document.createElement('div');
-                card.className = 'progress-card';
-                card.innerHTML = `
-                    <div class="progress-header">
-                        <div class="progress-icon">
-                            <i data-lucide="activity"></i>
-                        </div>
-                        <div>
-                            <div class="progress-title">Registro de Progresso</div>
-                            <div class="progress-date">${formatDate(data.recordedAt)}</div>
-                        </div>
-                    </div>
-                    <div class="progress-content">
-                        <div class="progress-item">
-                            <span class="progress-label">Peso</span>
-                            <span class="progress-value">${data.weight} kg</span>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">Altura</span>
-                            <span class="progress-value">${data.height} cm</span>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">IMC</span>
-                            <span class="progress-value">${data.bmi.toFixed(1)}</span>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">Objetivo</span>
-                            <span class="progress-value">${getGoalText(data.goal)}</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            
-            lucide.createIcons();
-        });
-}
-
-function calculateBMI(weight, height) {
-    const heightInMeters = height / 100;
-    return weight / (heightInMeters * heightInMeters);
-}
-
-function getGoalText(goal) {
-    const goals = {
-        'emagrecer': 'Emagrecer',
-        'ganharMassa': 'Ganhar Massa',
-        'definir': 'Definir',
-        'saude': 'Saúde'
-    };
-    return goals[goal] || goal;
+    db.collection('users').doc(auth.currentUser.uid).update({
+        name: name,
+        bio: bio,
+        link: link
+    })
+    .then(() => {
+        loadProfile();
+        toggleEditProfile();
+        alert('Perfil atualizado com sucesso!');
+    })
+    .catch(error => {
+        alert('Erro ao atualizar perfil: ' + error.message);
+    });
 }
 
 // Format Date
@@ -1839,22 +1448,26 @@ function formatDate(date) {
     const diff = now - d;
     
     if (diff < 60000) return 'Agora mesmo';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} min atrás`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} h atrás`;
-    if (diff < 604800000) return `${Math.floor(diff / 86400000)} d atrás`;
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
     
     return d.toLocaleDateString('pt-BR');
 }
 
-// Load Feed (placeholder)
-function loadFeed() {
-    // Placeholder function for compatibility
+// Like Post
+function likePost(postId) {
+    alert('Funcionalidade de likes em breve!');
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
-});
+// Comment Post
+function commentPost(postId) {
+    alert('Funcionalidade de comentários em breve!');
+}
+
+// Share Post
+function sharePost(postId) {
+    alert('Funcionalidade de compartilhamento em breve!');
+}
 </script>
 </body>
 </html>
