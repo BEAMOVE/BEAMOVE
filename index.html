@@ -13,7 +13,7 @@
 <!-- Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -21,6 +21,7 @@
 --marrom:#6B4C3B;
 --marrom-escuro:#3E2A22;
 --rose:#C49A8A;
+--card:#ffffff;
 }
 
 body{
@@ -32,19 +33,23 @@ transition:0.3s;
 }
 
 .dark{
-background:#1e1e1e;
+background:#121212;
 color:#f5f5f5;
 }
 
+.dark .card,
 .dark .post,
+.dark .profile-card,
 .dark .chat-box,
-.dark .profile-card{
-background:#2c2c2c;
+.dark nav{
+background:#1e1e1e;
+color:#fff;
 }
 
 header{
-padding:15px;
+padding:18px;
 font-weight:700;
+font-size:20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
@@ -54,89 +59,27 @@ button{
 background:var(--marrom);
 color:white;
 border:none;
-padding:10px;
-border-radius:10px;
+padding:12px;
+border-radius:12px;
 cursor:pointer;
+font-weight:500;
+transition:0.3s;
+}
+
+button:hover{
+background:var(--marrom-escuro);
 }
 
 input,textarea{
 width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:10px;
+padding:12px;
+margin:6px 0;
+border-radius:12px;
 border:1px solid #ddd;
+font-family:'Poppins';
 }
 
 .hidden{display:none;}
-
-.slider{
-display:flex;
-overflow-x:auto;
-gap:10px;
-padding:10px;
-}
-
-.story{
-min-width:90px;
-height:90px;
-background:linear-gradient(45deg,var(--rose),var(--marrom));
-border-radius:20px;
-display:flex;
-align-items:center;
-justify-content:center;
-color:white;
-font-size:12px;
-}
-
-.post{
-background:white;
-margin:15px;
-padding:15px;
-border-radius:20px;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
-animation:fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-.chat-box{
-height:300px;
-overflow-y:auto;
-margin:10px;
-padding:10px;
-background:white;
-border-radius:15px;
-}
-
-.message{
-margin-bottom:8px;
-font-size:13px;
-}
-
-.profile-card{
-text-align:center;
-padding:20px;
-background:white;
-border-radius:20px;
-margin:15px;
-}
-
-.profile-img{
-width:100px;
-height:100px;
-border-radius:50%;
-background:linear-gradient(45deg,var(--rose),var(--marrom));
-margin:auto;
-}
-
-.settings{
-position:absolute;
-right:15px;
-cursor:pointer;
-}
 
 nav{
 position:fixed;
@@ -144,11 +87,118 @@ bottom:0;
 width:100%;
 display:flex;
 justify-content:space-around;
-padding:10px 0;
+padding:12px 0;
 background:white;
 box-shadow:0 -2px 10px rgba(0,0,0,0.05);
 }
-.dark nav{background:#2c2c2c;}
+
+nav button{
+background:none;
+color:var(--marrom);
+}
+
+.section{
+padding:15px;
+padding-bottom:80px;
+}
+
+/* CARDS */
+.card{
+background:var(--card);
+padding:20px;
+border-radius:20px;
+margin-bottom:15px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-4px);
+}
+
+.card-highlight{
+background:linear-gradient(135deg,var(--rose),var(--marrom));
+color:white;
+}
+
+/* FEED */
+.post{
+background:white;
+padding:15px;
+border-radius:20px;
+margin-bottom:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.05);
+animation:fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(15px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+/* CHAT */
+.chat-box{
+height:280px;
+overflow-y:auto;
+background:white;
+border-radius:18px;
+padding:12px;
+margin-bottom:10px;
+}
+
+/* PERFIL */
+.profile-card{
+background:white;
+padding:25px;
+border-radius:25px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.profile-img{
+width:110px;
+height:110px;
+border-radius:50%;
+margin:auto;
+background:linear-gradient(45deg,var(--rose),var(--marrom));
+}
+
+.profile-username{
+font-weight:600;
+font-size:20px;
+margin-top:10px;
+}
+
+.profile-bio{
+font-size:14px;
+margin-top:8px;
+}
+
+.profile-link{
+font-size:13px;
+color:var(--marrom);
+margin-top:6px;
+display:block;
+}
+
+/* MODAL SETTINGS */
+.modal{
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+border-radius:25px 25px 0 0;
+padding:25px;
+box-shadow:0 -5px 25px rgba(0,0,0,0.1);
+animation:slideUp 0.3s ease;
+}
+
+.dark .modal{background:#1e1e1e;}
+
+@keyframes slideUp{
+from{transform:translateY(100%);}
+to{transform:translateY(0);}
+}
 </style>
 </head>
 
@@ -159,7 +209,7 @@ box-shadow:0 -2px 10px rgba(0,0,0,0.05);
 </header>
 
 <!-- LOGIN -->
-<div id="loginScreen">
+<div id="loginScreen" class="section">
 <input type="email" id="loginEmail" placeholder="Email">
 <input type="password" id="loginPassword" placeholder="Senha">
 <button onclick="login()">Entrar</button>
@@ -167,7 +217,7 @@ box-shadow:0 -2px 10px rgba(0,0,0,0.05);
 </div>
 
 <!-- REGISTER -->
-<div id="registerScreen" class="hidden">
+<div id="registerScreen" class="section hidden">
 <input type="text" id="username" placeholder="@usuario obrigatório">
 <input type="email" id="registerEmail" placeholder="Email">
 <input type="password" id="registerPassword" placeholder="Senha">
@@ -179,58 +229,63 @@ box-shadow:0 -2px 10px rgba(0,0,0,0.05);
 <div id="appScreen" class="hidden">
 
 <!-- HOME -->
-<div id="home">
-<div class="slider">
-<div class="story">Treinos</div>
-<div class="story">Receitas</div>
-<div class="story">Dietas</div>
-</div>
-
+<div id="home" class="section">
 <div id="feed"></div>
-
 <input type="text" id="postInput" placeholder="Compartilhe algo...">
 <button onclick="addPost()">Publicar</button>
 </div>
 
-<!-- COMUNIDADE -->
-<div id="comunidade" class="hidden">
-<div class="chat-box" id="chatBox"></div>
-<input type="text" id="chatInput" placeholder="Mensagem...">
-<button onclick="sendMessage()">Enviar</button>
+<!-- EXPLORAR -->
+<div id="explorar" class="section hidden">
+<div class="card card-highlight">
+<h3>Acompanhamento Nutricional</h3>
+<p>Transformação personalizada com acompanhamento profissional.</p>
+<button onclick="window.open('https://hotmart.com')">Comprar via Hotmart</button>
+<button onclick="window.open('https://kiwify.com')">Comprar via Kiwify</button>
+</div>
 
-<h3 style="padding-left:10px;">Chat Privado</h3>
-<input type="text" id="privateUser" placeholder="@usuario">
-<input type="text" id="privateMsg" placeholder="Mensagem privada">
-<button onclick="sendPrivate()">Enviar Privado</button>
-<div class="chat-box" id="privateBox"></div>
+<div class="card">
+<h3>Curso de Yoga</h3>
+<p>Equilíbrio físico e mental.</p>
+</div>
+
+<div class="card">
+<h3>Programa de Emagrecimento</h3>
+<p>Resultados sustentáveis.</p>
+</div>
+
+<div class="card">
+<h3>Ebooks Fitness</h3>
+<p>Conteúdo exclusivo para evolução contínua.</p>
+</div>
 </div>
 
 <!-- PERFIL -->
-<div id="perfil" class="hidden">
-<div class="settings" onclick="toggleSettings()">
-<i data-lucide="settings"></i>
-</div>
-
+<div id="perfil" class="section hidden">
 <div class="profile-card">
 <div class="profile-img"></div>
-<h2 id="profileUsername"></h2>
-<p id="profileBio"></p>
-<a id="profileLink" target="_blank"></a>
+<div class="profile-username" id="profileUsername"></div>
+<div class="profile-bio" id="profileBio"></div>
+<a id="profileLink" class="profile-link" target="_blank"></a>
+<button onclick="openSettings()">⚙ Ajustes</button>
+<button onclick="logout()">Sair</button>
+</div>
 </div>
 
-<div id="settingsMenu" class="hidden">
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" class="modal hidden">
+<h3>Configurações</h3>
 <button onclick="toggleDark()">Modo Escuro</button>
-<h3>Editar Perfil</h3>
-<input type="text" id="editName" placeholder="Nome">
-<textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
+<h4>Editar Perfil</h4>
+<input type="text" id="editBio" maxlength="200" placeholder="Bio até 200 caracteres">
 <input type="text" id="editLink" placeholder="Link">
-<button onclick="saveProfile()">Salvar</button>
-</div>
+<button onclick="saveProfile()">Salvar Alterações</button>
+<button onclick="closeSettings()">Fechar</button>
 </div>
 
 <nav>
 <button onclick="showTab('home')"><i data-lucide="home"></i></button>
-<button onclick="showTab('comunidade')"><i data-lucide="message-circle"></i></button>
+<button onclick="showTab('explorar')"><i data-lucide="compass"></i></button>
 <button onclick="showTab('perfil')"><i data-lucide="user"></i></button>
 </nav>
 
@@ -277,6 +332,11 @@ function login(){
 auth.signInWithEmailAndPassword(loginEmail.value,loginPassword.value);
 }
 
+function logout(){
+auth.signOut();
+location.reload();
+}
+
 function showRegister(){
 loginScreen.classList.add("hidden");
 registerScreen.classList.remove("hidden");
@@ -292,7 +352,6 @@ if(user){
 loginScreen.classList.add("hidden");
 appScreen.classList.remove("hidden");
 loadFeed();
-loadChat();
 loadProfile();
 }
 });
@@ -302,7 +361,6 @@ function addPost(){
 if(postInput.value==="") return;
 db.collection("posts").add({
 text:postInput.value,
-user:auth.currentUser.uid,
 created:new Date()
 });
 postInput.value="";
@@ -322,69 +380,6 @@ feed.appendChild(div);
 });
 }
 
-/* CHAT GLOBAL */
-function formatDate(date){
-let d=new Date(date);
-return d.toLocaleDateString("pt-BR")+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
-}
-
-function sendMessage(){
-if(chatInput.value==="")return;
-db.collection("chat").add({
-text:chatInput.value,
-user:auth.currentUser.uid,
-created:new Date()
-});
-chatInput.value="";
-}
-
-function loadChat(){
-db.collection("chat").orderBy("created")
-.onSnapshot(async s=>{
-chatBox.innerHTML="";
-for(const doc of s.docs){
-let data=doc.data();
-let userDoc=await db.collection("users").doc(data.user).get();
-let msg=document.createElement("div");
-msg.className="message";
-msg.innerHTML="<b>"+userDoc.data().username+"</b><br>"+data.text+
-"<br><small>"+formatDate(data.created)+"</small>";
-chatBox.appendChild(msg);
-}
-});
-}
-
-/* CHAT PRIVADO */
-function sendPrivate(){
-db.collection("users").where("username","==",privateUser.value).get()
-.then(s=>{
-if(s.empty) return alert("Usuário não encontrado");
-let uid=s.docs[0].id;
-db.collection("private").add({
-from:auth.currentUser.uid,
-to:uid,
-text:privateMsg.value,
-created:new Date()
-});
-privateMsg.value="";
-});
-}
-
-db.collection("private").orderBy("created")
-.onSnapshot(async s=>{
-privateBox.innerHTML="";
-for(const doc of s.docs){
-let d=doc.data();
-if(d.from===auth.currentUser.uid || d.to===auth.currentUser.uid){
-let u=await db.collection("users").doc(d.from).get();
-let div=document.createElement("div");
-div.className="message";
-div.innerHTML="<b>"+u.data().username+"</b>: "+d.text;
-privateBox.appendChild(div);
-}
-}
-});
-
 /* PERFIL */
 function loadProfile(){
 db.collection("users").doc(auth.currentUser.uid).get()
@@ -397,16 +392,21 @@ profileLink.href=d.link;
 });
 }
 
+function openSettings(){
+settingsModal.classList.remove("hidden");
+}
+
+function closeSettings(){
+settingsModal.classList.add("hidden");
+}
+
 function saveProfile(){
 db.collection("users").doc(auth.currentUser.uid).update({
 bio:editBio.value,
 link:editLink.value
 });
 loadProfile();
-}
-
-function toggleSettings(){
-settingsMenu.classList.toggle("hidden");
+closeSettings();
 }
 
 function toggleDark(){
@@ -415,7 +415,7 @@ document.body.classList.toggle("dark");
 
 function showTab(tab){
 home.classList.add("hidden");
-comunidade.classList.add("hidden");
+explorar.classList.add("hidden");
 perfil.classList.add("hidden");
 document.getElementById(tab).classList.remove("hidden");
 }
