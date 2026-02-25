@@ -9,16 +9,30 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
-<!-- Google Font -->
+<!-- Icons -->
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
---offwhite: #F6F1EC;
---marrom: #6B4C3B;
---marrom-escuro: #3E2A22;
---rose: #C49A8A;
+--offwhite:#F6F1EC;
+--marrom:#6B4C3B;
+--marrom-escuro:#3E2A22;
+--rose:#C49A8A;
+--bg:white;
+--text:#3E2A22;
+}
+
+body.dark{
+--bg:#1e1e1e;
+--text:#f1f1f1;
+--offwhite:#1e1e1e;
+--marrom:#C49A8A;
+--marrom-escuro:#fff;
 }
 
 *{
@@ -26,358 +40,322 @@ margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:'Poppins',sans-serif;
-}
-
-body{
-background:var(--offwhite);
-color:var(--marrom-escuro);
-}
-
-/* SPLASH */
-.splash{
-position:fixed;
-width:100%;
-height:100vh;
-background:linear-gradient(135deg,var(--offwhite),#fff);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999;
-transition:opacity 0.6s ease;
-}
-
-.logo{
-font-size:38px;
-font-weight:700;
-}
-
-.bea{color:var(--marrom);}
-.move{color:var(--marrom-escuro);}
-.o-circle{
-border:3px solid var(--rose);
-border-radius:50%;
-padding:2px 10px;
-margin-left:2px;
-}
-
-.tagline{
-margin-top:15px;
-font-size:14px;
-color:var(--rose);
-}
-
-.splash-name{
-font-weight:600;
-margin-top:30px;
-}
-
-/* AUTH SCREENS */
-.auth-container{
-height:100vh;
-display:flex;
-flex-direction:column;
-justify-content:center;
-padding:40px;
-}
-
-input{
-width:100%;
-padding:14px;
-margin:10px 0;
-border-radius:12px;
-border:1px solid #ddd;
-background:white;
-}
-
-button{
-width:100%;
-padding:14px;
-margin-top:10px;
-border-radius:12px;
-border:none;
-background:var(--marrom);
-color:white;
-font-weight:600;
-cursor:pointer;
 transition:0.3s;
 }
 
-button:hover{
-background:var(--marrom-escuro);
+body{
+background:var(--bg);
+color:var(--text);
 }
 
-/* APP */
-.app{
-display:none;
-padding-bottom:70px;
-}
+.hidden{display:none;}
 
 .header{
+display:flex;
+justify-content:space-between;
+align-items:center;
 padding:15px;
 font-weight:700;
 font-size:20px;
-background:white;
+background:var(--bg);
 box-shadow:0 2px 10px rgba(0,0,0,0.05);
 position:sticky;
 top:0;
 z-index:10;
 }
 
-/* STORIES / CARDS SLIDER */
-.slider{
-display:flex;
-overflow-x:auto;
-gap:15px;
-padding:15px;
+.icon{
+font-size:22px;
+cursor:pointer;
 }
 
-.story{
-min-width:90px;
-height:90px;
-background:linear-gradient(45deg,var(--rose),var(--marrom));
-border-radius:20px;
-display:flex;
-align-items:center;
-justify-content:center;
-color:white;
-font-size:12px;
-text-align:center;
-font-weight:600;
-}
-
-/* FEED */
 .post{
-background:white;
+background:var(--bg);
 margin:15px;
 border-radius:18px;
 padding:15px;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
+box-shadow:0 5px 20px rgba(0,0,0,0.08);
+animation:fadeIn 0.4s ease;
 }
 
-.post-user{
-font-weight:600;
-margin-bottom:8px;
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
 }
 
-.post-text{
-font-size:14px;
+.post img{
+width:100%;
+border-radius:15px;
+margin-top:10px;
 }
 
-/* NAV */
 nav{
 position:fixed;
 bottom:0;
 width:100%;
-background:white;
+background:var(--bg);
 display:flex;
 justify-content:space-around;
 padding:12px 0;
-box-shadow:0 -2px 10px rgba(0,0,0,0.05);
+box-shadow:0 -2px 10px rgba(0,0,0,0.1);
 }
 
-nav button{
-background:none;
+nav i{
+font-size:22px;
+cursor:pointer;
+}
+
+input, textarea{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:12px;
+border:1px solid #ccc;
+background:var(--bg);
+color:var(--text);
+}
+
+button{
+padding:12px;
 border:none;
-color:var(--marrom);
+border-radius:12px;
+background:var(--marrom);
+color:white;
 font-weight:600;
-width:auto;
+cursor:pointer;
 }
 
-.hidden{display:none;}
+.profile-header{
+display:flex;
+align-items:center;
+gap:20px;
+padding:20px;
+}
 
-.chat-box{
-height:300px;
-overflow-y:auto;
-background:white;
-margin:15px;
+.profile-pic{
+width:90px;
+height:90px;
+border-radius:50%;
+background:#ccc;
+}
+
+.bio{
+font-size:14px;
+margin-top:5px;
+}
+
+.settings{
+position:fixed;
+top:60px;
+right:15px;
+background:var(--bg);
+padding:15px;
 border-radius:15px;
-padding:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.15);
+width:250px;
 }
 
-.message{
-margin-bottom:10px;
+.chat-message{
+margin-bottom:12px;
 font-size:13px;
 }
 
-.profile-box{
-padding:20px;
+.chat-message span{
+font-weight:600;
 }
 </style>
 </head>
-
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splash" class="splash">
-<div>
-<div class="logo">
-<span class="bea">BEA</span><span class="move">MOVE<span class="o-circle">O</span></span>
-</div>
-<div class="tagline">“Sem extremismos. Resultados sustentáveis.”</div>
-
-<div style="margin-top:40px;">
-<p class="splash-name">Olá, sou a Beatriz Antunes</p>
-<p style="margin-top:20px; max-width:300px;">
-Personal Trainer & Fundadora do BEAMOVE<br>
-Especialista em transformação muito além do corpo.
-</p>
-</div>
-</div>
+<div class="header">
+BEAMOVE
+<i class="ri-settings-3-line icon" onclick="toggleSettings()"></i>
 </div>
 
-<!-- LOGIN -->
-<div class="auth-container" id="loginScreen">
-<h2>Entrar</h2>
-<input type="email" id="loginEmail" placeholder="Email">
-<input type="password" id="loginPassword" placeholder="Senha">
-<button onclick="login()">Entrar</button>
-<p onclick="showRegister()" style="margin-top:15px;cursor:pointer;">Criar conta</p>
-<p onclick="resetPassword()" style="cursor:pointer;">Recuperar senha</p>
+<!-- SETTINGS -->
+<div id="settingsBox" class="settings hidden">
+<button onclick="toggleDark()">Modo Escuro</button>
+<button onclick="openEditProfile()">Editar Perfil</button>
+<button onclick="logout()">Sair</button>
 </div>
-
-<!-- REGISTER -->
-<div class="auth-container hidden" id="registerScreen">
-<h2>Criar Conta</h2>
-<input type="text" id="username" placeholder="@usuario obrigatório">
-<input type="email" id="registerEmail" placeholder="Email">
-<input type="password" id="registerPassword" placeholder="Senha">
-<button onclick="register()">Cadastrar</button>
-<p onclick="showLogin()" style="margin-top:15px;cursor:pointer;">Voltar</p>
-</div>
-
-<!-- APP -->
-<div class="app" id="appScreen">
-
-<div class="header">BEAMOVE</div>
 
 <!-- HOME -->
 <div id="home">
-
-<div class="slider">
-<div class="story">Treinos</div>
-<div class="story">Receitas</div>
-<div class="story">Dietas</div>
-<div class="story">Exercícios</div>
-<div class="story">Tipos Dieta</div>
-</div>
-
-<div id="feed"></div>
-
 <div style="padding:15px;">
-<input type="text" id="postInput" placeholder="Compartilhe algo...">
+<input type="text" id="postText" placeholder="Compartilhe algo...">
+<input type="file" id="postImage">
 <button onclick="addPost()">Publicar</button>
 </div>
-
+<div id="feed"></div>
 </div>
 
-<!-- EXPLORAR -->
-<div id="explorar" class="hidden">
-<div class="post">Acompanhamento Nutricional (Hotmart/Kiwify)</div>
-<div class="post">Curso de Yoga</div>
-<div class="post">Emagrecimento</div>
-<div class="post">Outros Cursos</div>
-</div>
-
-<!-- COMUNIDADE -->
-<div id="comunidade" class="hidden">
-<div class="chat-box" id="chatBox"></div>
+<!-- CHAT -->
+<div id="chat" class="hidden">
 <div style="padding:15px;">
-<input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+<input type="text" id="privateUser" placeholder="@usuario para chat privado">
+<input type="text" id="chatInput" placeholder="Mensagem">
 <button onclick="sendMessage()">Enviar</button>
 </div>
+<div id="chatBox" style="padding:15px;"></div>
 </div>
 
-<!-- PERFIL -->
-<div id="perfil" class="hidden">
-<div class="profile-box">
-<p id="profileInfo"></p>
-<button onclick="logout()">Sair</button>
+<!-- PROFILE -->
+<div id="profile" class="hidden">
+<div class="profile-header">
+<div class="profile-pic"></div>
+<div>
+<h3 id="profileName"></h3>
+<div class="bio" id="profileBio"></div>
+<a id="profileLink" target="_blank"></a>
 </div>
+</div>
+</div>
+
+<!-- EDIT PROFILE -->
+<div id="editProfile" class="hidden" style="padding:20px;">
+<h3>Editar Perfil</h3>
+<input type="text" id="editName" placeholder="Nome">
+<textarea maxlength="200" id="editBio" placeholder="Bio (200 caracteres)"></textarea>
+<input type="text" id="editLink" placeholder="Link">
+<button onclick="saveProfile()">Salvar</button>
 </div>
 
 <nav>
-<button onclick="showTab('home')">Início</button>
-<button onclick="showTab('explorar')">Explorar</button>
-<button onclick="showTab('comunidade')">Comunidade</button>
-<button onclick="showTab('perfil')">Perfil</button>
+<i class="ri-home-5-line" onclick="showTab('home')"></i>
+<i class="ri-chat-3-line" onclick="showTab('chat')"></i>
+<i class="ri-user-3-line" onclick="showTab('profile')"></i>
 </nav>
 
-</div>
-
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyBdIH1kKv_e4f25nubgQ9ED8hyfl-3FmbM",
-authDomain: "beamove-pro.firebaseapp.com",
-projectId: "beamove-pro",
-storageBucket: "beamove-pro.firebasestorage.app",
-messagingSenderId: "816563837877",
-appId: "1:816563837877:web:7d812c57fecc0338f117fc"
+const firebaseConfig={
+apiKey:"AIzaSyBdIH1kKv_e4f25nubgQ9ED8hyfl-3FmbM",
+authDomain:"beamove-pro.firebaseapp.com",
+projectId:"beamove-pro",
+storageBucket:"beamove-pro.firebasestorage.app",
+messagingSenderId:"816563837877",
+appId:"1:816563837877:web:7d812c57fecc0338f117fc"
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const auth=firebase.auth();
+const db=firebase.firestore();
+const storage=firebase.storage();
 
-/* SPLASH 2 SEGUNDOS */
-setTimeout(()=>{
-document.getElementById("splash").style.opacity="0";
-setTimeout(()=>{
-document.getElementById("splash").style.display="none";
-},600);
-},2000);
-
-/* TELAS */
-function showRegister(){
-loginScreen.classList.add("hidden");
-registerScreen.classList.remove("hidden");
+function toggleSettings(){
+settingsBox.classList.toggle("hidden");
 }
 
-function showLogin(){
-registerScreen.classList.add("hidden");
-loginScreen.classList.remove("hidden");
+function toggleDark(){
+document.body.classList.toggle("dark");
 }
 
 function showTab(tab){
-["home","explorar","comunidade","perfil"].forEach(id=>{
-document.getElementById(id).classList.add("hidden");
-});
+home.classList.add("hidden");
+chat.classList.add("hidden");
+profile.classList.add("hidden");
+editProfile.classList.add("hidden");
 document.getElementById(tab).classList.remove("hidden");
 }
 
-/* AUTH */
-function register(){
-let user=username.value.trim();
-if(!user.startsWith("@")){
-alert("Username deve começar com @");
-return;
+function formatDate(timestamp){
+let d=timestamp.toDate();
+return d.toLocaleDateString('pt-BR')+" "+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 }
 
-db.collection("users").where("username","==",user).get()
-.then(snap=>{
-if(!snap.empty){
-alert("Username já existe");
-return;
-}
+function addPost(){
+let text=postText.value;
+let file=postImage.files[0];
 
-auth.createUserWithEmailAndPassword(registerEmail.value,registerPassword.value)
-.then(cred=>{
-db.collection("users").doc(cred.user.uid).set({
-username:user,
-email:registerEmail.value
-});
-showLogin();
+if(file){
+let ref=storage.ref("posts/"+Date.now());
+ref.put(file).then(snapshot=>{
+snapshot.ref.getDownloadURL().then(url=>{
+savePost(text,url);
 });
 });
+}else{
+savePost(text,null);
+}
 }
 
-function login(){
-auth.signInWithEmailAndPassword(loginEmail.value,loginPassword.value);
+function savePost(text,image){
+db.collection("posts").add({
+text:text,
+image:image,
+user:auth.currentUser.uid,
+created:firebase.firestore.FieldValue.serverTimestamp()
+});
+postText.value="";
+postImage.value="";
 }
 
-function resetPassword(){
-let email=prompt("Digite seu email:");
-auth.sendPasswordResetEmail(email);
-alert("Email enviado!");
+function loadFeed(){
+db.collection("posts").orderBy("created","desc")
+.onSnapshot(snap=>{
+feed.innerHTML="";
+snap.forEach(doc=>{
+let p=doc.data();
+let div=document.createElement("div");
+div.className="post";
+div.innerHTML="<b>"+p.text+"</b>";
+if(p.image){
+div.innerHTML+=`<img src="${p.image}">`;
+}
+feed.appendChild(div);
+});
+});
+}
+
+function sendMessage(){
+let toUser=privateUser.value;
+let msg=chatInput.value;
+
+db.collection("messages").add({
+from:auth.currentUser.uid,
+to:toUser,
+message:msg,
+created:firebase.firestore.FieldValue.serverTimestamp()
+});
+chatInput.value="";
+}
+
+function loadChat(){
+db.collection("messages").orderBy("created")
+.onSnapshot(snap=>{
+chatBox.innerHTML="";
+snap.forEach(doc=>{
+let m=doc.data();
+if(m.from===auth.currentUser.uid){
+let div=document.createElement("div");
+div.className="chat-message";
+div.innerHTML="<span>Você</span>: "+m.message+"<br><small>"+formatDate(m.created)+"</small>";
+chatBox.appendChild(div);
+}
+});
+});
+}
+
+function loadProfile(){
+db.collection("users").doc(auth.currentUser.uid).get()
+.then(doc=>{
+let d=doc.data();
+profileName.innerText=d.username;
+profileBio.innerText=d.bio||"";
+profileLink.innerText=d.link||"";
+profileLink.href=d.link||"#";
+});
+}
+
+function openEditProfile(){
+showTab("editProfile");
+}
+
+function saveProfile(){
+db.collection("users").doc(auth.currentUser.uid).update({
+bio:editBio.value,
+link:editLink.value
+});
+showTab("profile");
 }
 
 function logout(){
@@ -386,73 +364,13 @@ auth.signOut();
 
 auth.onAuthStateChanged(user=>{
 if(user){
-loginScreen.style.display="none";
-registerScreen.style.display="none";
-appScreen.style.display="block";
 loadFeed();
 loadChat();
 loadProfile();
 }else{
-appScreen.style.display="none";
-loginScreen.style.display="flex";
+location.reload();
 }
 });
-
-/* FEED */
-function addPost(){
-if(postInput.value==="")return;
-db.collection("posts").add({
-text:postInput.value,
-user:auth.currentUser.uid,
-created:firebase.firestore.FieldValue.serverTimestamp()
-});
-postInput.value="";
-}
-
-function loadFeed(){
-db.collection("posts").orderBy("created","desc")
-.onSnapshot(snap=>{
-feed.innerHTML="";
-snap.forEach(doc=>{
-let div=document.createElement("div");
-div.className="post";
-div.innerHTML="<div class='post-text'>"+doc.data().text+"</div>";
-feed.appendChild(div);
-});
-});
-}
-
-/* CHAT */
-function sendMessage(){
-if(chatInput.value==="")return;
-db.collection("chat").add({
-message:chatInput.value,
-user:auth.currentUser.uid,
-created:firebase.firestore.FieldValue.serverTimestamp()
-});
-chatInput.value="";
-}
-
-function loadChat(){
-db.collection("chat").orderBy("created")
-.onSnapshot(snap=>{
-chatBox.innerHTML="";
-snap.forEach(doc=>{
-let p=document.createElement("div");
-p.className="message";
-p.innerText=doc.data().message;
-chatBox.appendChild(p);
-});
-});
-}
-
-/* PERFIL */
-function loadProfile(){
-db.collection("users").doc(auth.currentUser.uid).get()
-.then(doc=>{
-profileInfo.innerText="Usuário: "+doc.data().username+"\nEmail: "+doc.data().email;
-});
-}
 </script>
 
 </body>
