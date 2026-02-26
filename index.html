@@ -499,7 +499,6 @@ header {
     padding: 20px;
     box-shadow: var(--card-shadow);
     position: relative;
-    overflow-y: auto;
 }
 
 .chat-sidebar h3 {
@@ -508,15 +507,12 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
-    top: 0;
-    background: var(--bg-secondary);
-    padding: 10px 0;
-    z-index: 5;
 }
 
 .chat-users {
     list-style: none;
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
 }
 
 .chat-user {
@@ -528,23 +524,15 @@ header {
     cursor: pointer;
     transition: var(--transition);
     margin-bottom: 5px;
-    border: 1px solid transparent;
 }
 
 .chat-user:hover {
     background: var(--bg-primary);
-    border-color: var(--border);
 }
 
 .chat-user.active {
     background: var(--accent);
     color: white;
-    border-color: var(--accent);
-}
-
-.chat-user.active .chat-user-avatar {
-    background: white;
-    color: var(--accent);
 }
 
 .chat-user-avatar {
@@ -570,7 +558,6 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 14px;
 }
 
 .chat-user-info span {
@@ -579,13 +566,6 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    opacity: 0.8;
-}
-
-.last-message-time {
-    font-size: 10px;
-    opacity: 0.6;
-    margin-left: auto;
 }
 
 .chat-main {
@@ -712,11 +692,6 @@ header {
     font-size: 16px;
 }
 
-.chat-input input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
 .chat-input button {
     width: 50px;
     height: 50px;
@@ -733,11 +708,6 @@ header {
 
 .chat-input button:hover {
     transform: scale(1.1);
-}
-
-.chat-input button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* Botão + para novos chats */
@@ -800,11 +770,6 @@ header {
     color: var(--text-secondary);
     cursor: pointer;
     font-size: 20px;
-    padding: 5px;
-}
-
-.close-modal-btn:hover {
-    color: var(--accent);
 }
 
 .user-search-input {
@@ -1503,34 +1468,21 @@ header {
         grid-template-columns: 1fr;
         position: relative;
         padding-bottom: 80px;
-        height: calc(100vh - 140px);
-        overflow: hidden;
     }
     
     .chat-sidebar {
         display: block;
-        height: 100%;
+        height: calc(100vh - 200px);
         overflow-y: auto;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 10;
-        border-radius: 0;
-    }
-    
-    .chat-sidebar.hidden-mobile {
-        display: none;
     }
     
     .chat-main {
-        position: absolute;
-        top: 0;
+        position: fixed;
+        top: 80px;
         left: 0;
         right: 0;
-        bottom: 0;
-        z-index: 20;
+        bottom: 80px;
+        z-index: 90;
         border-radius: 0;
         display: none;
     }
@@ -1541,6 +1493,10 @@ header {
     
     .back-to-users {
         display: block;
+    }
+    
+    .chat-sidebar.hidden-mobile {
+        display: none;
     }
     
     .featured-card {
@@ -1751,7 +1707,7 @@ header {
     <!-- Chat Section -->
     <div id="chat" class="hidden">
         <div class="chat-container">
-            <!-- Sidebar com lista de conversas -->
+            <!-- Sidebar com lista de usuários -->
             <div class="chat-sidebar" id="chatSidebar">
                 <h3>
                     Conversas
@@ -1760,7 +1716,13 @@ header {
                     </button>
                 </h3>
                 <ul class="chat-users" id="chatUsersList">
-                    <!-- Lista de conversas será inserida aqui -->
+                    <li class="chat-user active" onclick="selectChat('geral', 'Geral', 'G')">
+                        <div class="chat-user-avatar">G</div>
+                        <div class="chat-user-info">
+                            <strong>Geral</strong>
+                            <span>Todos os membros</span>
+                        </div>
+                    </li>
                 </ul>
             </div>
             
@@ -1772,18 +1734,14 @@ header {
                     </button>
                     <div class="chat-header-avatar" id="chatHeaderAvatar">G</div>
                     <div class="chat-header-info">
-                        <h4 id="chatHeaderName">Carregando...</h4>
-                        <p id="chatHeaderStatus">...</p>
+                        <h4 id="chatHeaderName">Geral</h4>
+                        <p id="chatHeaderStatus">Online</p>
                     </div>
                 </div>
-                <div class="chat-messages" id="chatBox">
-                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                        Selecione uma conversa para começar
-                    </div>
-                </div>
+                <div class="chat-messages" id="chatBox"></div>
                 <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." disabled>
-                    <button onclick="sendMessage()" id="sendMessageBtn" disabled>
+                    <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+                    <button onclick="sendMessage()">
                         <i data-lucide="send"></i>
                     </button>
                 </div>
@@ -2071,14 +2029,11 @@ const db = firebase.firestore();
 let currentForum = 'treino';
 
 // Current chat state
-let currentChatId = 'geral';
+let currentChat = 'geral';
 let currentChatUser = null;
 let currentChatUserName = 'Geral';
-let currentChatUserAvatar = 'G';
-let currentChatUserAvatarChar = 'G';
+let currentChatAvatar = 'G';
 let allUsers = [];
-let chatUnsubscribe = null;
-let conversationsList = [];
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -2088,29 +2043,16 @@ auth.onAuthStateChanged(user => {
         document.getElementById('appScreen').classList.remove('hidden');
         
         loadFeed();
+        loadChat();
         loadProfile();
         loadProfilePosts();
         loadUserCard();
         loadProgressHistory();
         loadAllUsers();
-        loadConversations();
+        loadUsersList();
         
-        // Carregar última conversa do localStorage
-        const lastChat = localStorage.getItem('lastChat_' + user.uid);
-        if (lastChat) {
-            try {
-                const chatData = JSON.parse(lastChat);
-                if (chatData.id === 'geral') {
-                    selectChat('geral', 'Geral', 'G', null);
-                } else {
-                    selectChat(chatData.id, chatData.name, chatData.avatar, chatData.userId);
-                }
-            } catch (e) {
-                selectChat('geral', 'Geral', 'G', null);
-            }
-        } else {
-            selectChat('geral', 'Geral', 'G', null);
-        }
+        // Mostrar mensagem de boas-vindas
+        console.log('Usuário logado:', user.uid);
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
@@ -2215,10 +2157,6 @@ function login() {
 
 // Logout
 function logout() {
-    if (chatUnsubscribe) {
-        chatUnsubscribe();
-    }
-    localStorage.removeItem('lastChat_' + auth.currentUser?.uid);
     auth.signOut();
 }
 
@@ -2259,6 +2197,11 @@ function showTab(tabName) {
         loadProfilePosts();
         loadUserCard();
         loadProgressHistory();
+    }
+    
+    if (tabName === 'chat') {
+        // Reset para o chat geral quando abrir
+        selectChat('geral', 'Geral', 'G');
     }
     
     lucide.createIcons();
@@ -2568,240 +2511,50 @@ function addPost() {
     });
 }
 
-// Load Conversations
-function loadConversations() {
-    const user = auth.currentUser;
-    if (!user) return;
+// Load Chat
+function loadChat() {
+    // Carregar mensagens do chat atual
+    let chatRef;
     
-    // Chat geral sempre disponível
-    conversationsList = [{
-        id: 'geral',
-        name: 'Geral',
-        avatar: 'G',
-        userId: null,
-        lastMessage: null,
-        lastMessageTime: null
-    }];
-    
-    // Carregar conversas privadas
-    db.collection('private_chats')
-        .where('participants', 'array-contains', user.uid)
-        .orderBy('created', 'desc')
-        .onSnapshot(async snapshot => {
-            const privateChats = new Map();
-            
-            for (const doc of snapshot.docs) {
-                const message = doc.data();
-                const chatId = message.chatId;
-                
-                if (!privateChats.has(chatId)) {
-                    // Encontrar o outro participante
-                    const otherParticipant = message.participants.find(p => p !== user.uid);
-                    
-                    if (otherParticipant) {
-                        try {
-                            const userDoc = await db.collection('users').doc(otherParticipant).get();
-                            if (userDoc.exists) {
-                                const userData = userDoc.data();
-                                privateChats.set(chatId, {
-                                    id: chatId,
-                                    name: userData.username,
-                                    avatar: userData.username.charAt(1).toUpperCase(),
-                                    userId: otherParticipant,
-                                    lastMessage: message.text,
-                                    lastMessageTime: message.created
-                                });
-                            }
-                        } catch (error) {
-                            console.error('Erro ao carregar usuário:', error);
-                        }
-                    }
-                }
-            }
-            
-            // Atualizar lista de conversas
-            conversationsList = [{
-                id: 'geral',
-                name: 'Geral',
-                avatar: 'G',
-                userId: null,
-                lastMessage: null,
-                lastMessageTime: null
-            }, ...Array.from(privateChats.values())];
-            
-            renderConversationsList();
-        });
-}
-
-// Render Conversations List
-function renderConversationsList() {
-    const usersList = document.getElementById('chatUsersList');
-    usersList.innerHTML = '';
-    
-    conversationsList.forEach(chat => {
-        const li = document.createElement('li');
-        li.className = 'chat-user';
-        if (chat.id === currentChatId) {
-            li.classList.add('active');
-        }
-        
-        li.setAttribute('data-chatid', chat.id);
-        li.setAttribute('data-name', chat.name);
-        li.setAttribute('data-avatar', chat.avatar);
-        li.setAttribute('data-userid', chat.userId || '');
-        
-        li.onclick = () => selectChat(chat.id, chat.name, chat.avatar, chat.userId);
-        
-        let lastMessageHtml = '';
-        if (chat.lastMessage) {
-            lastMessageHtml = `
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span style="font-size: 12px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
-                        ${chat.lastMessage.substring(0, 30)}${chat.lastMessage.length > 30 ? '...' : ''}
-                    </span>
-                    <span class="last-message-time">${formatTime(chat.lastMessageTime)}</span>
-                </div>
-            `;
-        }
-        
-        li.innerHTML = `
-            <div class="chat-user-avatar">${chat.avatar}</div>
-            <div class="chat-user-info">
-                <strong>${chat.name}</strong>
-                ${lastMessageHtml || '<span>' + (chat.id === 'geral' ? 'Todos os membros' : 'Conversa privada') + '</span>'}
-            </div>
-        `;
-        
-        usersList.appendChild(li);
-    });
-}
-
-// Format Time
-function formatTime(date) {
-    if (!date) return '';
-    
-    let d;
-    if (date && typeof date === 'object' && date.seconds) {
-        d = new Date(date.seconds * 1000);
-    } else if (date instanceof Date) {
-        d = date;
+    if (currentChat === 'geral') {
+        chatRef = db.collection('chat').orderBy('created');
     } else {
-        return '';
-    }
-    
-    const now = new Date();
-    const diff = now - d;
-    
-    if (diff < 86400000) {
-        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } else {
-        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    }
-}
-
-// Select Chat
-function selectChat(chatId, userName, avatar, userId = null) {
-    // Salvar última conversa
-    if (auth.currentUser) {
-        localStorage.setItem('lastChat_' + auth.currentUser.uid, JSON.stringify({
-            id: chatId,
-            name: userName,
-            avatar: avatar,
-            userId: userId
-        }));
-    }
-    
-    // Remover listener anterior
-    if (chatUnsubscribe) {
-        chatUnsubscribe();
-    }
-    
-    currentChatId = chatId;
-    currentChatUser = userId;
-    currentChatUserName = userName;
-    currentChatUserAvatar = avatar;
-    currentChatUserAvatarChar = avatar;
-    
-    // Atualizar header
-    document.getElementById('chatHeaderName').innerText = userName;
-    document.getElementById('chatHeaderAvatar').innerText = avatar;
-    document.getElementById('chatHeaderStatus').innerText = userId ? 'Conversa privada' : 'Todos os membros';
-    
-    // Habilitar input
-    document.getElementById('chatInput').disabled = false;
-    document.getElementById('sendMessageBtn').disabled = false;
-    
-    // Mostrar chat principal em mobile
-    if (window.innerWidth <= 768) {
-        document.getElementById('chatSidebar').classList.add('hidden-mobile');
-        document.getElementById('chatMain').classList.add('active');
-    }
-    
-    // Atualizar active state na lista
-    document.querySelectorAll('.chat-user').forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('data-chatid') === chatId) {
-            item.classList.add('active');
-        }
-    });
-    
-    // Carregar mensagens
-    loadMessages(chatId, userId);
-    
-    // Focar no input
-    setTimeout(() => {
-        document.getElementById('chatInput').focus();
-    }, 300);
-}
-
-// Load Messages
-function loadMessages(chatId, userId) {
-    const chatBox = document.getElementById('chatBox');
-    chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando mensagens...</div>';
-    
-    let query;
-    if (chatId === 'geral') {
-        query = db.collection('chat').orderBy('created');
-    } else {
-        query = db.collection('private_chats')
-            .where('chatId', '==', chatId)
+        // Chat privado - precisa de lógica específica
+        chatRef = db.collection('private_chats')
+            .where('participants', 'array-contains', auth.currentUser.uid)
+            .where('chatId', '==', currentChat)
             .orderBy('created');
     }
     
-    chatUnsubscribe = query.onSnapshot(async snapshot => {
-        chatBox.innerHTML = '';
-        
-        if (snapshot.empty) {
-            chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhuma mensagem ainda. Envie a primeira!</div>';
-            return;
-        }
-        
-        for (const doc of snapshot.docs) {
-            const message = doc.data();
-            try {
-                const userDoc = await db.collection('users').doc(message.user).get();
-                const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
-                
-                const messageElement = document.createElement('div');
-                messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
-                messageElement.innerHTML = `
-                    <div class="message-avatar">${userData.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
-                    <div class="message-content">
-                        <p>${message.text}</p>
-                        <span class="message-time">${formatDate(message.created)}</span>
-                    </div>
-                `;
-                chatBox.appendChild(messageElement);
-            } catch (error) {
-                console.error('Erro ao carregar mensagem:', error);
+    if (chatRef) {
+        chatRef.onSnapshot(async snapshot => {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = '';
+            
+            for (const doc of snapshot.docs) {
+                const message = doc.data();
+                try {
+                    const userDoc = await db.collection('users').doc(message.user).get();
+                    const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
+                    
+                    const messageElement = document.createElement('div');
+                    messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
+                    messageElement.innerHTML = `
+                        <div class="message-avatar">${userData.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="message-content">
+                            <p>${message.text}</p>
+                            <span class="message-time">${formatDate(message.created)}</span>
+                        </div>
+                    `;
+                    chatBox.appendChild(messageElement);
+                } catch (error) {
+                    console.error('Erro ao carregar mensagem:', error);
+                }
             }
-        }
-        
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }, error => {
-        console.error('Erro ao carregar mensagens:', error);
-        chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
-    });
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
 }
 
 // Send Message
@@ -2810,9 +2563,8 @@ function sendMessage() {
     const messageText = chatInput.value.trim();
     
     if (!messageText) return;
-    if (!auth.currentUser) return;
     
-    if (currentChatId === 'geral') {
+    if (currentChat === 'geral') {
         // Mensagem para o chat geral
         db.collection('chat').add({
             text: messageText,
@@ -2827,16 +2579,14 @@ function sendMessage() {
             alert('Erro ao enviar mensagem: ' + error.message);
         });
     } else {
-        // Mensagem privada - criar nova conversa se não existir
-        const messageData = {
+        // Mensagem privada
+        db.collection('private_chats').add({
             text: messageText,
             user: auth.currentUser.uid,
-            chatId: currentChatId,
+            chatId: currentChat,
             participants: [auth.currentUser.uid, currentChatUser],
             created: new Date()
-        };
-        
-        db.collection('private_chats').add(messageData)
+        })
         .then(() => {
             chatInput.value = '';
         })
@@ -2847,10 +2597,66 @@ function sendMessage() {
     }
 }
 
+// Select Chat
+function selectChat(chatId, userName, avatar, userId = null) {
+    currentChat = chatId;
+    currentChatUser = userId;
+    currentChatUserName = userName;
+    currentChatAvatar = avatar;
+    
+    // Atualizar header
+    document.getElementById('chatHeaderName').innerText = userName;
+    document.getElementById('chatHeaderAvatar').innerText = avatar;
+    
+    // Mostrar chat principal em mobile
+    if (window.innerWidth <= 768) {
+        document.getElementById('chatSidebar').classList.add('hidden-mobile');
+        document.getElementById('chatMain').classList.add('active');
+    }
+    
+    // Atualizar active state na lista
+    document.querySelectorAll('.chat-user').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Recarregar mensagens
+    loadChat();
+}
+
 // Back to Users List (mobile)
 function backToUsersList() {
     document.getElementById('chatSidebar').classList.remove('hidden-mobile');
     document.getElementById('chatMain').classList.remove('active');
+}
+
+// Load Users List
+function loadUsersList() {
+    db.collection('users').onSnapshot(snapshot => {
+        const usersList = document.getElementById('chatUsersList');
+        
+        // Manter o item "Geral"
+        usersList.innerHTML = '<li class="chat-user active" onclick="selectChat(\'geral\', \'Geral\', \'G\')"><div class="chat-user-avatar">G</div><div class="chat-user-info"><strong>Geral</strong><span>Todos os membros</span></div></li>';
+        
+        snapshot.forEach(doc => {
+            if (doc.id !== auth.currentUser.uid) {
+                const user = doc.data();
+                const userElement = document.createElement('li');
+                userElement.className = 'chat-user';
+                userElement.setAttribute('data-userid', doc.id);
+                userElement.setAttribute('data-username', user.username);
+                userElement.setAttribute('data-avatar', user.username ? user.username.charAt(1).toUpperCase() : 'U');
+                userElement.onclick = () => selectChat(`private_${doc.id}`, user.username, user.username ? user.username.charAt(1).toUpperCase() : 'U', doc.id);
+                userElement.innerHTML = `
+                    <div class="chat-user-avatar">${user.username ? user.username.charAt(1).toUpperCase() : 'U'}</div>
+                    <div class="chat-user-info">
+                        <strong>${user.username || '@usuario'}</strong>
+                        <span>Membro</span>
+                    </div>
+                `;
+                usersList.appendChild(userElement);
+            }
+        });
+    });
 }
 
 // Load All Users for Search
@@ -2859,7 +2665,7 @@ function loadAllUsers() {
         .then(snapshot => {
             allUsers = [];
             snapshot.forEach(doc => {
-                if (doc.id !== auth.currentUser?.uid) {
+                if (doc.id !== auth.currentUser.uid) {
                     allUsers.push({
                         id: doc.id,
                         ...doc.data()
@@ -2890,10 +2696,8 @@ function searchUsers() {
     const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
     const searchList = document.getElementById('userSearchList');
     
-    // Filtrar usuários que já não tem conversa
-    const existingChats = conversationsList.map(c => c.userId).filter(id => id !== null);
     const filteredUsers = allUsers.filter(user => 
-        user.username.toLowerCase().includes(searchTerm) && !existingChats.includes(user.id)
+        user.username.toLowerCase().includes(searchTerm)
     );
     
     if (filteredUsers.length === 0) {
@@ -2907,7 +2711,7 @@ function searchUsers() {
         li.className = 'user-search-item';
         li.onclick = () => {
             hideUserSearchModal();
-            startPrivateChat(user.id, user.username);
+            selectChat(`private_${user.id}`, user.username, user.username.charAt(1).toUpperCase(), user.id);
         };
         li.innerHTML = `
             <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
@@ -2922,8 +2726,7 @@ function searchUsers() {
 
 // Start Private Chat
 function startPrivateChat(userId, username) {
-    const chatId = `private_${userId}`;
-    selectChat(chatId, username, username.charAt(1).toUpperCase(), userId);
+    selectChat(`private_${userId}`, username, username.charAt(1).toUpperCase(), userId);
     hideUserSearchModal();
 }
 
@@ -2992,10 +2795,11 @@ function loadProfileStats() {
     document.getElementById('profileFollowing').innerText = '56';
 }
 
-// Load Profile Posts
+// Load Profile Posts - CORRIGIDO: SEM ORDERBY PARA EVITAR ÍNDICE
 function loadProfilePosts() {
     const user = auth.currentUser;
     
+    // Versão sem orderBy para não precisar de índice
     db.collection('posts').where('user', '==', user.uid).get()
         .then(snapshot => {
             const grid = document.getElementById('profilePostsGrid');
@@ -3006,6 +2810,7 @@ function loadProfilePosts() {
                 return;
             }
             
+            // Converter para array e ordenar manualmente
             const posts = [];
             snapshot.forEach(doc => {
                 posts.push({
@@ -3014,12 +2819,14 @@ function loadProfilePosts() {
                 });
             });
             
+            // Ordenar manualmente por data (mais recente primeiro)
             posts.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
                 return dateB - dateA;
             });
             
+            // Limitar a 6 posts
             posts.slice(0, 6).forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post-thumb';
@@ -3136,13 +2943,15 @@ function toggleUserCardForm() {
     }
 }
 
-// Load Current User Card Data for Edit
+// Load Current User Card Data for Edit - CORRIGIDO: SEM ORDERBY
 function loadCurrentUserCard() {
     const user = auth.currentUser;
     
+    // Versão sem orderBy
     db.collection('user_cards').where('userId', '==', user.uid).get()
         .then(snapshot => {
             if (!snapshot.empty) {
+                // Encontrar o mais recente manualmente
                 let latest = null;
                 let latestDate = null;
                 
@@ -3191,19 +3000,22 @@ function calculateIMC() {
     }
 }
 
-// Save User Card
+// Save User Card - CORRIGIDO
 function saveUserCard() {
+    // Verificar se usuário está logado
     if (!auth.currentUser) {
         alert('Você precisa estar logado para salvar a ficha');
         return;
     }
     
+    // Obter valores dos campos
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
     const age = parseInt(document.getElementById('editAge').value);
     const goal = document.getElementById('editGoal').value;
     const notes = document.getElementById('editNotes').value;
     
+    // Validar campos obrigatórios
     if (isNaN(weight) || weight <= 0) {
         alert('Por favor, preencha um peso válido');
         return;
@@ -3219,6 +3031,7 @@ function saveUserCard() {
         return;
     }
     
+    // Desabilitar botão para evitar múltiplos envios
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = 'Salvando...';
@@ -3237,25 +3050,41 @@ function saveUserCard() {
     
     console.log('Salvando ficha no Firestore:', cardData);
     
+    // Salvar no Firestore
     db.collection('user_cards').add(cardData)
         .then((docRef) => {
             console.log('✅ Ficha salva com sucesso! ID:', docRef.id);
             alert('Ficha salva com sucesso!');
+            
+            // Esconder formulário
             toggleUserCardForm();
+            
+            // Recarregar dados
             loadUserCard();
             loadProgressHistory();
         })
         .catch(error => {
             console.error('❌ Erro ao salvar ficha:', error);
-            alert('Erro ao salvar ficha: ' + error.message);
+            console.error('Código do erro:', error.code);
+            console.error('Mensagem:', error.message);
+            
+            // Mensagem de erro mais amigável
+            if (error.code === 'permission-denied') {
+                alert('Erro de permissão: Você não tem permissão para salvar dados. Verifique as regras do Firestore.');
+            } else if (error.code === 'unavailable') {
+                alert('Erro de conexão: Não foi possível conectar ao banco de dados. Verifique sua internet.');
+            } else {
+                alert('Erro ao salvar ficha: ' + error.message);
+            }
         })
         .finally(() => {
+            // Reativar botão
             btn.innerText = originalText;
             btn.disabled = false;
         });
 }
 
-// Load User Card
+// Load User Card - CORRIGIDO: SEM ORDERBY
 function loadUserCard() {
     const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
@@ -3276,6 +3105,7 @@ function loadUserCard() {
                 return;
             }
             
+            // Encontrar a ficha mais recente
             let latestDoc = null;
             let latestDate = null;
             
@@ -3376,7 +3206,7 @@ function loadUserCard() {
         });
 }
 
-// Load Progress History
+// Load Progress History - CORRIGIDO: SEM ORDERBY
 function loadProgressHistory() {
     const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
@@ -3392,6 +3222,7 @@ function loadProgressHistory() {
                 return;
             }
             
+            // Converter para array e ordenar manualmente
             const cards = [];
             snapshot.forEach(doc => {
                 cards.push({
@@ -3400,6 +3231,7 @@ function loadProgressHistory() {
                 });
             });
             
+            // Ordenar manualmente por data (mais recente primeiro)
             cards.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -3527,10 +3359,8 @@ const observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
         if (mutation.target.id === 'chat' && !mutation.target.classList.contains('hidden')) {
             setTimeout(function() {
-                if (currentChatId) {
-                    document.getElementById('chatInput').focus();
-                }
-            }, 300);
+                document.getElementById('chatInput').focus();
+            }, 100);
         }
     });
 });
