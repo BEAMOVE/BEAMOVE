@@ -1474,7 +1474,7 @@ function hideAddForumPost() {
     document.getElementById('forumPostInput').value = '';
 }
 
-// Add Forum Post - CORRIGIDA
+// Add Forum Post - CORRIGIDA E TESTADA
 function addForumPost() {
     const postInput = document.getElementById('forumPostInput');
     const postText = postInput.value.trim();
@@ -1489,39 +1489,53 @@ function addForumPost() {
         return;
     }
     
+    console.log('Tentando publicar post na categoria:', currentForum);
+    console.log('Texto:', postText);
+    console.log('Usuário:', auth.currentUser.uid);
+    
     // Desabilitar botão para evitar duplicatas
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = 'Publicando...';
     btn.disabled = true;
     
-    // Adicionar post ao Firestore
-    db.collection('forum_posts').add({
+    // Criar objeto do post
+    const postData = {
         text: postText,
         userId: auth.currentUser.uid,
         user: auth.currentUser.uid,
         category: currentForum,
         created: new Date(),
         likes: 0,
-        comments: 0,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
+        comments: 0
+    };
+    
+    console.log('Dados do post:', postData);
+    
+    // Adicionar post ao Firestore
+    db.collection('forum_posts').add(postData)
     .then((docRef) => {
-        console.log('Post criado com ID:', docRef.id);
+        console.log('Post criado com sucesso! ID:', docRef.id);
+        
+        // Limpar formulário
         postInput.value = '';
         hideAddForumPost();
         
-        // Recarregar posts imediatamente
+        // Mostrar mensagem de sucesso
+        alert('Post publicado com sucesso!');
+        
+        // Garantir que os posts sejam recarregados
         if (forumUnsubscribe) {
             forumUnsubscribe();
+            forumUnsubscribe = null;
         }
         loadForumPosts();
-        
-        alert('Post publicado com sucesso!');
     })
     .catch(error => {
-        console.error('Erro ao publicar:', error);
-        alert('Erro ao publicar: ' + error.message);
+        console.error('ERRO ao publicar:', error);
+        console.error('Código do erro:', error.code);
+        console.error('Mensagem:', error.message);
+        alert('Erro ao publicar: ' + error.message + '\n\nVerifique o console para mais detalhes (F12)');
     })
     .finally(() => {
         btn.innerText = originalText;
@@ -1529,47 +1543,60 @@ function addForumPost() {
     });
 }
 
-// Load Forum Posts - CORRIGIDA
+// Load Forum Posts - CORRIGIDA E TESTADA
 function loadForumPosts() {
-    if (!auth.currentUser) return;
-    
-    // Cancelar listener anterior se existir
-    if (forumUnsubscribe) {
-        forumUnsubscribe();
+    if (!auth.currentUser) {
+        console.log('Usuário não logado, não carregando posts');
+        return;
     }
     
     console.log('Carregando posts para categoria:', currentForum);
+    
+    // Cancelar listener anterior se existir
+    if (forumUnsubscribe) {
+        console.log('Cancelando listener anterior');
+        forumUnsubscribe();
+        forumUnsubscribe = null;
+    }
+    
+    // Mostrar loading
+    const forumPosts = document.getElementById('forumPosts');
+    forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando posts...</div>';
     
     forumUnsubscribe = db.collection('forum_posts')
         .where('category', '==', currentForum)
         .orderBy('created', 'desc')
         .onSnapshot(async (snapshot) => {
-            const forumPosts = document.getElementById('forumPosts');
+            console.log('Snapshot recebido com', snapshot.size, 'posts');
+            
             forumPosts.innerHTML = '';
             
-            console.log('Posts encontrados:', snapshot.size);
-            
             if (snapshot.empty) {
+                console.log('Nenhum post encontrado para categoria:', currentForum);
                 forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhum post ainda. Seja o primeiro a compartilhar! 📝</div>';
                 return;
             }
             
             // Array para armazenar todas as promessas de busca de usuários
-            const postPromises = [];
+            const postsArray = [];
             
             snapshot.forEach(doc => {
                 const post = doc.data();
                 const postId = doc.id;
+                console.log('Post encontrado:', postId, post.category, post.text.substring(0, 30));
                 
                 // Buscar dados do usuário
                 const userPromise = db.collection('users').doc(post.user).get()
                     .then(userDoc => {
-                        const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
+                        let username = '@usuario';
+                        if (userDoc.exists) {
+                            username = userDoc.data().username || '@usuario';
+                        }
                         
                         return {
                             postId,
                             post,
-                            userData
+                            username
                         };
                     })
                     .catch(error => {
@@ -1577,22 +1604,15 @@ function loadForumPosts() {
                         return {
                             postId,
                             post,
-                            userData: { username: '@usuario' }
+                            username: '@usuario'
                         };
                     });
                 
-                postPromises.push(userPromise);
+                postsArray.push(userPromise);
             });
             
             // Aguardar todas as buscas de usuário
-            const postsData = await Promise.all(postPromises);
-            
-            // Ordenar por data (mais recente primeiro)
-            postsData.sort((a, b) => {
-                const dateA = a.post.created?.seconds || 0;
-                const dateB = b.post.created?.seconds || 0;
-                return dateB - dateA;
-            });
+            const postsData = await Promise.all(postsArray);
             
             // Renderizar posts
             postsData.forEach(item => {
@@ -1600,9 +1620,9 @@ function loadForumPosts() {
                 postElement.className = 'forum-post';
                 postElement.innerHTML = `
                     <div class="forum-post-header">
-                        <div class="post-avatar">${item.userData.username ? item.userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="post-avatar">${item.username ? item.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div>
-                            <div class="forum-post-author">${item.userData.username || '@usuario'}</div>
+                            <div class="forum-post-author">${item.username}</div>
                             <div class="forum-post-date">${formatDate(item.post.created)}</div>
                         </div>
                     </div>
@@ -1622,9 +1642,12 @@ function loadForumPosts() {
             });
             
             lucide.createIcons();
+            
         }, error => {
-            console.error('Erro ao carregar posts:', error);
-            document.getElementById('forumPosts').innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts. Tente novamente.</div>';
+            console.error('ERRO no snapshot:', error);
+            console.error('Código:', error.code);
+            console.error('Mensagem:', error.message);
+            forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts. Verifique o console (F12)</div>';
         });
 }
 
@@ -1894,10 +1917,10 @@ function saveProfile() {
 
 // Format Date
 function formatDate(date) {
-    if (!date) return '';
+    if (!date) return 'Data desconhecida';
     
     let d;
-    if (date && date.seconds) {
+    if (date && typeof date === 'object' && date.seconds) {
         d = new Date(date.seconds * 1000);
     } else if (date instanceof Date) {
         d = date;
