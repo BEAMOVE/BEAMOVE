@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+/* Seu CSS existente permanece IGUAL */
 * {
     margin: 0;
     padding: 0;
@@ -1151,7 +1152,7 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Register - CORRIGIDA
+// Register - CORRIGIDA COM TRATAMENTO DE PERMISSÃO
 function register() {
     const username = document.getElementById('username').value.trim();
     const email = document.getElementById('registerEmail').value;
@@ -1172,19 +1173,24 @@ function register() {
         return;
     }
     
+    // Mostrar mensagem de carregamento
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = 'Cadastrando...';
+    btn.disabled = true;
+    
     // Verificar se username já existe
     db.collection('users').where('username', '==', username).get()
         .then(snapshot => {
             if (!snapshot.empty) {
-                alert('Username já existe');
-                return Promise.reject('Username already exists');
+                throw new Error('Username já existe');
             }
             
             // Criar usuário
             return auth.createUserWithEmailAndPassword(email, password);
         })
         .then(userCredential => {
-            // Criar documento do usuário
+            // Tentar criar documento do usuário
             return db.collection('users').doc(userCredential.user.uid).set({
                 username: username,
                 email: email,
@@ -1192,26 +1198,41 @@ function register() {
                 link: '',
                 name: username,
                 createdAt: new Date()
-            }).then(() => userCredential);
+            }).then(() => {
+                return userCredential;
+            }).catch(error => {
+                // Se falhar ao criar documento, fazer logout e mostrar erro
+                if (error.code === 'permission-denied') {
+                    userCredential.user.delete().catch(() => {});
+                    throw new Error('Erro de permissão no Firestore. Verifique as regras do banco de dados.');
+                }
+                throw error;
+            });
         })
         .then(userCredential => {
             alert('Conta criada com sucesso!');
             showLogin();
         })
         .catch(error => {
-            if (error === 'Username already exists') {
-                // Já mostramos o alert
-                return;
-            }
+            // Restaurar botão
+            btn.innerText = originalText;
+            btn.disabled = false;
             
-            if (error.code === 'auth/email-already-in-use') {
+            // Tratar erros específicos
+            if (error.message === 'Username já existe') {
+                alert('Este nome de usuário já está em uso');
+            } else if (error.code === 'auth/email-already-in-use') {
                 alert('Este email já está sendo usado');
             } else if (error.code === 'auth/weak-password') {
                 alert('A senha deve ter pelo menos 6 caracteres');
             } else if (error.code === 'auth/invalid-email') {
                 alert('Email inválido');
+            } else if (error.message.includes('permissão')) {
+                alert('Erro de permissão no banco de dados. Por favor, configure as regras do Firestore conforme instruções.');
+                console.error('Erro de permissão:', error);
             } else {
                 alert('Erro ao criar conta: ' + (error.message || error));
+                console.error('Erro completo:', error);
             }
         });
 }
