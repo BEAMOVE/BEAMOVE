@@ -1253,7 +1253,6 @@ const db = firebase.firestore();
 
 // Current forum category
 let currentForum = 'treino';
-let forumUnsubscribe = null;
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -1266,11 +1265,6 @@ auth.onAuthStateChanged(user => {
         loadChat();
         loadProfile();
         loadUsersList();
-        
-        // Se estiver na página do fórum, carregar posts
-        if (!document.getElementById('forum').classList.contains('hidden')) {
-            loadForumPosts();
-        }
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
@@ -1499,7 +1493,7 @@ function addForumPost() {
     btn.innerText = 'Publicando...';
     btn.disabled = true;
     
-    // Criar objeto do post
+    // Criar objeto do post com timestamp atual
     const postData = {
         text: postText,
         userId: auth.currentUser.uid,
@@ -1524,12 +1518,8 @@ function addForumPost() {
         // Mostrar mensagem de sucesso
         alert('Post publicado com sucesso!');
         
-        // Garantir que os posts sejam recarregados
-        if (forumUnsubscribe) {
-            forumUnsubscribe();
-            forumUnsubscribe = null;
-        }
-        loadForumPosts();
+        // Carregar posts imediatamente - sem usar orderBy para evitar índice
+        loadForumPostsSimple();
     })
     .catch(error => {
         console.error('ERRO ao publicar:', error);
@@ -1543,8 +1533,8 @@ function addForumPost() {
     });
 }
 
-// Load Forum Posts - CORRIGIDA E TESTADA
-function loadForumPosts() {
+// Load Forum Posts - VERSÃO SIMPLIFICADA SEM ORDERBY
+function loadForumPostsSimple() {
     if (!auth.currentUser) {
         console.log('Usuário não logado, não carregando posts');
         return;
@@ -1552,70 +1542,64 @@ function loadForumPosts() {
     
     console.log('Carregando posts para categoria:', currentForum);
     
-    // Cancelar listener anterior se existir
-    if (forumUnsubscribe) {
-        console.log('Cancelando listener anterior');
-        forumUnsubscribe();
-        forumUnsubscribe = null;
-    }
-    
     // Mostrar loading
     const forumPosts = document.getElementById('forumPosts');
     forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando posts...</div>';
     
-    forumUnsubscribe = db.collection('forum_posts')
+    // Consulta sem orderBy para não precisar de índice
+    db.collection('forum_posts')
         .where('category', '==', currentForum)
-        .orderBy('created', 'desc')
-        .onSnapshot(async (snapshot) => {
-            console.log('Snapshot recebido com', snapshot.size, 'posts');
+        .get()
+        .then(async (querySnapshot) => {
+            console.log('Posts encontrados:', querySnapshot.size);
             
-            forumPosts.innerHTML = '';
-            
-            if (snapshot.empty) {
-                console.log('Nenhum post encontrado para categoria:', currentForum);
+            if (querySnapshot.empty) {
                 forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhum post ainda. Seja o primeiro a compartilhar! 📝</div>';
                 return;
             }
             
-            // Array para armazenar todas as promessas de busca de usuários
+            // Array para armazenar posts com dados do usuário
             const postsArray = [];
             
-            snapshot.forEach(doc => {
+            // Para cada documento, buscar dados do usuário
+            for (const doc of querySnapshot.docs) {
                 const post = doc.data();
                 const postId = doc.id;
-                console.log('Post encontrado:', postId, post.category, post.text.substring(0, 30));
                 
-                // Buscar dados do usuário
-                const userPromise = db.collection('users').doc(post.user).get()
-                    .then(userDoc => {
-                        let username = '@usuario';
-                        if (userDoc.exists) {
-                            username = userDoc.data().username || '@usuario';
-                        }
-                        
-                        return {
-                            postId,
-                            post,
-                            username
-                        };
-                    })
-                    .catch(error => {
-                        console.error('Erro ao buscar usuário:', error);
-                        return {
-                            postId,
-                            post,
-                            username: '@usuario'
-                        };
+                try {
+                    const userDoc = await db.collection('users').doc(post.user).get();
+                    let username = '@usuario';
+                    
+                    if (userDoc.exists) {
+                        username = userDoc.data().username || '@usuario';
+                    }
+                    
+                    postsArray.push({
+                        postId,
+                        post,
+                        username
                     });
-                
-                postsArray.push(userPromise);
+                } catch (error) {
+                    console.error('Erro ao buscar usuário:', error);
+                    postsArray.push({
+                        postId,
+                        post,
+                        username: '@usuario'
+                    });
+                }
+            }
+            
+            // Ordenar por data manualmente (mais recente primeiro)
+            postsArray.sort((a, b) => {
+                const dateA = a.post.created ? new Date(a.post.created.seconds * 1000) : new Date(0);
+                const dateB = b.post.created ? new Date(b.post.created.seconds * 1000) : new Date(0);
+                return dateB - dateA;
             });
             
-            // Aguardar todas as buscas de usuário
-            const postsData = await Promise.all(postsArray);
+            // Limpar e renderizar
+            forumPosts.innerHTML = '';
             
-            // Renderizar posts
-            postsData.forEach(item => {
+            postsArray.forEach(item => {
                 const postElement = document.createElement('div');
                 postElement.className = 'forum-post';
                 postElement.innerHTML = `
@@ -1642,13 +1626,18 @@ function loadForumPosts() {
             });
             
             lucide.createIcons();
-            
-        }, error => {
-            console.error('ERRO no snapshot:', error);
+        })
+        .catch(error => {
+            console.error('ERRO ao carregar posts:', error);
             console.error('Código:', error.code);
             console.error('Mensagem:', error.message);
             forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts. Verifique o console (F12)</div>';
         });
+}
+
+// Alias para manter compatibilidade
+function loadForumPosts() {
+    loadForumPostsSimple();
 }
 
 // Like Forum Post
