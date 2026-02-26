@@ -1243,20 +1243,18 @@ header {
     padding-bottom: 100px;
 }
 
-/* Ajuste para perfil rolar acima do menu */
-#profile {
+/* Ajuste para perfil e chat rolarem acima do menu */
+#profile,
+#chat {
     padding-bottom: 100px;
-}
-
-.profile-container {
-    margin-bottom: 80px;
-}
-
-/* Garantir que o conteúdo role corretamente */
-.container, #profile, #chat, #home, #forum {
     min-height: calc(100vh - 140px);
     overflow-y: auto;
     scroll-behavior: smooth;
+}
+
+.profile-container,
+.chat-container {
+    margin-bottom: 80px;
 }
 
 /* Responsividade */
@@ -1266,7 +1264,8 @@ header {
     }
     
     .chat-sidebar {
-        display: none;
+        display: block;
+        margin-bottom: 20px;
     }
     
     .featured-card {
@@ -1475,7 +1474,7 @@ header {
             <div class="chat-sidebar">
                 <h3>Conversas</h3>
                 <ul class="chat-users" id="chatUsersList">
-                    <li class="chat-user active">
+                    <li class="chat-user active" onclick="openGlobalChat()">
                         <div class="chat-user-avatar">G</div>
                         <div>
                             <strong>Geral</strong>
@@ -1761,6 +1760,7 @@ const db = firebase.firestore();
 
 // Current forum category
 let currentForum = 'treino';
+let currentChatUser = null; // Para chat privado
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -1925,7 +1925,51 @@ function showTab(tabName) {
         loadProgressHistory();
     }
     
+    if (tabName === 'chat') {
+        // Voltar para chat geral ao abrir a aba
+        openGlobalChat();
+    }
+    
     lucide.createIcons();
+}
+
+// Função para abrir chat global
+function openGlobalChat() {
+    currentChatUser = null;
+    document.querySelectorAll('.chat-user').forEach(u => u.classList.remove('active'));
+    document.querySelector('.chat-user:first-child').classList.add('active');
+    loadChat();
+}
+
+// Função para iniciar chat privado
+function startPrivateChat(userId, username) {
+    currentChatUser = { id: userId, username: username };
+    
+    // Atualizar UI
+    document.querySelectorAll('.chat-user').forEach(u => u.classList.remove('active'));
+    
+    // Marcar este usuário como ativo
+    const userElements = document.querySelectorAll('.chat-user');
+    for (let i = 0; i < userElements.length; i++) {
+        if (userElements[i].getAttribute('data-user-id') === userId) {
+            userElements[i].classList.add('active');
+            break;
+        }
+    }
+    
+    // Carregar mensagens privadas (simulado por enquanto)
+    loadPrivateChat(userId, username);
+}
+
+// Função para carregar chat privado
+function loadPrivateChat(userId, username) {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+            💬 Chat privado com ${username}<br>
+            <small>Funcionalidade em desenvolvimento</small>
+        </div>
+    `;
 }
 
 // Open Forum
@@ -2234,6 +2278,11 @@ function addPost() {
 
 // Load Chat
 function loadChat() {
+    if (currentChatUser) {
+        loadPrivateChat(currentChatUser.id, currentChatUser.username);
+        return;
+    }
+    
     db.collection('chat').orderBy('created')
         .onSnapshot(async snapshot => {
             const chatBox = document.getElementById('chatBox');
@@ -2271,6 +2320,13 @@ function sendMessage() {
     
     if (!messageText) return;
     
+    if (currentChatUser) {
+        // Simular mensagem privada por enquanto
+        alert(`Mensagem para ${currentChatUser.username}: "${messageText}" (Funcionalidade em desenvolvimento)`);
+        chatInput.value = '';
+        return;
+    }
+    
     db.collection('chat').add({
         text: messageText,
         user: auth.currentUser.uid,
@@ -2289,30 +2345,26 @@ function sendMessage() {
 function loadUsersList() {
     db.collection('users').onSnapshot(snapshot => {
         const usersList = document.getElementById('chatUsersList');
-        usersList.innerHTML = '<li class="chat-user active"><div class="chat-user-avatar">G</div><div><strong>Geral</strong><span style="font-size: 12px; display: block;">Todos os membros</span></div></li>';
+        usersList.innerHTML = '<li class="chat-user active" onclick="openGlobalChat()"><div class="chat-user-avatar">G</div><div><strong>Geral</strong><span style="font-size: 12px; display: block;">Todos os membros</span></div></li>';
         
         snapshot.forEach(doc => {
             if (doc.id !== auth.currentUser.uid) {
                 const user = doc.data();
                 const userElement = document.createElement('li');
                 userElement.className = 'chat-user';
+                userElement.setAttribute('data-user-id', doc.id);
                 userElement.onclick = () => startPrivateChat(doc.id, user.username);
                 userElement.innerHTML = `
                     <div class="chat-user-avatar">${user.username ? user.username.charAt(1).toUpperCase() : 'U'}</div>
                     <div>
                         <strong>${user.username || '@usuario'}</strong>
-                        <span style="font-size: 12px; display: block;">Membro</span>
+                        <span style="font-size: 12px; display: block;">${user.displayName || 'Membro'}</span>
                     </div>
                 `;
                 usersList.appendChild(userElement);
             }
         });
     });
-}
-
-// Start Private Chat
-function startPrivateChat(userId, username) {
-    alert(`Iniciando chat privado com ${username} (Em breve disponível!)`);
 }
 
 // Load Profile
@@ -2380,11 +2432,10 @@ function loadProfileStats() {
     document.getElementById('profileFollowing').innerText = '56';
 }
 
-// Load Profile Posts - CORRIGIDO: SEM ORDERBY PARA EVITAR ÍNDICE
+// Load Profile Posts
 function loadProfilePosts() {
     const user = auth.currentUser;
     
-    // Versão sem orderBy para não precisar de índice
     db.collection('posts').where('user', '==', user.uid).get()
         .then(snapshot => {
             const grid = document.getElementById('profilePostsGrid');
@@ -2395,7 +2446,6 @@ function loadProfilePosts() {
                 return;
             }
             
-            // Converter para array e ordenar manualmente
             const posts = [];
             snapshot.forEach(doc => {
                 posts.push({
@@ -2404,14 +2454,12 @@ function loadProfilePosts() {
                 });
             });
             
-            // Ordenar manualmente por data (mais recente primeiro)
             posts.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
                 return dateB - dateA;
             });
             
-            // Limitar a 6 posts
             posts.slice(0, 6).forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post-thumb';
@@ -2528,15 +2576,13 @@ function toggleUserCardForm() {
     }
 }
 
-// Load Current User Card Data for Edit - CORRIGIDO: SEM ORDERBY
+// Load Current User Card Data for Edit
 function loadCurrentUserCard() {
     const user = auth.currentUser;
     
-    // Versão sem orderBy
     db.collection('user_cards').where('userId', '==', user.uid).get()
         .then(snapshot => {
             if (!snapshot.empty) {
-                // Encontrar o mais recente manualmente
                 let latest = null;
                 let latestDate = null;
                 
@@ -2585,22 +2631,19 @@ function calculateIMC() {
     }
 }
 
-// Save User Card - CORRIGIDO
+// Save User Card
 function saveUserCard() {
-    // Verificar se usuário está logado
     if (!auth.currentUser) {
         alert('Você precisa estar logado para salvar a ficha');
         return;
     }
     
-    // Obter valores dos campos
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
     const age = parseInt(document.getElementById('editAge').value);
     const goal = document.getElementById('editGoal').value;
     const notes = document.getElementById('editNotes').value;
     
-    // Validar campos obrigatórios
     if (isNaN(weight) || weight <= 0) {
         alert('Por favor, preencha um peso válido');
         return;
@@ -2616,7 +2659,6 @@ function saveUserCard() {
         return;
     }
     
-    // Desabilitar botão para evitar múltiplos envios
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = 'Salvando...';
@@ -2635,25 +2677,18 @@ function saveUserCard() {
     
     console.log('Salvando ficha no Firestore:', cardData);
     
-    // Salvar no Firestore
     db.collection('user_cards').add(cardData)
         .then((docRef) => {
             console.log('✅ Ficha salva com sucesso! ID:', docRef.id);
             alert('Ficha salva com sucesso!');
             
-            // Esconder formulário
             toggleUserCardForm();
-            
-            // Recarregar dados
             loadUserCard();
             loadProgressHistory();
         })
         .catch(error => {
             console.error('❌ Erro ao salvar ficha:', error);
-            console.error('Código do erro:', error.code);
-            console.error('Mensagem:', error.message);
             
-            // Mensagem de erro mais amigável
             if (error.code === 'permission-denied') {
                 alert('Erro de permissão: Você não tem permissão para salvar dados. Verifique as regras do Firestore.');
             } else if (error.code === 'unavailable') {
@@ -2663,13 +2698,12 @@ function saveUserCard() {
             }
         })
         .finally(() => {
-            // Reativar botão
             btn.innerText = originalText;
             btn.disabled = false;
         });
 }
 
-// Load User Card - CORRIGIDO: SEM ORDERBY
+// Load User Card
 function loadUserCard() {
     const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
@@ -2690,7 +2724,6 @@ function loadUserCard() {
                 return;
             }
             
-            // Encontrar a ficha mais recente
             let latestDoc = null;
             let latestDate = null;
             
@@ -2791,7 +2824,7 @@ function loadUserCard() {
         });
 }
 
-// Load Progress History - CORRIGIDO: SEM ORDERBY
+// Load Progress History
 function loadProgressHistory() {
     const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
@@ -2807,7 +2840,6 @@ function loadProgressHistory() {
                 return;
             }
             
-            // Converter para array e ordenar manualmente
             const cards = [];
             snapshot.forEach(doc => {
                 cards.push({
@@ -2816,7 +2848,6 @@ function loadProgressHistory() {
                 });
             });
             
-            // Ordenar manualmente por data (mais recente primeiro)
             cards.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -2927,10 +2958,7 @@ document.addEventListener('input', function(e) {
         calculateIMC();
     }
 });
-</script>
 
-<!-- NOVAS FUNCIONALIDADES: ENTER NO CHAT E FOCO AUTOMÁTICO -->
-<script>
 // Adicionar funcionalidade de Enter no chat
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter' && document.getElementById('chatInput') === document.activeElement) {
