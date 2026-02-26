@@ -17,7 +17,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* Seu CSS existente permanece IGUAL */
 * {
     margin: 0;
     padding: 0;
@@ -846,6 +845,94 @@ header {
     border-radius: 50px;
 }
 
+/* Forum Styles */
+.forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.forum-title {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.forum-add-btn {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.forum-add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
+.forum-posts {
+    margin-top: 20px;
+}
+
+.forum-post {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.forum-post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.forum-post-author {
+    font-weight: 600;
+}
+
+.forum-post-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.forum-post-content {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.forum-post-footer {
+    display: flex;
+    gap: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 15px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
 /* Utilitários */
 .hidden {
     display: none !important;
@@ -937,6 +1024,34 @@ header {
 
     <!-- Home Section -->
     <div id="home" class="container">
+        <!-- Stories (Instagram Style) -->
+        <div class="stories">
+            <div class="story-item" onclick="openForum('treino')">
+                <div class="story-circle">
+                    <span>💪</span>
+                </div>
+                <span class="story-label">Treino</span>
+            </div>
+            <div class="story-item" onclick="openForum('receitas')">
+                <div class="story-circle">
+                    <span>🥗</span>
+                </div>
+                <span class="story-label">Receitas</span>
+            </div>
+            <div class="story-item" onclick="openForum('yoga')">
+                <div class="story-circle">
+                    <span>🧘</span>
+                </div>
+                <span class="story-label">Yoga</span>
+            </div>
+            <div class="story-item" onclick="openForum('dicas')">
+                <div class="story-circle">
+                    <span>📚</span>
+                </div>
+                <span class="story-label">Dicas</span>
+            </div>
+        </div>
+
         <!-- Featured Product Card -->
         <div class="featured-card">
             <div>
@@ -988,40 +1103,41 @@ header {
             </div>
         </div>
 
-        <!-- Stories -->
-        <div class="stories">
-            <div class="story-item">
-                <div class="story-circle">
-                    <span>💪</span>
-                </div>
-                <span class="story-label">Treino</span>
-            </div>
-            <div class="story-item">
-                <div class="story-circle">
-                    <span>🥗</span>
-                </div>
-                <span class="story-label">Receitas</span>
-            </div>
-            <div class="story-item">
-                <div class="story-circle">
-                    <span>🧘</span>
-                </div>
-                <span class="story-label">Yoga</span>
-            </div>
-            <div class="story-item">
-                <div class="story-circle">
-                    <span>📚</span>
-                </div>
-                <span class="story-label">Dicas</span>
-            </div>
-        </div>
-
         <!-- Feed -->
         <div class="create-post">
             <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
             <button class="btn btn-primary" onclick="addPost()">Publicar</button>
         </div>
         <div id="feed"></div>
+    </div>
+
+    <!-- Forum Section (Dynamic) -->
+    <div id="forum" class="container hidden">
+        <button class="back-btn" onclick="backToHome()">
+            <i data-lucide="arrow-left"></i>
+            Voltar
+        </button>
+        
+        <div class="forum-header">
+            <h2 class="forum-title" id="forumTitle">
+                <i data-lucide="dumbbell" id="forumIcon"></i>
+                <span id="forumName">Treino</span>
+            </h2>
+            <button class="forum-add-btn" onclick="showAddForumPost()">
+                <i data-lucide="plus"></i>
+                Adicionar
+            </button>
+        </div>
+
+        <!-- Add Forum Post Form -->
+        <div id="addForumPostForm" class="create-post hidden">
+            <textarea id="forumPostInput" placeholder="Compartilhe sua dica..."></textarea>
+            <button class="btn btn-primary" onclick="addForumPost()">Publicar</button>
+            <button class="btn btn-secondary" onclick="hideAddForumPost()">Cancelar</button>
+        </div>
+
+        <!-- Forum Posts -->
+        <div id="forumPosts" class="forum-posts"></div>
     </div>
 
     <!-- Chat Section -->
@@ -1134,6 +1250,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// Current forum category
+let currentForum = 'treino';
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -1277,6 +1396,7 @@ function showTab(tabName) {
     document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.add('hidden');
     document.getElementById('profile').classList.add('hidden');
+    document.getElementById('forum').classList.add('hidden');
     
     // Show selected section
     document.getElementById(tabName).classList.remove('hidden');
@@ -1289,6 +1409,145 @@ function showTab(tabName) {
     
     // Refresh icons
     lucide.createIcons();
+}
+
+// Open Forum
+function openForum(category) {
+    currentForum = category;
+    
+    // Update forum title and icon
+    const titles = {
+        'treino': { name: 'Treino', icon: 'dumbbell' },
+        'receitas': { name: 'Receitas', icon: 'utensils' },
+        'yoga': { name: 'Yoga', icon: 'activity' },
+        'dicas': { name: 'Dicas', icon: 'book-open' }
+    };
+    
+    document.getElementById('forumName').innerText = titles[category].name;
+    document.getElementById('forumIcon').setAttribute('data-lucide', titles[category].icon);
+    
+    // Hide home and show forum
+    document.getElementById('home').classList.add('hidden');
+    document.getElementById('forum').classList.remove('hidden');
+    
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Load forum posts
+    loadForumPosts();
+    
+    // Refresh icons
+    lucide.createIcons();
+}
+
+// Back to Home
+function backToHome() {
+    document.getElementById('forum').classList.add('hidden');
+    document.getElementById('home').classList.remove('hidden');
+    
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector('.nav-item:first-child').classList.add('active');
+    
+    // Refresh icons
+    lucide.createIcons();
+}
+
+// Show Add Forum Post Form
+function showAddForumPost() {
+    document.getElementById('addForumPostForm').classList.remove('hidden');
+}
+
+// Hide Add Forum Post Form
+function hideAddForumPost() {
+    document.getElementById('addForumPostForm').classList.add('hidden');
+    document.getElementById('forumPostInput').value = '';
+}
+
+// Add Forum Post
+function addForumPost() {
+    const postInput = document.getElementById('forumPostInput');
+    if (!postInput.value.trim()) return;
+    
+    db.collection('forum_posts').add({
+        text: postInput.value,
+        user: auth.currentUser.uid,
+        category: currentForum,
+        created: new Date(),
+        likes: 0,
+        comments: 0
+    })
+    .then(() => {
+        postInput.value = '';
+        hideAddForumPost();
+    })
+    .catch(error => {
+        alert('Erro ao publicar: ' + error.message);
+    });
+}
+
+// Load Forum Posts
+function loadForumPosts() {
+    db.collection('forum_posts')
+        .where('category', '==', currentForum)
+        .orderBy('created', 'desc')
+        .onSnapshot(async snapshot => {
+            const forumPosts = document.getElementById('forumPosts');
+            forumPosts.innerHTML = '';
+            
+            for (const doc of snapshot.docs) {
+                const post = doc.data();
+                const userDoc = await db.collection('users').doc(post.user).get();
+                const userData = userDoc.data();
+                
+                const postElement = document.createElement('div');
+                postElement.className = 'forum-post';
+                postElement.innerHTML = `
+                    <div class="forum-post-header">
+                        <div class="post-avatar">${userData.username.charAt(1).toUpperCase()}</div>
+                        <div>
+                            <div class="forum-post-author">${userData.username}</div>
+                            <div class="forum-post-date">${formatDate(post.created)}</div>
+                        </div>
+                    </div>
+                    <div class="forum-post-content">${post.text}</div>
+                    <div class="forum-post-footer">
+                        <div class="post-action" onclick="likeForumPost('${doc.id}')">
+                            <i data-lucide="heart"></i>
+                            <span>${post.likes || 0}</span>
+                        </div>
+                        <div class="post-action" onclick="commentForumPost('${doc.id}')">
+                            <i data-lucide="message-circle"></i>
+                            <span>${post.comments || 0}</span>
+                        </div>
+                    </div>
+                `;
+                forumPosts.appendChild(postElement);
+            }
+            
+            lucide.createIcons();
+        });
+}
+
+// Like Forum Post
+function likeForumPost(postId) {
+    const postRef = db.collection('forum_posts').doc(postId);
+    
+    postRef.get().then(doc => {
+        if (doc.exists) {
+            const likes = (doc.data().likes || 0) + 1;
+            postRef.update({ likes: likes });
+        }
+    });
+}
+
+// Comment Forum Post
+function commentForumPost(postId) {
+    alert('Funcionalidade de comentários em breve!');
 }
 
 // Load Feed
@@ -1505,7 +1764,14 @@ function formatDate(date) {
 
 // Like Post
 function likePost(postId) {
-    alert('Funcionalidade de likes em breve!');
+    const postRef = db.collection('posts').doc(postId);
+    
+    postRef.get().then(doc => {
+        if (doc.exists) {
+            const likes = (doc.data().likes || 0) + 1;
+            postRef.update({ likes: likes });
+        }
+    });
 }
 
 // Comment Post
