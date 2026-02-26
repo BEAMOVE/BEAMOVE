@@ -498,15 +498,21 @@ header {
     border-radius: 25px;
     padding: 20px;
     box-shadow: var(--card-shadow);
+    position: relative;
 }
 
 .chat-sidebar h3 {
     margin-bottom: 20px;
     font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .chat-users {
     list-style: none;
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
 }
 
 .chat-user {
@@ -539,6 +545,27 @@ header {
     justify-content: center;
     color: white;
     font-weight: 600;
+    flex-shrink: 0;
+}
+
+.chat-user-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.chat-user-info strong {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-user-info span {
+    font-size: 12px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chat-main {
@@ -548,6 +575,47 @@ header {
     flex-direction: column;
     box-shadow: var(--card-shadow);
     overflow: hidden;
+}
+
+.chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-secondary);
+}
+
+.chat-header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+.chat-header-info h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.chat-header-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.back-to-users {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    margin-right: 10px;
 }
 
 .chat-messages {
@@ -599,6 +667,7 @@ header {
 
 .message-content p {
     margin-bottom: 5px;
+    word-break: break-word;
 }
 
 .message-time {
@@ -639,6 +708,140 @@ header {
 
 .chat-input button:hover {
     transform: scale(1.1);
+}
+
+/* Botão + para novos chats */
+.add-chat-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.add-chat-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Modal de busca de usuários */
+.user-search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.user-search-content {
+    background: var(--bg-secondary);
+    border-radius: 25px;
+    padding: 25px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--card-shadow);
+}
+
+.user-search-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.user-search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.user-search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.user-search-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.user-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+}
+
+.user-search-item:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent);
+}
+
+.user-search-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.user-search-info {
+    flex: 1;
+}
+
+.user-search-info strong {
+    display: block;
+    font-size: 14px;
+}
+
+.user-search-info span {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.no-users-found {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
 }
 
 /* Perfil Aprimorado - Estilo Instagram */
@@ -1243,29 +1446,57 @@ header {
     padding-bottom: 100px;
 }
 
-/* Ajuste para perfil e chat rolarem acima do menu */
-#profile,
-#chat {
+/* Ajuste para perfil rolar acima do menu */
+#profile {
     padding-bottom: 100px;
+}
+
+.profile-container {
+    margin-bottom: 80px;
+}
+
+/* Garantir que o conteúdo role corretamente */
+.container, #profile, #chat, #home, #forum {
     min-height: calc(100vh - 140px);
     overflow-y: auto;
     scroll-behavior: smooth;
-}
-
-.profile-container,
-.chat-container {
-    margin-bottom: 80px;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
     .chat-container {
         grid-template-columns: 1fr;
+        position: relative;
+        padding-bottom: 80px;
     }
     
     .chat-sidebar {
         display: block;
-        margin-bottom: 20px;
+        height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+    
+    .chat-main {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        bottom: 80px;
+        z-index: 90;
+        border-radius: 0;
+        display: none;
+    }
+    
+    .chat-main.active {
+        display: flex;
+    }
+    
+    .back-to-users {
+        display: block;
+    }
+    
+    .chat-sidebar.hidden-mobile {
+        display: none;
     }
     
     .featured-card {
@@ -1301,6 +1532,11 @@ header {
     
     .ddi-select select {
         width: 100%;
+    }
+    
+    .user-search-content {
+        width: 95%;
+        margin: 10px;
     }
 }
 </style>
@@ -1471,20 +1707,37 @@ header {
     <!-- Chat Section -->
     <div id="chat" class="hidden">
         <div class="chat-container">
-            <div class="chat-sidebar">
-                <h3>Conversas</h3>
+            <!-- Sidebar com lista de usuários -->
+            <div class="chat-sidebar" id="chatSidebar">
+                <h3>
+                    Conversas
+                    <button class="add-chat-btn" onclick="showUserSearchModal()">
+                        <i data-lucide="plus"></i>
+                    </button>
+                </h3>
                 <ul class="chat-users" id="chatUsersList">
-                    <li class="chat-user active" onclick="openGlobalChat()">
+                    <li class="chat-user active" onclick="selectChat('geral', 'Geral', 'G')">
                         <div class="chat-user-avatar">G</div>
-                        <div>
+                        <div class="chat-user-info">
                             <strong>Geral</strong>
-                            <span style="font-size: 12px; display: block;">Todos os membros</span>
+                            <span>Todos os membros</span>
                         </div>
                     </li>
                 </ul>
             </div>
             
-            <div class="chat-main">
+            <!-- Área principal do chat -->
+            <div class="chat-main" id="chatMain">
+                <div class="chat-header" id="chatHeader">
+                    <button class="back-to-users" onclick="backToUsersList()">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                    <div class="chat-header-avatar" id="chatHeaderAvatar">G</div>
+                    <div class="chat-header-info">
+                        <h4 id="chatHeaderName">Geral</h4>
+                        <p id="chatHeaderStatus">Online</p>
+                    </div>
+                </div>
                 <div class="chat-messages" id="chatBox"></div>
                 <div class="chat-input">
                     <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
@@ -1493,6 +1746,20 @@ header {
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de busca de usuários -->
+    <div id="userSearchModal" class="user-search-modal hidden">
+        <div class="user-search-content">
+            <h3>
+                Nova mensagem
+                <button class="close-modal-btn" onclick="hideUserSearchModal()">✕</button>
+            </h3>
+            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar @usuario..." onkeyup="searchUsers()">
+            <ul class="user-search-list" id="userSearchList">
+                <!-- Lista de usuários será inserida aqui -->
+            </ul>
         </div>
     </div>
 
@@ -1760,7 +2027,13 @@ const db = firebase.firestore();
 
 // Current forum category
 let currentForum = 'treino';
-let currentChatUser = null; // Para chat privado
+
+// Current chat state
+let currentChat = 'geral';
+let currentChatUser = null;
+let currentChatUserName = 'Geral';
+let currentChatAvatar = 'G';
+let allUsers = [];
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -1775,6 +2048,7 @@ auth.onAuthStateChanged(user => {
         loadProfilePosts();
         loadUserCard();
         loadProgressHistory();
+        loadAllUsers();
         loadUsersList();
         
         // Mostrar mensagem de boas-vindas
@@ -1926,50 +2200,11 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        // Voltar para chat geral ao abrir a aba
-        openGlobalChat();
+        // Reset para o chat geral quando abrir
+        selectChat('geral', 'Geral', 'G');
     }
     
     lucide.createIcons();
-}
-
-// Função para abrir chat global
-function openGlobalChat() {
-    currentChatUser = null;
-    document.querySelectorAll('.chat-user').forEach(u => u.classList.remove('active'));
-    document.querySelector('.chat-user:first-child').classList.add('active');
-    loadChat();
-}
-
-// Função para iniciar chat privado
-function startPrivateChat(userId, username) {
-    currentChatUser = { id: userId, username: username };
-    
-    // Atualizar UI
-    document.querySelectorAll('.chat-user').forEach(u => u.classList.remove('active'));
-    
-    // Marcar este usuário como ativo
-    const userElements = document.querySelectorAll('.chat-user');
-    for (let i = 0; i < userElements.length; i++) {
-        if (userElements[i].getAttribute('data-user-id') === userId) {
-            userElements[i].classList.add('active');
-            break;
-        }
-    }
-    
-    // Carregar mensagens privadas (simulado por enquanto)
-    loadPrivateChat(userId, username);
-}
-
-// Função para carregar chat privado
-function loadPrivateChat(userId, username) {
-    const chatBox = document.getElementById('chatBox');
-    chatBox.innerHTML = `
-        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-            💬 Chat privado com ${username}<br>
-            <small>Funcionalidade em desenvolvimento</small>
-        </div>
-    `;
 }
 
 // Open Forum
@@ -2278,13 +2513,21 @@ function addPost() {
 
 // Load Chat
 function loadChat() {
-    if (currentChatUser) {
-        loadPrivateChat(currentChatUser.id, currentChatUser.username);
-        return;
+    // Carregar mensagens do chat atual
+    let chatRef;
+    
+    if (currentChat === 'geral') {
+        chatRef = db.collection('chat').orderBy('created');
+    } else {
+        // Chat privado - precisa de lógica específica
+        chatRef = db.collection('private_chats')
+            .where('participants', 'array-contains', auth.currentUser.uid)
+            .where('chatId', '==', currentChat)
+            .orderBy('created');
     }
     
-    db.collection('chat').orderBy('created')
-        .onSnapshot(async snapshot => {
+    if (chatRef) {
+        chatRef.onSnapshot(async snapshot => {
             const chatBox = document.getElementById('chatBox');
             chatBox.innerHTML = '';
             
@@ -2311,6 +2554,7 @@ function loadChat() {
             
             chatBox.scrollTop = chatBox.scrollHeight;
         });
+    }
 }
 
 // Send Message
@@ -2320,51 +2564,170 @@ function sendMessage() {
     
     if (!messageText) return;
     
-    if (currentChatUser) {
-        // Simular mensagem privada por enquanto
-        alert(`Mensagem para ${currentChatUser.username}: "${messageText}" (Funcionalidade em desenvolvimento)`);
-        chatInput.value = '';
-        return;
+    if (currentChat === 'geral') {
+        // Mensagem para o chat geral
+        db.collection('chat').add({
+            text: messageText,
+            user: auth.currentUser.uid,
+            created: new Date()
+        })
+        .then(() => {
+            chatInput.value = '';
+        })
+        .catch(error => {
+            console.error('Erro ao enviar mensagem:', error);
+            alert('Erro ao enviar mensagem: ' + error.message);
+        });
+    } else {
+        // Mensagem privada
+        db.collection('private_chats').add({
+            text: messageText,
+            user: auth.currentUser.uid,
+            chatId: currentChat,
+            participants: [auth.currentUser.uid, currentChatUser],
+            created: new Date()
+        })
+        .then(() => {
+            chatInput.value = '';
+        })
+        .catch(error => {
+            console.error('Erro ao enviar mensagem privada:', error);
+            alert('Erro ao enviar mensagem: ' + error.message);
+        });
+    }
+}
+
+// Select Chat
+function selectChat(chatId, userName, avatar, userId = null) {
+    currentChat = chatId;
+    currentChatUser = userId;
+    currentChatUserName = userName;
+    currentChatAvatar = avatar;
+    
+    // Atualizar header
+    document.getElementById('chatHeaderName').innerText = userName;
+    document.getElementById('chatHeaderAvatar').innerText = avatar;
+    
+    // Mostrar chat principal em mobile
+    if (window.innerWidth <= 768) {
+        document.getElementById('chatSidebar').classList.add('hidden-mobile');
+        document.getElementById('chatMain').classList.add('active');
     }
     
-    db.collection('chat').add({
-        text: messageText,
-        user: auth.currentUser.uid,
-        created: new Date()
-    })
-    .then(() => {
-        chatInput.value = '';
-    })
-    .catch(error => {
-        console.error('Erro ao enviar mensagem:', error);
-        alert('Erro ao enviar mensagem: ' + error.message);
+    // Atualizar active state na lista
+    document.querySelectorAll('.chat-user').forEach(item => {
+        item.classList.remove('active');
     });
+    
+    // Recarregar mensagens
+    loadChat();
+}
+
+// Back to Users List (mobile)
+function backToUsersList() {
+    document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+    document.getElementById('chatMain').classList.remove('active');
 }
 
 // Load Users List
 function loadUsersList() {
     db.collection('users').onSnapshot(snapshot => {
         const usersList = document.getElementById('chatUsersList');
-        usersList.innerHTML = '<li class="chat-user active" onclick="openGlobalChat()"><div class="chat-user-avatar">G</div><div><strong>Geral</strong><span style="font-size: 12px; display: block;">Todos os membros</span></div></li>';
+        
+        // Manter o item "Geral"
+        usersList.innerHTML = '<li class="chat-user active" onclick="selectChat(\'geral\', \'Geral\', \'G\')"><div class="chat-user-avatar">G</div><div class="chat-user-info"><strong>Geral</strong><span>Todos os membros</span></div></li>';
         
         snapshot.forEach(doc => {
             if (doc.id !== auth.currentUser.uid) {
                 const user = doc.data();
                 const userElement = document.createElement('li');
                 userElement.className = 'chat-user';
-                userElement.setAttribute('data-user-id', doc.id);
-                userElement.onclick = () => startPrivateChat(doc.id, user.username);
+                userElement.setAttribute('data-userid', doc.id);
+                userElement.setAttribute('data-username', user.username);
+                userElement.setAttribute('data-avatar', user.username ? user.username.charAt(1).toUpperCase() : 'U');
+                userElement.onclick = () => selectChat(`private_${doc.id}`, user.username, user.username ? user.username.charAt(1).toUpperCase() : 'U', doc.id);
                 userElement.innerHTML = `
                     <div class="chat-user-avatar">${user.username ? user.username.charAt(1).toUpperCase() : 'U'}</div>
-                    <div>
+                    <div class="chat-user-info">
                         <strong>${user.username || '@usuario'}</strong>
-                        <span style="font-size: 12px; display: block;">${user.displayName || 'Membro'}</span>
+                        <span>Membro</span>
                     </div>
                 `;
                 usersList.appendChild(userElement);
             }
         });
     });
+}
+
+// Load All Users for Search
+function loadAllUsers() {
+    db.collection('users').get()
+        .then(snapshot => {
+            allUsers = [];
+            snapshot.forEach(doc => {
+                if (doc.id !== auth.currentUser.uid) {
+                    allUsers.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar usuários:', error);
+        });
+}
+
+// Show User Search Modal
+function showUserSearchModal() {
+    document.getElementById('userSearchModal').classList.remove('hidden');
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('userSearchInput').focus();
+    searchUsers();
+}
+
+// Hide User Search Modal
+function hideUserSearchModal() {
+    document.getElementById('userSearchModal').classList.add('hidden');
+}
+
+// Search Users
+function searchUsers() {
+    const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+    const searchList = document.getElementById('userSearchList');
+    
+    const filteredUsers = allUsers.filter(user => 
+        user.username.toLowerCase().includes(searchTerm)
+    );
+    
+    if (filteredUsers.length === 0) {
+        searchList.innerHTML = '<li class="no-users-found">Nenhum usuário encontrado</li>';
+        return;
+    }
+    
+    searchList.innerHTML = '';
+    filteredUsers.forEach(user => {
+        const li = document.createElement('li');
+        li.className = 'user-search-item';
+        li.onclick = () => {
+            hideUserSearchModal();
+            selectChat(`private_${user.id}`, user.username, user.username.charAt(1).toUpperCase(), user.id);
+        };
+        li.innerHTML = `
+            <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
+            <div class="user-search-info">
+                <strong>${user.username}</strong>
+                <span>${user.displayName || 'Membro'}</span>
+            </div>
+        `;
+        searchList.appendChild(li);
+    });
+}
+
+// Start Private Chat
+function startPrivateChat(userId, username) {
+    selectChat(`private_${userId}`, username, username.charAt(1).toUpperCase(), userId);
+    hideUserSearchModal();
 }
 
 // Load Profile
@@ -2432,10 +2795,11 @@ function loadProfileStats() {
     document.getElementById('profileFollowing').innerText = '56';
 }
 
-// Load Profile Posts
+// Load Profile Posts - CORRIGIDO: SEM ORDERBY PARA EVITAR ÍNDICE
 function loadProfilePosts() {
     const user = auth.currentUser;
     
+    // Versão sem orderBy para não precisar de índice
     db.collection('posts').where('user', '==', user.uid).get()
         .then(snapshot => {
             const grid = document.getElementById('profilePostsGrid');
@@ -2446,6 +2810,7 @@ function loadProfilePosts() {
                 return;
             }
             
+            // Converter para array e ordenar manualmente
             const posts = [];
             snapshot.forEach(doc => {
                 posts.push({
@@ -2454,12 +2819,14 @@ function loadProfilePosts() {
                 });
             });
             
+            // Ordenar manualmente por data (mais recente primeiro)
             posts.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
                 return dateB - dateA;
             });
             
+            // Limitar a 6 posts
             posts.slice(0, 6).forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post-thumb';
@@ -2576,13 +2943,15 @@ function toggleUserCardForm() {
     }
 }
 
-// Load Current User Card Data for Edit
+// Load Current User Card Data for Edit - CORRIGIDO: SEM ORDERBY
 function loadCurrentUserCard() {
     const user = auth.currentUser;
     
+    // Versão sem orderBy
     db.collection('user_cards').where('userId', '==', user.uid).get()
         .then(snapshot => {
             if (!snapshot.empty) {
+                // Encontrar o mais recente manualmente
                 let latest = null;
                 let latestDate = null;
                 
@@ -2631,19 +3000,22 @@ function calculateIMC() {
     }
 }
 
-// Save User Card
+// Save User Card - CORRIGIDO
 function saveUserCard() {
+    // Verificar se usuário está logado
     if (!auth.currentUser) {
         alert('Você precisa estar logado para salvar a ficha');
         return;
     }
     
+    // Obter valores dos campos
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
     const age = parseInt(document.getElementById('editAge').value);
     const goal = document.getElementById('editGoal').value;
     const notes = document.getElementById('editNotes').value;
     
+    // Validar campos obrigatórios
     if (isNaN(weight) || weight <= 0) {
         alert('Por favor, preencha um peso válido');
         return;
@@ -2659,6 +3031,7 @@ function saveUserCard() {
         return;
     }
     
+    // Desabilitar botão para evitar múltiplos envios
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = 'Salvando...';
@@ -2677,18 +3050,25 @@ function saveUserCard() {
     
     console.log('Salvando ficha no Firestore:', cardData);
     
+    // Salvar no Firestore
     db.collection('user_cards').add(cardData)
         .then((docRef) => {
             console.log('✅ Ficha salva com sucesso! ID:', docRef.id);
             alert('Ficha salva com sucesso!');
             
+            // Esconder formulário
             toggleUserCardForm();
+            
+            // Recarregar dados
             loadUserCard();
             loadProgressHistory();
         })
         .catch(error => {
             console.error('❌ Erro ao salvar ficha:', error);
+            console.error('Código do erro:', error.code);
+            console.error('Mensagem:', error.message);
             
+            // Mensagem de erro mais amigável
             if (error.code === 'permission-denied') {
                 alert('Erro de permissão: Você não tem permissão para salvar dados. Verifique as regras do Firestore.');
             } else if (error.code === 'unavailable') {
@@ -2698,12 +3078,13 @@ function saveUserCard() {
             }
         })
         .finally(() => {
+            // Reativar botão
             btn.innerText = originalText;
             btn.disabled = false;
         });
 }
 
-// Load User Card
+// Load User Card - CORRIGIDO: SEM ORDERBY
 function loadUserCard() {
     const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
@@ -2724,6 +3105,7 @@ function loadUserCard() {
                 return;
             }
             
+            // Encontrar a ficha mais recente
             let latestDoc = null;
             let latestDate = null;
             
@@ -2824,7 +3206,7 @@ function loadUserCard() {
         });
 }
 
-// Load Progress History
+// Load Progress History - CORRIGIDO: SEM ORDERBY
 function loadProgressHistory() {
     const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
@@ -2840,6 +3222,7 @@ function loadProgressHistory() {
                 return;
             }
             
+            // Converter para array e ordenar manualmente
             const cards = [];
             snapshot.forEach(doc => {
                 cards.push({
@@ -2848,6 +3231,7 @@ function loadProgressHistory() {
                 });
             });
             
+            // Ordenar manualmente por data (mais recente primeiro)
             cards.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -2958,7 +3342,10 @@ document.addEventListener('input', function(e) {
         calculateIMC();
     }
 });
+</script>
 
+<!-- NOVAS FUNCIONALIDADES: ENTER NO CHAT E FOCO AUTOMÁTICO -->
+<script>
 // Adicionar funcionalidade de Enter no chat
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter' && document.getElementById('chatInput') === document.activeElement) {
