@@ -1151,7 +1151,7 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Register
+// Register - CORRIGIDA
 function register() {
     const username = document.getElementById('username').value.trim();
     const email = document.getElementById('registerEmail').value;
@@ -1177,32 +1177,33 @@ function register() {
         .then(snapshot => {
             if (!snapshot.empty) {
                 alert('Username já existe');
-                return null;
+                return Promise.reject('Username already exists');
             }
             
             // Criar usuário
             return auth.createUserWithEmailAndPassword(email, password);
         })
-        .then(cred => {
-            if (cred) {
-                // Criar documento do usuário
-                return db.collection('users').doc(cred.user.uid).set({
-                    username: username,
-                    email: email,
-                    bio: '',
-                    link: '',
-                    name: username,
-                    createdAt: new Date()
-                });
-            }
+        .then(userCredential => {
+            // Criar documento do usuário
+            return db.collection('users').doc(userCredential.user.uid).set({
+                username: username,
+                email: email,
+                bio: '',
+                link: '',
+                name: username,
+                createdAt: new Date()
+            }).then(() => userCredential);
         })
-        .then(() => {
-            if (cred) {
-                alert('Conta criada com sucesso!');
-                showLogin();
-            }
+        .then(userCredential => {
+            alert('Conta criada com sucesso!');
+            showLogin();
         })
         .catch(error => {
+            if (error === 'Username already exists') {
+                // Já mostramos o alert
+                return;
+            }
+            
             if (error.code === 'auth/email-already-in-use') {
                 alert('Este email já está sendo usado');
             } else if (error.code === 'auth/weak-password') {
@@ -1210,7 +1211,7 @@ function register() {
             } else if (error.code === 'auth/invalid-email') {
                 alert('Email inválido');
             } else {
-                alert('Erro ao criar conta: ' + error.message);
+                alert('Erro ao criar conta: ' + (error.message || error));
             }
         });
 }
