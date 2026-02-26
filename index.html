@@ -1253,6 +1253,7 @@ const db = firebase.firestore();
 
 // Current forum category
 let currentForum = 'treino';
+let forumUnsubscribe = null;
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -1265,6 +1266,11 @@ auth.onAuthStateChanged(user => {
         loadChat();
         loadProfile();
         loadUsersList();
+        
+        // Se estiver na página do fórum, carregar posts
+        if (!document.getElementById('forum').classList.contains('hidden')) {
+            loadForumPosts();
+        }
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
@@ -1500,9 +1506,17 @@ function addForumPost() {
         comments: 0,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     })
-    .then(() => {
+    .then((docRef) => {
+        console.log('Post criado com ID:', docRef.id);
         postInput.value = '';
         hideAddForumPost();
+        
+        // Recarregar posts imediatamente
+        if (forumUnsubscribe) {
+            forumUnsubscribe();
+        }
+        loadForumPosts();
+        
         alert('Post publicado com sucesso!');
     })
     .catch(error => {
@@ -1519,51 +1533,93 @@ function addForumPost() {
 function loadForumPosts() {
     if (!auth.currentUser) return;
     
-    db.collection('forum_posts')
+    // Cancelar listener anterior se existir
+    if (forumUnsubscribe) {
+        forumUnsubscribe();
+    }
+    
+    console.log('Carregando posts para categoria:', currentForum);
+    
+    forumUnsubscribe = db.collection('forum_posts')
         .where('category', '==', currentForum)
         .orderBy('created', 'desc')
-        .onSnapshot(async snapshot => {
+        .onSnapshot(async (snapshot) => {
             const forumPosts = document.getElementById('forumPosts');
             forumPosts.innerHTML = '';
+            
+            console.log('Posts encontrados:', snapshot.size);
             
             if (snapshot.empty) {
                 forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhum post ainda. Seja o primeiro a compartilhar! 📝</div>';
                 return;
             }
             
-            for (const doc of snapshot.docs) {
+            // Array para armazenar todas as promessas de busca de usuários
+            const postPromises = [];
+            
+            snapshot.forEach(doc => {
                 const post = doc.data();
-                try {
-                    const userDoc = await db.collection('users').doc(post.user).get();
-                    const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
-                    
-                    const postElement = document.createElement('div');
-                    postElement.className = 'forum-post';
-                    postElement.innerHTML = `
-                        <div class="forum-post-header">
-                            <div class="post-avatar">${userData.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
-                            <div>
-                                <div class="forum-post-author">${userData.username || '@usuario'}</div>
-                                <div class="forum-post-date">${formatDate(post.created)}</div>
-                            </div>
+                const postId = doc.id;
+                
+                // Buscar dados do usuário
+                const userPromise = db.collection('users').doc(post.user).get()
+                    .then(userDoc => {
+                        const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
+                        
+                        return {
+                            postId,
+                            post,
+                            userData
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar usuário:', error);
+                        return {
+                            postId,
+                            post,
+                            userData: { username: '@usuario' }
+                        };
+                    });
+                
+                postPromises.push(userPromise);
+            });
+            
+            // Aguardar todas as buscas de usuário
+            const postsData = await Promise.all(postPromises);
+            
+            // Ordenar por data (mais recente primeiro)
+            postsData.sort((a, b) => {
+                const dateA = a.post.created?.seconds || 0;
+                const dateB = b.post.created?.seconds || 0;
+                return dateB - dateA;
+            });
+            
+            // Renderizar posts
+            postsData.forEach(item => {
+                const postElement = document.createElement('div');
+                postElement.className = 'forum-post';
+                postElement.innerHTML = `
+                    <div class="forum-post-header">
+                        <div class="post-avatar">${item.userData.username ? item.userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div>
+                            <div class="forum-post-author">${item.userData.username || '@usuario'}</div>
+                            <div class="forum-post-date">${formatDate(item.post.created)}</div>
                         </div>
-                        <div class="forum-post-content">${post.text}</div>
-                        <div class="forum-post-footer">
-                            <div class="post-action" onclick="likeForumPost('${doc.id}')">
-                                <i data-lucide="heart"></i>
-                                <span>${post.likes || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="commentForumPost('${doc.id}')">
-                                <i data-lucide="message-circle"></i>
-                                <span>${post.comments || 0}</span>
-                            </div>
+                    </div>
+                    <div class="forum-post-content">${item.post.text}</div>
+                    <div class="forum-post-footer">
+                        <div class="post-action" onclick="likeForumPost('${item.postId}')">
+                            <i data-lucide="heart"></i>
+                            <span>${item.post.likes || 0}</span>
                         </div>
-                    `;
-                    forumPosts.appendChild(postElement);
-                } catch (error) {
-                    console.error('Erro ao carregar post:', error);
-                }
-            }
+                        <div class="post-action" onclick="commentForumPost('${item.postId}')">
+                            <i data-lucide="message-circle"></i>
+                            <span>${item.post.comments || 0}</span>
+                        </div>
+                    </div>
+                `;
+                forumPosts.appendChild(postElement);
+            });
             
             lucide.createIcons();
         }, error => {
@@ -1841,12 +1897,12 @@ function formatDate(date) {
     if (!date) return '';
     
     let d;
-    if (date.seconds) {
+    if (date && date.seconds) {
         d = new Date(date.seconds * 1000);
     } else if (date instanceof Date) {
         d = date;
     } else {
-        return '';
+        return 'Data desconhecida';
     }
     
     const now = new Date();
@@ -1855,6 +1911,7 @@ function formatDate(date) {
     if (diff < 60000) return 'Agora mesmo';
     if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)} dias atrás`;
     
     return d.toLocaleDateString('pt-BR');
 }
