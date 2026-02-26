@@ -2313,16 +2313,33 @@ function loadProfile() {
             document.getElementById('profileLink').href = data.link || '#';
             document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
             
-            document.getElementById('editName').value = data.displayName || '';
-            document.getElementById('editBio').value = data.bio || '';
-            document.getElementById('editLink').value = data.link || '';
+            // Verificar se os elementos existem antes de definir valores
+            const editName = document.getElementById('editName');
+            if (editName) editName.value = data.displayName || '';
             
-            document.getElementById('whatsappDDI').value = data.whatsappDDI || '+351';
-            document.getElementById('editWhatsApp').value = data.whatsapp || '';
-            document.getElementById('phoneDDI').value = data.phoneDDI || '+351';
-            document.getElementById('editPhone').value = data.phone || '';
-            document.getElementById('editBirthDate').value = data.birthDate || '';
-            document.getElementById('editGender').value = data.gender || '';
+            const editBio = document.getElementById('editBio');
+            if (editBio) editBio.value = data.bio || '';
+            
+            const editLink = document.getElementById('editLink');
+            if (editLink) editLink.value = data.link || '';
+            
+            const whatsappDDI = document.getElementById('whatsappDDI');
+            if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
+            
+            const editWhatsApp = document.getElementById('editWhatsApp');
+            if (editWhatsApp) editWhatsApp.value = data.whatsapp || '';
+            
+            const phoneDDI = document.getElementById('phoneDDI');
+            if (phoneDDI) phoneDDI.value = data.phoneDDI || '+351';
+            
+            const editPhone = document.getElementById('editPhone');
+            if (editPhone) editPhone.value = data.phone || '';
+            
+            const editBirthDate = document.getElementById('editBirthDate');
+            if (editBirthDate) editBirthDate.value = data.birthDate || '';
+            
+            const editGender = document.getElementById('editGender');
+            if (editGender) editGender.value = data.gender || '';
             
             loadProfileStats();
         })
@@ -2347,11 +2364,12 @@ function loadProfileStats() {
     document.getElementById('profileFollowing').innerText = '56';
 }
 
-// Load Profile Posts
+// Load Profile Posts - CORRIGIDO: SEM ORDERBY PARA EVITAR ÍNDICE
 function loadProfilePosts() {
     const user = auth.currentUser;
     
-    db.collection('posts').where('user', '==', user.uid).orderBy('created', 'desc').limit(6).get()
+    // Versão sem orderBy para não precisar de índice
+    db.collection('posts').where('user', '==', user.uid).get()
         .then(snapshot => {
             const grid = document.getElementById('profilePostsGrid');
             grid.innerHTML = '';
@@ -2361,8 +2379,24 @@ function loadProfilePosts() {
                 return;
             }
             
+            // Converter para array e ordenar manualmente
+            const posts = [];
             snapshot.forEach(doc => {
-                const post = doc.data();
+                posts.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            // Ordenar manualmente por data (mais recente primeiro)
+            posts.sort((a, b) => {
+                const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+                const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+                return dateB - dateA;
+            });
+            
+            // Limitar a 6 posts
+            posts.slice(0, 6).forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post-thumb';
                 postElement.innerHTML = `
@@ -2374,6 +2408,7 @@ function loadProfilePosts() {
         })
         .catch(error => {
             console.error('Erro ao carregar posts do perfil:', error);
+            document.getElementById('profilePostsGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts</div>';
         });
 }
 
@@ -2477,20 +2512,36 @@ function toggleUserCardForm() {
     }
 }
 
-// Load Current User Card Data for Edit
+// Load Current User Card Data for Edit - CORRIGIDO: SEM ORDERBY
 function loadCurrentUserCard() {
     const user = auth.currentUser;
     
-    db.collection('user_cards').where('userId', '==', user.uid).orderBy('created', 'desc').limit(1).get()
+    // Versão sem orderBy
+    db.collection('user_cards').where('userId', '==', user.uid).get()
         .then(snapshot => {
             if (!snapshot.empty) {
-                const data = snapshot.docs[0].data();
-                document.getElementById('editWeight').value = data.weight || '';
-                document.getElementById('editHeight').value = data.height || '';
-                document.getElementById('editAge').value = data.age || '';
-                document.getElementById('editGoal').value = data.goal || '';
-                document.getElementById('editNotes').value = data.notes || '';
-                calculateIMC();
+                // Encontrar o mais recente manualmente
+                let latest = null;
+                let latestDate = null;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+                    
+                    if (!latestDate || date > latestDate) {
+                        latestDate = date;
+                        latest = data;
+                    }
+                });
+                
+                if (latest) {
+                    document.getElementById('editWeight').value = latest.weight || '';
+                    document.getElementById('editHeight').value = latest.height || '';
+                    document.getElementById('editAge').value = latest.age || '';
+                    document.getElementById('editGoal').value = latest.goal || '';
+                    document.getElementById('editNotes').value = latest.notes || '';
+                    calculateIMC();
+                }
             } else {
                 document.getElementById('editWeight').value = '';
                 document.getElementById('editHeight').value = '';
@@ -2518,7 +2569,7 @@ function calculateIMC() {
     }
 }
 
-// CORREÇÃO: Save User Card - Versão melhorada com verificação e logs
+// Save User Card - CORRIGIDO
 function saveUserCard() {
     // Verificar se usuário está logado
     if (!auth.currentUser) {
@@ -2563,8 +2614,7 @@ function saveUserCard() {
         age: age,
         goal: goal || '',
         notes: notes || '',
-        created: new Date(),
-        timestamp: firebase.firestore.FieldValue.serverTimestamp() // Alternativa para timestamp
+        created: new Date()
     };
     
     console.log('Salvando ficha no Firestore:', cardData);
@@ -2603,18 +2653,16 @@ function saveUserCard() {
         });
 }
 
-// Load User Card
+// Load User Card - CORRIGIDO: SEM ORDERBY
 function loadUserCard() {
     const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
     
     db.collection('user_cards')
         .where('userId', '==', user.uid)
-        .orderBy('created', 'desc')
-        .limit(1)
         .get()
         .then(snapshot => {
-            console.log('Carregando ficha mais recente...');
+            console.log('Carregando fichas...', snapshot.size, 'encontradas');
             
             if (snapshot.empty) {
                 console.log('Nenhuma ficha encontrada');
@@ -2626,9 +2674,27 @@ function loadUserCard() {
                 return;
             }
             
-            const doc = snapshot.docs[0];
-            const data = doc.data();
-            console.log('Ficha carregada:', data);
+            // Encontrar a ficha mais recente
+            let latestDoc = null;
+            let latestDate = null;
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+                
+                if (!latestDate || date > latestDate) {
+                    latestDate = date;
+                    latestDoc = { id: doc.id, ...data };
+                }
+            });
+            
+            if (!latestDoc) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--danger);">Erro ao carregar ficha</div>';
+                return;
+            }
+            
+            const data = latestDoc;
+            console.log('Ficha mais recente carregada:', data);
             
             const heightInMeters = data.height / 100;
             const imc = (data.weight / (heightInMeters * heightInMeters)).toFixed(2);
@@ -2709,14 +2775,13 @@ function loadUserCard() {
         });
 }
 
-// Load Progress History
+// Load Progress History - CORRIGIDO: SEM ORDERBY
 function loadProgressHistory() {
     const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
     
     db.collection('user_cards')
         .where('userId', '==', user.uid)
-        .orderBy('created', 'desc')
         .get()
         .then(snapshot => {
             console.log('Carregando histórico...', snapshot.size, 'registros encontrados');
@@ -2726,10 +2791,25 @@ function loadProgressHistory() {
                 return;
             }
             
+            // Converter para array e ordenar manualmente
+            const cards = [];
+            snapshot.forEach(doc => {
+                cards.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            // Ordenar manualmente por data (mais recente primeiro)
+            cards.sort((a, b) => {
+                const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+                const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+                return dateB - dateA;
+            });
+            
             timeline.innerHTML = '';
             
-            snapshot.forEach((doc, index) => {
-                const data = doc.data();
+            cards.forEach((data) => {
                 const heightInMeters = data.height / 100;
                 const imc = (data.weight / (heightInMeters * heightInMeters)).toFixed(2);
                 
