@@ -1760,6 +1760,9 @@ auth.onAuthStateChanged(user => {
         loadUserCard();
         loadProgressHistory();
         loadUsersList();
+        
+        // Mostrar mensagem de boas-vindas
+        console.log('Usuário logado:', user.uid);
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
@@ -2515,19 +2518,38 @@ function calculateIMC() {
     }
 }
 
-// Save User Card - CORRIGIDO: Agora salva no banco de dados
+// CORREÇÃO: Save User Card - Versão melhorada com verificação e logs
 function saveUserCard() {
+    // Verificar se usuário está logado
+    if (!auth.currentUser) {
+        alert('Você precisa estar logado para salvar a ficha');
+        return;
+    }
+    
+    // Obter valores dos campos
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
     const age = parseInt(document.getElementById('editAge').value);
     const goal = document.getElementById('editGoal').value;
     const notes = document.getElementById('editNotes').value;
     
-    if (!weight || !height || !age) {
-        alert('Por favor, preencha peso, altura e idade');
+    // Validar campos obrigatórios
+    if (isNaN(weight) || weight <= 0) {
+        alert('Por favor, preencha um peso válido');
         return;
     }
     
+    if (isNaN(height) || height <= 0) {
+        alert('Por favor, preencha uma altura válida');
+        return;
+    }
+    
+    if (isNaN(age) || age <= 0 || age > 120) {
+        alert('Por favor, preencha uma idade válida');
+        return;
+    }
+    
+    // Desabilitar botão para evitar múltiplos envios
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = 'Salvando...';
@@ -2539,25 +2561,43 @@ function saveUserCard() {
         weight: weight,
         height: height,
         age: age,
-        goal: goal,
-        notes: notes,
-        created: new Date()
+        goal: goal || '',
+        notes: notes || '',
+        created: new Date(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp() // Alternativa para timestamp
     };
+    
+    console.log('Salvando ficha no Firestore:', cardData);
     
     // Salvar no Firestore
     db.collection('user_cards').add(cardData)
         .then((docRef) => {
-            console.log('Ficha salva com sucesso! ID:', docRef.id);
+            console.log('✅ Ficha salva com sucesso! ID:', docRef.id);
             alert('Ficha salva com sucesso!');
+            
+            // Esconder formulário
             toggleUserCardForm();
+            
+            // Recarregar dados
             loadUserCard();
             loadProgressHistory();
         })
         .catch(error => {
-            console.error('Erro ao salvar ficha:', error);
-            alert('Erro ao salvar ficha: ' + error.message);
+            console.error('❌ Erro ao salvar ficha:', error);
+            console.error('Código do erro:', error.code);
+            console.error('Mensagem:', error.message);
+            
+            // Mensagem de erro mais amigável
+            if (error.code === 'permission-denied') {
+                alert('Erro de permissão: Você não tem permissão para salvar dados. Verifique as regras do Firestore.');
+            } else if (error.code === 'unavailable') {
+                alert('Erro de conexão: Não foi possível conectar ao banco de dados. Verifique sua internet.');
+            } else {
+                alert('Erro ao salvar ficha: ' + error.message);
+            }
         })
         .finally(() => {
+            // Reativar botão
             btn.innerText = originalText;
             btn.disabled = false;
         });
@@ -2568,9 +2608,16 @@ function loadUserCard() {
     const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
     
-    db.collection('user_cards').where('userId', '==', user.uid).orderBy('created', 'desc').limit(1).get()
+    db.collection('user_cards')
+        .where('userId', '==', user.uid)
+        .orderBy('created', 'desc')
+        .limit(1)
+        .get()
         .then(snapshot => {
+            console.log('Carregando ficha mais recente...');
+            
             if (snapshot.empty) {
+                console.log('Nenhuma ficha encontrada');
                 grid.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--text-secondary);">
                         Nenhum dado cadastrado ainda. Clique em "Adicionar dados" para começar.
@@ -2579,15 +2626,28 @@ function loadUserCard() {
                 return;
             }
             
-            const data = snapshot.docs[0].data();
+            const doc = snapshot.docs[0];
+            const data = doc.data();
+            console.log('Ficha carregada:', data);
+            
             const heightInMeters = data.height / 100;
             const imc = (data.weight / (heightInMeters * heightInMeters)).toFixed(2);
             
             let imcClass = '';
-            if (imc < 18.5) imcClass = 'warning';
-            else if (imc < 25) imcClass = 'success';
-            else if (imc < 30) imcClass = 'warning';
-            else imcClass = 'danger';
+            let imcStatus = '';
+            if (imc < 18.5) {
+                imcClass = 'warning';
+                imcStatus = 'Abaixo do peso';
+            } else if (imc < 25) {
+                imcClass = 'success';
+                imcStatus = 'Peso normal';
+            } else if (imc < 30) {
+                imcClass = 'warning';
+                imcStatus = 'Sobrepeso';
+            } else {
+                imcClass = 'danger';
+                imcStatus = 'Obesidade';
+            }
             
             grid.innerHTML = `
                 <div class="user-card-item">
@@ -2617,6 +2677,7 @@ function loadUserCard() {
                         IMC
                     </div>
                     <div class="user-card-value" style="color: var(--${imcClass})">${imc}</div>
+                    <div style="font-size: 12px; color: var(--${imcClass})">${imcStatus}</div>
                 </div>
                 <div class="user-card-item" style="grid-column: span 2;">
                     <div class="user-card-label">
@@ -2640,6 +2701,11 @@ function loadUserCard() {
         })
         .catch(error => {
             console.error('Erro ao carregar ficha:', error);
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--danger);">
+                    Erro ao carregar ficha: ${error.message}
+                </div>
+            `;
         });
 }
 
@@ -2648,8 +2714,13 @@ function loadProgressHistory() {
     const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
     
-    db.collection('user_cards').where('userId', '==', user.uid).orderBy('created', 'desc').get()
+    db.collection('user_cards')
+        .where('userId', '==', user.uid)
+        .orderBy('created', 'desc')
+        .get()
         .then(snapshot => {
+            console.log('Carregando histórico...', snapshot.size, 'registros encontrados');
+            
             if (snapshot.size <= 1) {
                 timeline.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">Atualize sua ficha para ver seu histórico de progresso</div>';
                 return;
@@ -2657,10 +2728,16 @@ function loadProgressHistory() {
             
             timeline.innerHTML = '';
             
-            snapshot.forEach(doc => {
+            snapshot.forEach((doc, index) => {
                 const data = doc.data();
                 const heightInMeters = data.height / 100;
                 const imc = (data.weight / (heightInMeters * heightInMeters)).toFixed(2);
+                
+                let imcClass = '';
+                if (imc < 18.5) imcClass = 'warning';
+                else if (imc < 25) imcClass = 'success';
+                else if (imc < 30) imcClass = 'warning';
+                else imcClass = 'danger';
                 
                 const item = document.createElement('div');
                 item.className = 'timeline-item';
@@ -2670,7 +2747,7 @@ function loadProgressHistory() {
                         <p><strong>Peso:</strong> ${data.weight} kg</p>
                         <p><strong>Altura:</strong> ${data.height} cm</p>
                         <p><strong>Idade:</strong> ${data.age} anos</p>
-                        <p><strong>IMC:</strong> ${imc}</p>
+                        <p><strong>IMC:</strong> <span style="color: var(--${imcClass})">${imc}</span></p>
                         ${data.goal ? `<p><strong>Objetivo:</strong> ${getGoalName(data.goal)}</p>` : ''}
                         ${data.notes ? `<p><strong>Obs:</strong> ${data.notes}</p>` : ''}
                     </div>
@@ -2680,6 +2757,11 @@ function loadProgressHistory() {
         })
         .catch(error => {
             console.error('Erro ao carregar histórico:', error);
+            timeline.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: var(--danger);">
+                    Erro ao carregar histórico: ${error.message}
+                </div>
+            `;
         });
 }
 
