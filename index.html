@@ -1157,34 +1157,61 @@ function register() {
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     
+    if (!username) {
+        alert('Por favor, preencha o nome de usuário');
+        return;
+    }
+    
     if (!username.startsWith('@')) {
         alert('Username deve começar com @');
         return;
     }
     
+    if (!email || !password) {
+        alert('Por favor, preencha todos os campos');
+        return;
+    }
+    
+    // Verificar se username já existe
     db.collection('users').where('username', '==', username).get()
         .then(snapshot => {
             if (!snapshot.empty) {
                 alert('Username já existe');
-                return;
+                return null;
             }
             
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(cred => {
-                    return db.collection('users').doc(cred.user.uid).set({
-                        username: username,
-                        bio: '',
-                        link: '',
-                        name: username,
-                        createdAt: new Date()
-                    });
-                })
-                .then(() => {
-                    showLogin();
-                })
-                .catch(error => {
-                    alert(error.message);
+            // Criar usuário
+            return auth.createUserWithEmailAndPassword(email, password);
+        })
+        .then(cred => {
+            if (cred) {
+                // Criar documento do usuário
+                return db.collection('users').doc(cred.user.uid).set({
+                    username: username,
+                    email: email,
+                    bio: '',
+                    link: '',
+                    name: username,
+                    createdAt: new Date()
                 });
+            }
+        })
+        .then(() => {
+            if (cred) {
+                alert('Conta criada com sucesso!');
+                showLogin();
+            }
+        })
+        .catch(error => {
+            if (error.code === 'auth/email-already-in-use') {
+                alert('Este email já está sendo usado');
+            } else if (error.code === 'auth/weak-password') {
+                alert('A senha deve ter pelo menos 6 caracteres');
+            } else if (error.code === 'auth/invalid-email') {
+                alert('Email inválido');
+            } else {
+                alert('Erro ao criar conta: ' + error.message);
+            }
         });
 }
 
