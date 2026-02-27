@@ -42,7 +42,9 @@
     --unread-border: #8b5cf6;
     --status-sent: #94a3b8;
     --status-read: #8b5cf6;
-    --status-delivered: #64748b;
+    --online: #10b981;
+    --offline: #94a3b8;
+    --away: #f59e0b;
 }
 
 .dark {
@@ -604,6 +606,30 @@ header {
     position: relative;
 }
 
+.chat-user-avatar.online::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--online);
+    border: 2px solid var(--bg-secondary);
+}
+
+.chat-user-avatar.offline::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--offline);
+    border: 2px solid var(--bg-secondary);
+}
+
 .chat-user-info {
     flex: 1;
     overflow: hidden;
@@ -693,6 +719,30 @@ header {
     position: relative;
 }
 
+.chat-header-avatar.online::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--online);
+    border: 2px solid var(--bg-secondary);
+}
+
+.chat-header-avatar.offline::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--offline);
+    border: 2px solid var(--bg-secondary);
+}
+
 .chat-header-info {
     flex: 1;
 }
@@ -769,26 +819,25 @@ header {
     margin-bottom: 2px;
 }
 
-/* CORREÇÃO: Status das mensagens com cores */
+/* Status das mensagens */
 .message-status {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
+    gap: 2px;
     font-size: 12px;
-    margin-top: 2px;
 }
 
 .message-status.sent {
-    color: var(--status-sent) !important;
+    color: var(--status-sent);
 }
 
 .message-status.read {
-    color: var(--status-read) !important;
+    color: var(--status-read);
 }
 
 .message-status i {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .message-status span {
@@ -796,12 +845,12 @@ header {
     margin-left: 2px;
 }
 
-.message.sent .message-status.sent {
-    color: rgba(255, 255, 255, 0.7) !important;
+.message.sent .message-status {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .message.sent .message-status.read {
-    color: white !important;
+    color: white;
 }
 
 .message.unread-indicator {
@@ -957,6 +1006,19 @@ header {
     color: white;
     font-weight: 600;
     flex-shrink: 0;
+    position: relative;
+}
+
+.user-search-avatar.online::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--online);
+    border: 2px solid var(--bg-secondary);
 }
 
 .user-search-info {
@@ -1833,7 +1895,7 @@ header {
                     </button>
                 </div>
                 <ul class="chat-users" id="chatUsersList">
-                    <li class="chat-user active" data-chat-id="geral" data-user-id="geral" data-user-name="Geral" data-user-avatar="G" onclick="selectChat('geral', 'Geral', 'G', null)">
+                    <li class="chat-user" data-chat-id="geral" data-user-id="geral" data-user-name="Geral" data-user-avatar="G" onclick="selectChat('geral', 'Geral', 'G', null)">
                         <div class="chat-user-avatar">G</div>
                         <div class="chat-user-info">
                             <strong>Geral</strong>
@@ -2162,8 +2224,123 @@ let unsubscribeChat = null;
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
-// CORREÇÃO: Mapa para armazenar status de leitura das mensagens
-let messageReadStatus = new Map();
+// NOVO: Mapa de status online dos usuários
+let userOnlineStatus = new Map();
+let userLastSeen = new Map();
+
+// NOVO: Função para atualizar status online do usuário atual
+function updateUserOnlineStatus() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const userRef = db.collection('users').doc(user.uid);
+    
+    // Atualizar status como online
+    userRef.update({
+        online: true,
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(error => {
+        console.error('Erro ao atualizar status online:', error);
+    });
+    
+    // Configurar para marcar como offline quando a página fechar
+    window.addEventListener('beforeunload', function() {
+        userRef.update({
+            online: false,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(error => {
+            console.error('Erro ao atualizar status offline:', error);
+        });
+    });
+}
+
+// NOVO: Função para monitorar status online de outros usuários
+function monitorUserOnlineStatus(userId) {
+    if (!userId || userId === 'geral') return;
+    
+    db.collection('users').doc(userId).onSnapshot(doc => {
+        if (doc.exists) {
+            const userData = doc.data();
+            const wasOnline = userOnlineStatus.get(userId);
+            const isOnline = userData.online || false;
+            
+            userOnlineStatus.set(userId, isOnline);
+            userLastSeen.set(userId, userData.lastSeen);
+            
+            // Atualizar UI se necessário
+            updateUserOnlineStatusUI(userId, isOnline, userData.lastSeen);
+            
+            // Se o usuário estava offline e ficou online, atualizar UI
+            if (!wasOnline && isOnline) {
+                console.log(`Usuário ${userId} ficou online`);
+            }
+            // Se estava online e ficou offline, atualizar UI
+            else if (wasOnline && !isOnline) {
+                console.log(`Usuário ${userId} ficou offline`);
+            }
+        }
+    });
+}
+
+// NOVO: Função para atualizar UI com status online
+function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
+    // Atualizar na lista de chats
+    const userItem = document.querySelector(`.chat-user[data-user-id="${userId}"]`);
+    if (userItem) {
+        const avatar = userItem.querySelector('.chat-user-avatar');
+        if (avatar) {
+            avatar.classList.remove('online', 'offline');
+            avatar.classList.add(isOnline ? 'online' : 'offline');
+        }
+        
+        // Atualizar texto de status
+        const statusSpan = userItem.querySelector('.chat-user-info span:last-child');
+        if (statusSpan) {
+            if (isOnline) {
+                statusSpan.textContent = 'Online';
+            } else if (lastSeen) {
+                const lastSeenDate = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
+                statusSpan.textContent = `Visto por último ${formatLastSeen(lastSeenDate)}`;
+            } else {
+                statusSpan.textContent = 'Offline';
+            }
+        }
+    }
+    
+    // Atualizar no header do chat se for o usuário atual
+    if (currentChatUser === userId) {
+        const headerAvatar = document.getElementById('chatHeaderAvatar');
+        if (headerAvatar) {
+            headerAvatar.classList.remove('online', 'offline');
+            headerAvatar.classList.add(isOnline ? 'online' : 'offline');
+        }
+        
+        const headerStatus = document.getElementById('chatHeaderStatus');
+        if (headerStatus) {
+            if (isOnline) {
+                headerStatus.textContent = 'Online';
+            } else if (lastSeen) {
+                const lastSeenDate = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
+                headerStatus.textContent = `Visto por último ${formatLastSeen(lastSeenDate)}`;
+            } else {
+                headerStatus.textContent = 'Offline';
+            }
+        }
+    }
+}
+
+// NOVO: Função para formatar "visto por último"
+function formatLastSeen(date) {
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) return 'agora mesmo';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)} dias atrás`;
+    
+    return date.toLocaleDateString('pt-BR');
+}
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -2176,6 +2353,8 @@ auth.onAuthStateChanged(user => {
         db.collection('users').doc(user.uid).get().then(doc => {
             currentUserData = doc.data();
             userCache.set(user.uid, currentUserData);
+            // Atualizar status online
+            updateUserOnlineStatus();
         });
         
         loadFeed();
@@ -2186,26 +2365,17 @@ auth.onAuthStateChanged(user => {
         loadAllUsers();
         loadChatList();
         
-        // CORREÇÃO: Em dispositivos móveis, mostrar a lista de conversas com Geral selecionado
+        // CORREÇÃO: Em dispositivos móveis, sempre mostrar a lista de conversas primeiro
         if (window.innerWidth <= 768) {
-            // Garantir que a sidebar está visível
+            // Garantir que a sidebar está visível e o chat principal escondido
             document.getElementById('chatSidebar').classList.remove('hidden-mobile');
             document.getElementById('chatMain').classList.remove('active');
-            
-            // Manter Geral selecionado mas não abrir o chat
+            // Manter "Geral" selecionado
             currentChat = 'geral';
             currentChatUser = null;
             currentChatUserName = 'Geral';
             currentChatUserAvatar = 'G';
             currentChatId = 'geral';
-            
-            // Destacar Geral na lista
-            document.querySelectorAll('.chat-user').forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('data-chat-id') === 'geral') {
-                    item.classList.add('active');
-                }
-            });
         } else {
             // Em desktop, restaurar última conversa
             const lastChat = localStorage.getItem('lastChat');
@@ -2274,6 +2444,8 @@ function register() {
                 phoneDDI: '+351',
                 birthDate: '',
                 gender: '',
+                online: true,
+                lastSeen: new Date(),
                 createdAt: new Date()
             }).then(() => {
                 return userCredential;
@@ -2324,7 +2496,21 @@ function login() {
 
 // Logout
 function logout() {
-    auth.signOut();
+    const user = auth.currentUser;
+    if (user) {
+        // Marcar como offline antes de sair
+        db.collection('users').doc(user.uid).update({
+            online: false,
+            lastSeen: new Date()
+        }).then(() => {
+            auth.signOut();
+        }).catch(error => {
+            console.error('Erro ao atualizar status offline:', error);
+            auth.signOut();
+        });
+    } else {
+        auth.signOut();
+    }
 }
 
 // Show Register Screen
@@ -2367,27 +2553,16 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        // CORREÇÃO: Em dispositivos móveis, sempre mostrar a lista de conversas com Geral selecionado
+        // CORREÇÃO: Em dispositivos móveis, sempre mostrar a lista de conversas primeiro
         if (window.innerWidth <= 768) {
             document.getElementById('chatSidebar').classList.remove('hidden-mobile');
             document.getElementById('chatMain').classList.remove('active');
-            
-            // Manter Geral selecionado
+            // Manter "Geral" selecionado mas não abrir
             currentChat = 'geral';
             currentChatUser = null;
             currentChatUserName = 'Geral';
             currentChatUserAvatar = 'G';
             currentChatId = 'geral';
-            
-            // Atualizar active state na lista
-            document.querySelectorAll('.chat-user').forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('data-chat-id') === 'geral') {
-                    item.classList.add('active');
-                }
-            });
-            
-            // Não carregar mensagens
         } else {
             // Em desktop, restaurar última conversa
             const lastChat = localStorage.getItem('lastChat');
@@ -2720,7 +2895,7 @@ function loadChatList() {
     const usersList = document.getElementById('chatUsersList');
     
     const geralItem = document.createElement('li');
-    geralItem.className = 'chat-user active';
+    geralItem.className = 'chat-user';
     geralItem.setAttribute('data-chat-id', 'geral');
     geralItem.setAttribute('data-user-id', 'geral');
     geralItem.setAttribute('data-user-name', 'Geral');
@@ -2778,16 +2953,22 @@ function loadChatList() {
                             unreadBadge = `<span class="unread-badge">${unreadCount}</span>`;
                         }
                         
+                        const isOnline = userData.online || false;
+                        const avatarClass = isOnline ? 'online' : 'offline';
+                        
+                        // NOVO: Iniciar monitoramento de status online para este usuário
+                        monitorUserOnlineStatus(userId);
+                        
                         chatItem.innerHTML = `
-                            <div class="chat-user-avatar">
+                            <div class="chat-user-avatar ${avatarClass}">
                                 ${userData.username.charAt(1).toUpperCase()}
                                 ${unreadBadge}
                             </div>
                             <div class="chat-user-info">
                                 <strong>${userData.username}</strong>
-                                <span>${chatInfo.lastMessage || 'Clique para conversar'}</span>
+                                <span>${chatInfo.lastMessage ? chatInfo.lastMessage.substring(0, 30) + (chatInfo.lastMessage.length > 30 ? '...' : '') : 'Clique para conversar'}</span>
+                                <span style="font-size: 10px; opacity: 0.5;">${formatTime(chatInfo.lastMessageTime)}</span>
                             </div>
-                            <div class="chat-user-time">${formatTime(chatInfo.lastMessageTime)}</div>
                         `;
                         usersList.appendChild(chatItem);
                     }
@@ -2891,7 +3072,7 @@ function loadChat(chatId, otherUserId = null) {
     }
 }
 
-// CORREÇÃO: Display a message in the chat com status em tempo real
+// Display a message in the chat - CORREÇÃO: Status instantâneo e horas
 async function displayMessage(message, chatId) {
     try {
         let userData = userCache.get(message.user);
@@ -2904,117 +3085,57 @@ async function displayMessage(message, chatId) {
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         
-        // Determinar status da mensagem em tempo real
+        // Determinar status da mensagem (instantâneo)
         let statusHtml = '';
         if (message.user === auth.currentUser.uid) {
             // Verificar se a mensagem foi lida
-            const isRead = await checkIfMessageRead(message, chatId);
+            const isRead = checkIfMessageRead(message, chatId);
             const statusClass = isRead ? 'read' : 'sent';
             const statusIcon = isRead ? 'check-check' : 'check';
             statusHtml = `
                 <div class="message-status ${statusClass}">
                     <i data-lucide="${statusIcon}"></i>
-                    <span>${isRead ? 'Lida' : 'Enviada'}</span>
                 </div>
             `;
         }
+        
+        // Formatar hora
+        const messageTime = message.created ? formatTime(message.created) : '';
         
         messageElement.innerHTML = `
             <div class="message-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
             <div class="message-content">
                 <p>${message.text}</p>
-                <span class="message-time">${formatTime(message.created)}</span>
-                ${statusHtml}
+                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                    <span class="message-time">${messageTime}</span>
+                    ${statusHtml}
+                </div>
             </div>
         `;
         document.getElementById('chatBox').appendChild(messageElement);
         lucide.createIcons();
-        
-        // Se for mensagem do próprio usuário, agendar verificação de leitura
-        if (message.user === auth.currentUser.uid && chatId !== 'geral') {
-            setTimeout(() => checkMessageReadStatus(message, chatId), 1000);
-        }
     } catch (error) {
         console.error('Erro ao exibir mensagem:', error);
     }
 }
 
-// CORREÇÃO: Função para verificar se mensagem foi lida
-async function checkIfMessageRead(message, chatId) {
-    return new Promise((resolve) => {
-        if (message.user !== auth.currentUser.uid) {
-            resolve(false);
-            return;
-        }
+// Função para verificar se mensagem foi lida (instantâneo)
+function checkIfMessageRead(message, chatId) {
+    if (message.user !== auth.currentUser.uid) return false;
+    
+    if (chatId === 'geral') {
+        // No chat geral, considerar como lida após alguns segundos
+        // (simplificação - em produção teria confirmação de leitura)
+        return true;
+    } else {
+        const otherUserId = currentChatUser;
+        if (!otherUserId) return false;
         
-        if (chatId === 'geral') {
-            // No chat geral, considerar como lida após 2 segundos
-            setTimeout(() => resolve(true), 2000);
-        } else {
-            const otherUserId = currentChatUser;
-            if (!otherUserId) {
-                resolve(false);
-                return;
-            }
-            
-            // Verificar no Firestore se o destinatário já leu
-            const checkRead = () => {
-                const lastRead = lastReadTimestamps.get(otherUserId) || 0;
-                const messageTime = message.created ? new Date(message.created.seconds * 1000).getTime() : 0;
-                resolve(messageTime <= lastRead);
-            };
-            
-            // Verificar imediatamente e depois a cada segundo
-            checkRead();
-            const interval = setInterval(() => {
-                const lastRead = lastReadTimestamps.get(otherUserId) || 0;
-                const messageTime = message.created ? new Date(message.created.seconds * 1000).getTime() : 0;
-                if (messageTime <= lastRead) {
-                    clearInterval(interval);
-                    resolve(true);
-                }
-            }, 1000);
-            
-            // Limpar após 30 segundos
-            setTimeout(() => {
-                clearInterval(interval);
-                resolve(false);
-            }, 30000);
-        }
-    });
-}
-
-// CORREÇÃO: Função para verificar status de leitura de mensagens
-function checkMessageReadStatus(message, chatId) {
-    if (chatId === 'geral') return;
-    
-    const otherUserId = currentChatUser;
-    if (!otherUserId) return;
-    
-    const messageId = message.id || `${message.user}_${message.created.seconds}`;
-    
-    const checkInterval = setInterval(() => {
         const lastRead = lastReadTimestamps.get(otherUserId) || 0;
         const messageTime = message.created ? new Date(message.created.seconds * 1000).getTime() : 0;
         
-        if (messageTime <= lastRead && !messageReadStatus.get(messageId)) {
-            messageReadStatus.set(messageId, true);
-            
-            // Atualizar todas as mensagens na tela
-            const chatBox = document.getElementById('chatBox');
-            const messages = chatBox.querySelectorAll('.message.sent');
-            messages.forEach(msg => {
-                const statusDiv = msg.querySelector('.message-status');
-                if (statusDiv) {
-                    statusDiv.className = 'message-status read';
-                    statusDiv.innerHTML = '<i data-lucide="check-check"></i><span>Lida</span>';
-                    lucide.createIcons();
-                }
-            });
-            
-            clearInterval(checkInterval);
-        }
-    }, 1000);
+        return messageTime <= lastRead;
+    }
 }
 
 // Select Chat
@@ -3027,6 +3148,14 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     
     if (userId) {
         markAsRead(userId);
+        // Atualizar status no header
+        const isOnline = userOnlineStatus.get(userId) || false;
+        const lastSeen = userLastSeen.get(userId);
+        updateUserOnlineStatusUI(userId, isOnline, lastSeen);
+    } else {
+        // Chat geral
+        document.getElementById('chatHeaderAvatar').className = 'chat-header-avatar';
+        document.getElementById('chatHeaderStatus').textContent = 'Online';
     }
     
     localStorage.setItem('lastChat', JSON.stringify({
@@ -3140,19 +3269,16 @@ function sendMessage() {
         };
         
         db.collection('private_chats').add(chatData)
-            .then((docRef) => {
+            .then(() => {
                 chatInput.value = '';
                 
-                // Adicionar ao cache de status
-                const messageId = docRef.id;
-                messageReadStatus.set(messageId, false);
-                
+                // Atualizar última mensagem na lista
                 const usersList = document.getElementById('chatUsersList');
                 const userItem = usersList.querySelector(`[data-user-id="${currentChatUser}"]`);
                 if (userItem) {
                     const lastMessageSpan = userItem.querySelector('.chat-user-info span');
                     if (lastMessageSpan) {
-                        lastMessageSpan.textContent = messageText;
+                        lastMessageSpan.textContent = messageText.length > 30 ? messageText.substring(0, 30) + '...' : messageText;
                     }
                 }
             })
@@ -3217,6 +3343,9 @@ function searchUsers() {
     
     searchList.innerHTML = '';
     filteredUsers.forEach(user => {
+        const isOnline = user.online || false;
+        const avatarClass = isOnline ? 'online' : 'offline';
+        
         const li = document.createElement('li');
         li.className = 'user-search-item';
         li.onclick = () => {
@@ -3225,10 +3354,10 @@ function searchUsers() {
             selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
         };
         li.innerHTML = `
-            <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
+            <div class="user-search-avatar ${avatarClass}">${user.username.charAt(1).toUpperCase()}</div>
             <div class="user-search-info">
                 <strong>${user.username}</strong>
-                <span>${user.displayName || 'Membro'}</span>
+                <span>${isOnline ? 'Online' : (user.lastSeen ? `Visto ${formatLastSeen(user.lastSeen.toDate ? user.lastSeen.toDate() : new Date(user.lastSeen))}` : 'Offline')}</span>
             </div>
         `;
         searchList.appendChild(li);
@@ -3798,7 +3927,10 @@ function formatTime(date) {
     const diff = now - d;
     
     if (diff < 60000) return 'agora';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}min`;
+    if (diff < 3600000) {
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes} min`;
+    }
     if (diff < 86400000) {
         return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
