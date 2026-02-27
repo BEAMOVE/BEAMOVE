@@ -764,19 +764,6 @@ header {
     text-align: right;
 }
 
-.message.unread-indicator {
-    position: relative;
-}
-
-.message.unread-indicator::after {
-    content: '●';
-    color: var(--accent);
-    font-size: 10px;
-    position: absolute;
-    bottom: -12px;
-    right: 10px;
-}
-
 .chat-input {
     padding: 20px;
     border-top: 1px solid var(--border);
@@ -2116,8 +2103,11 @@ let currentUserData = null;
 let unsubscribeChat = null;
 
 // Estados de mensagens não lidas
-let unreadMessages = new Map(); // Mapa de userId -> quantidade de mensagens não lidas
-let lastReadTimestamps = new Map(); // Mapa de userId -> timestamp da última visualização
+let unreadMessages = new Map();
+let lastReadTimestamps = new Map();
+
+// Cache para dados de usuários
+let userCache = new Map();
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -2298,7 +2288,6 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        // Restaurar última conversa ao abrir chat
         const lastChat = localStorage.getItem('lastChat');
         if (lastChat) {
             const chatData = JSON.parse(lastChat);
@@ -2622,7 +2611,6 @@ function loadChatList() {
     
     const usersList = document.getElementById('chatUsersList');
     
-    // Manter o item "Geral"
     const geralItem = document.createElement('li');
     geralItem.className = 'chat-user';
     geralItem.setAttribute('data-chat-id', 'geral');
@@ -2641,35 +2629,34 @@ function loadChatList() {
     usersList.innerHTML = '';
     usersList.appendChild(geralItem);
     
-    // Buscar todas as mensagens privadas
     db.collection('private_chats')
         .where('participants', 'array-contains', user.uid)
-        .get()
-        .then(snapshot => {
+        .orderBy('created', 'desc')
+        .onSnapshot(snapshot => {
             const chatUsers = new Map();
             
             snapshot.forEach(doc => {
                 const chat = doc.data();
                 const otherUserId = chat.participants.find(id => id !== user.uid);
                 
-                if (otherUserId) {
-                    // Manter apenas a última mensagem de cada conversa
-                    const existing = chatUsers.get(otherUserId);
-                    if (!existing || (chat.created && existing.created < chat.created)) {
-                        chatUsers.set(otherUserId, {
-                            lastMessage: chat.text,
-                            lastMessageTime: chat.created
-                        });
-                    }
+                if (otherUserId && !chatUsers.has(otherUserId)) {
+                    chatUsers.set(otherUserId, {
+                        lastMessage: chat.text,
+                        lastMessageTime: chat.created,
+                        messageId: doc.id
+                    });
                 }
             });
             
-            // Buscar dados dos usuários
             chatUsers.forEach((chatInfo, userId) => {
-                db.collection('users').doc(userId).get().then(userDoc => {
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
+                getUserData(userId).then(userData => {
+                    if (userData) {
                         const unreadCount = unreadMessages.get(userId) || 0;
+                        
+                        let existingItem = usersList.querySelector(`[data-user-id="${userId}"]`);
+                        if (existingItem) {
+                            existingItem.remove();
+                        }
                         
                         const chatItem = document.createElement('li');
                         chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
@@ -2699,15 +2686,30 @@ function loadChatList() {
                     }
                 });
             });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar lista de chats:', error);
         });
 }
 
-// Load Chat Messages - CORRIGIDO: Agora filtra corretamente as mensagens entre dois usuários
+// Get user data with cache
+async function getUserData(userId) {
+    if (userCache.has(userId)) {
+        return userCache.get(userId);
+    }
+    
+    try {
+        const doc = await db.collection('users').doc(userId).get();
+        if (doc.exists) {
+            const data = doc.data();
+            userCache.set(userId, data);
+            return data;
+        }
+    } catch (error) {
+        console.error('Erro ao buscar usuário:', error);
+    }
+    return null;
+}
+
+// Load Chat Messages - CORRIGIDO: Agora ordena corretamente por data
 function loadChat(chatId, otherUserId = null) {
-    // Cancelar listener anterior
     if (unsubscribeChat) {
         unsubscribeChat();
     }
@@ -2718,10 +2720,9 @@ function loadChat(chatId, otherUserId = null) {
     const user = auth.currentUser;
     
     if (chatId === 'geral') {
-        // Chat geral
         unsubscribeChat = db.collection('chat')
             .orderBy('created')
-            .onSnapshot(snapshot => {
+            .onSnapshot(async snapshot => {
                 chatBox.innerHTML = '';
                 
                 if (snapshot.empty) {
@@ -2729,8 +2730,24 @@ function loadChat(chatId, otherUserId = null) {
                     return;
                 }
                 
-                snapshot.forEach(doc => {
+                const messages = [];
+                for (const doc of snapshot.docs) {
                     const message = doc.data();
+                    const userData = await getUserData(message.user);
+                    messages.push({
+                        ...message,
+                        userData,
+                        id: doc.id
+                    });
+                }
+                
+                messages.sort((a, b) => {
+                    const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+                    const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+                    return dateA - dateB;
+                });
+                
+                messages.forEach(message => {
                     displayMessage(message);
                 });
                 
@@ -2740,28 +2757,28 @@ function loadChat(chatId, otherUserId = null) {
                 chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
             });
     } else {
-        // Chat privado - filtrar mensagens entre os dois usuários
         unsubscribeChat = db.collection('private_chats')
             .where('participants', 'array-contains', user.uid)
-            .onSnapshot(snapshot => {
+            .orderBy('created')
+            .onSnapshot(async snapshot => {
                 const messages = [];
                 let newUnreadCount = 0;
                 
-                snapshot.forEach(doc => {
+                for (const doc of snapshot.docs) {
                     const message = doc.data();
                     
-                    // Verificar se a mensagem é entre estes dois usuários específicos
                     if (message.participants && 
                         message.participants.length === 2 && 
                         message.participants.includes(otherUserId) && 
                         message.participants.includes(user.uid)) {
                         
+                        const userData = await getUserData(message.user);
                         messages.push({
                             ...message,
+                            userData,
                             id: doc.id
                         });
                         
-                        // Verificar se é mensagem não lida
                         if (message.user !== user.uid) {
                             const lastRead = lastReadTimestamps.get(otherUserId) || 0;
                             const messageTime = message.created ? new Date(message.created.seconds * 1000).getTime() : 0;
@@ -2771,20 +2788,18 @@ function loadChat(chatId, otherUserId = null) {
                             }
                         }
                     }
-                });
-                
-                // Atualizar contador de não lidas
-                if (chatId === currentChatId && otherUserId) {
-                    unreadMessages.set(otherUserId, newUnreadCount);
-                    updateUnreadBadges();
                 }
                 
-                // Ordenar por data (mais antiga primeiro)
                 messages.sort((a, b) => {
                     const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                     const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
                     return dateA - dateB;
                 });
+                
+                if (chatId === currentChatId && otherUserId) {
+                    unreadMessages.set(otherUserId, newUnreadCount);
+                    updateUnreadBadges();
+                }
                 
                 chatBox.innerHTML = '';
                 
@@ -2805,24 +2820,20 @@ function loadChat(chatId, otherUserId = null) {
 }
 
 // Display a message in the chat
-async function displayMessage(message) {
-    try {
-        const userDoc = await db.collection('users').doc(message.user).get();
-        const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
-        
-        const messageElement = document.createElement('div');
-        messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
-        messageElement.innerHTML = `
-            <div class="message-avatar">${userData.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
-            <div class="message-content">
-                <p>${message.text}</p>
-                <span class="message-time">${formatTime(message.created)}</span>
-            </div>
-        `;
-        document.getElementById('chatBox').appendChild(messageElement);
-    } catch (error) {
-        console.error('Erro ao exibir mensagem:', error);
-    }
+function displayMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
+    
+    const avatar = message.userData?.username ? message.userData.username.charAt(1).toUpperCase() : 'U';
+    
+    messageElement.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <p>${message.text}</p>
+            <span class="message-time">${formatTime(message.created)}</span>
+        </div>
+    `;
+    document.getElementById('chatBox').appendChild(messageElement);
 }
 
 // Select Chat
@@ -2833,12 +2844,10 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     currentChatUserAvatar = userAvatar;
     currentChatId = chatId;
     
-    // Marcar mensagens como lidas
     if (userId) {
         markAsRead(userId);
     }
     
-    // Salvar última conversa
     localStorage.setItem('lastChat', JSON.stringify({
         chatId: chatId,
         userName: userName,
@@ -2846,17 +2855,14 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
         userId: userId
     }));
     
-    // Atualizar header
     document.getElementById('chatHeaderName').innerText = userName;
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
     
-    // Mostrar chat principal em mobile
     if (window.innerWidth <= 768) {
         document.getElementById('chatSidebar').classList.add('hidden-mobile');
         document.getElementById('chatMain').classList.add('active');
     }
     
-    // Atualizar active state na lista
     document.querySelectorAll('.chat-user').forEach(item => {
         item.classList.remove('active');
         if (chatId === 'geral' && item.getAttribute('data-chat-id') === 'geral') {
@@ -2867,7 +2873,6 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
         }
     });
     
-    // Carregar mensagens
     loadChat(chatId, userId);
 }
 
@@ -2879,7 +2884,6 @@ function markAsRead(userId) {
     lastReadTimestamps.set(userId, now);
     unreadMessages.set(userId, 0);
     
-    // Salvar no localStorage
     const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
     readData[userId] = now;
     localStorage.setItem('readTimestamps', JSON.stringify(readData));
@@ -2897,13 +2901,11 @@ function updateUnreadBadges() {
     unreadMessages.forEach((count, userId) => {
         totalUnread += count;
         
-        // Atualizar classe do item na lista
         const userItem = usersList.querySelector(`[data-user-id="${userId}"]`);
         if (userItem) {
             if (count > 0) {
                 userItem.classList.add('unread');
                 
-                // Atualizar ou adicionar badge
                 let badge = userItem.querySelector('.unread-badge');
                 if (!badge) {
                     badge = document.createElement('span');
@@ -2939,7 +2941,6 @@ function sendMessage() {
     const user = auth.currentUser;
     
     if (currentChat === 'geral') {
-        // Mensagem para o chat geral
         db.collection('chat').add({
             text: messageText,
             user: user.uid,
@@ -2953,11 +2954,10 @@ function sendMessage() {
             alert('Erro ao enviar mensagem: ' + error.message);
         });
     } else {
-        // Mensagem privada - garantir que os participantes estão corretos
         const chatData = {
             text: messageText,
             user: user.uid,
-            participants: [user.uid, currentChatUser].sort(), // Sort para garantir ordem consistente
+            participants: [user.uid, currentChatUser],
             created: new Date()
         };
         
@@ -2965,7 +2965,6 @@ function sendMessage() {
             .then(() => {
                 chatInput.value = '';
                 
-                // Atualizar última mensagem na lista
                 const usersList = document.getElementById('chatUsersList');
                 const userItem = usersList.querySelector(`[data-user-id="${currentChatUser}"]`);
                 if (userItem) {
@@ -3042,7 +3041,6 @@ function searchUsers() {
         li.className = 'user-search-item';
         li.onclick = () => {
             hideUserSearchModal();
-            // Criar ou abrir conversa com este usuário
             const chatId = `private_${user.id}`;
             selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
         };
@@ -3071,7 +3069,6 @@ function loadProfile() {
             document.getElementById('profileLink').href = data.link || '#';
             document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
             
-            // Verificar se os elementos existem antes de definir valores
             const editName = document.getElementById('editName');
             if (editName) editName.value = data.displayName || '';
             
@@ -3223,7 +3220,7 @@ function saveProfile() {
     });
 }
 
-// Toggle Settings (Engrenagem)
+// Toggle Settings
 function toggleSettings() {
     const panel = document.getElementById('settingsPanel');
     panel.classList.toggle('hidden');
@@ -3667,7 +3664,7 @@ function sharePost(postId) {
     alert('Funcionalidade de compartilhamento em breve!');
 }
 
-// Carregar timestamps de leitura do localStorage
+// Load read timestamps from localStorage
 function loadReadTimestamps() {
     const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
     Object.entries(readData).forEach(([userId, timestamp]) => {
@@ -3675,7 +3672,6 @@ function loadReadTimestamps() {
     });
 }
 
-// Inicializar timestamps de leitura
 loadReadTimestamps();
 </script>
 
