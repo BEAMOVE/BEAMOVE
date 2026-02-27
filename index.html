@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <title>BEAMOVE • Sua Jornada Fitness</title>
 
 <!-- Firebase -->
@@ -21,6 +21,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 :root {
@@ -155,7 +156,7 @@ body {
 /* Header */
 header {
     background: var(--bg-secondary);
-    padding: 20px;
+    padding: 15px 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
@@ -675,6 +676,7 @@ header {
     color: var(--accent);
     cursor: pointer;
     margin-right: 5px;
+    padding: 8px;
 }
 
 .chat-header-avatar {
@@ -1424,27 +1426,29 @@ header {
     left: 0;
     right: 0;
     background: var(--bg-secondary);
-    padding: 15px 30px;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-around;
     align-items: center;
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
-    background: rgba(var(--bg-secondary-rgb), 0.9);
+    background: rgba(var(--bg-secondary-rgb), 0.95);
     z-index: 100;
+    height: 70px;
 }
 
 .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
     position: relative;
     padding: 8px 16px;
     border-radius: 50px;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .nav-item.active {
@@ -1457,19 +1461,21 @@ header {
 }
 
 .nav-item span {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
 }
 
 .nav-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -2px;
+    right: 5px;
     background: var(--danger);
     color: white;
-    font-size: 10px;
-    padding: 2px 6px;
+    font-size: 9px;
+    padding: 2px 5px;
     border-radius: 50px;
+    min-width: 16px;
+    text-align: center;
 }
 
 /* Forum Styles */
@@ -1569,7 +1575,7 @@ header {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    padding-bottom: 100px;
+    padding-bottom: 90px;
 }
 
 /* Ajuste para chat acima do menu */
@@ -1579,7 +1585,7 @@ header {
     padding-bottom: 0;
 }
 
-/* Responsividade */
+/* Responsividade - CORRIGIDA */
 @media (max-width: 768px) {
     .chat-container {
         grid-template-columns: 1fr;
@@ -1588,25 +1594,29 @@ header {
     }
     
     .chat-sidebar {
-        display: block;
+        display: block !important;
         height: 100%;
+        width: 100%;
     }
     
     .chat-sidebar.hidden-mobile {
-        display: none;
+        display: none !important;
     }
     
     .chat-main {
         display: none;
         height: 100%;
+        width: 100%;
     }
     
     .chat-main.active {
-        display: flex;
+        display: flex !important;
     }
     
     .back-to-users {
-        display: block;
+        display: block !important;
+        padding: 10px;
+        font-size: 20px;
     }
     
     .featured-card {
@@ -1642,6 +1652,54 @@ header {
     
     .ddi-select select {
         width: 100%;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+    
+    .bottom-nav {
+        padding: 8px 15px;
+        height: 65px;
+    }
+    
+    .nav-item {
+        padding: 6px 12px;
+    }
+    
+    .container {
+        padding-bottom: 80px;
+    }
+}
+
+/* Para telas muito pequenas */
+@media (max-width: 480px) {
+    .chat-container {
+        padding: 5px;
+    }
+    
+    .chat-sidebar {
+        padding: 15px;
+    }
+    
+    .chat-user {
+        padding: 10px;
+    }
+    
+    .chat-user-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+    
+    .message-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
     }
 }
 </style>
@@ -2099,15 +2157,15 @@ header {
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="showTab('home')">
+        <div class="nav-item active" onclick="showTab('home', event)">
             <i data-lucide="home"></i>
             <span>Início</span>
         </div>
-        <div class="nav-item" onclick="showTab('chat')">
+        <div class="nav-item" onclick="showTab('chat', event)">
             <i data-lucide="message-circle"></i>
             <span>Chat</span>
         </div>
-        <div class="nav-item" onclick="showTab('profile')">
+        <div class="nav-item" onclick="showTab('profile', event)">
             <i data-lucide="user"></i>
             <span>Perfil</span>
         </div>
@@ -2152,7 +2210,7 @@ let unsubscribeChat = null;
 // Estados de mensagens não lidas
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
-let messageStatus = new Map(); // status das mensagens: 'sent', 'delivered', 'seen'
+let messageStatus = new Map();
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -2312,8 +2370,12 @@ function toggleDark() {
     lucide.createIcons();
 }
 
-// Show Tab
-function showTab(tabName) {
+// Show Tab - CORRIGIDO para mobile
+function showTab(tabName, e) {
+    if (e) {
+        e.preventDefault();
+    }
+    
     document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.add('hidden');
     document.getElementById('profile').classList.add('hidden');
@@ -2324,7 +2386,18 @@ function showTab(tabName) {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
-    event.currentTarget.classList.add('active');
+    
+    // Encontrar e ativar o item clicado
+    if (e && e.currentTarget) {
+        e.currentTarget.classList.add('active');
+    } else {
+        // Fallback para quando não tem evento
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.querySelector('span').innerText.toLowerCase() === tabName) {
+                item.classList.add('active');
+            }
+        });
+    }
     
     if (tabName === 'profile') {
         loadProfile();
@@ -2669,7 +2742,7 @@ function loadChatList() {
     geralItem.setAttribute('data-user-id', 'geral');
     geralItem.setAttribute('data-user-name', 'Geral');
     geralItem.setAttribute('data-user-avatar', 'G');
-    geralItem.onclick = () => selectChat('geral', 'Geral', 'G', null);
+    geralItem.onclick = function() { selectChat('geral', 'Geral', 'G', null); };
     geralItem.innerHTML = `
         <div class="chat-user-avatar">G</div>
         <div class="chat-user-info">
@@ -2715,7 +2788,7 @@ function loadChatList() {
                         chatItem.setAttribute('data-user-id', userId);
                         chatItem.setAttribute('data-user-name', userData.username);
                         chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
-                        chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+                        chatItem.onclick = function() { selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId); };
                         
                         let unreadBadge = '';
                         if (unreadCount > 0) {
@@ -2743,7 +2816,7 @@ function loadChatList() {
         });
 }
 
-// Load Chat Messages - CORRIGIDO: Ordenação cronológica e status das mensagens
+// Load Chat Messages
 function loadChat(chatId, otherUserId = null) {
     if (unsubscribeChat) {
         unsubscribeChat();
@@ -2803,12 +2876,10 @@ function loadChat(chatId, otherUserId = null) {
                                 newUnreadCount++;
                             }
                             
-                            // Marcar como entregue quando carregar
                             if (!message.delivered) {
                                 doc.ref.update({ delivered: true, deliveredAt: new Date() });
                             }
                             
-                            // Marcar como visto se a conversa estiver aberta
                             if (chatId === currentChatId && message.user !== user.uid) {
                                 doc.ref.update({ seen: true, seenAt: new Date() });
                             }
@@ -2821,7 +2892,6 @@ function loadChat(chatId, otherUserId = null) {
                     updateUnreadBadges();
                 }
                 
-                // CORREÇÃO: Ordenar por data (mais antiga primeiro)
                 messages.sort((a, b) => {
                     const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                     const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -2846,7 +2916,7 @@ function loadChat(chatId, otherUserId = null) {
     }
 }
 
-// Display a message in the chat - CORRIGIDO: Horário e status da mensagem
+// Display a message in the chat
 async function displayMessage(message) {
     try {
         let userData = userCache.get(message.user);
@@ -2859,7 +2929,6 @@ async function displayMessage(message) {
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         
-        // CORREÇÃO: Formatação correta do horário
         const messageTime = message.created ? new Date(message.created.seconds * 1000) : new Date();
         const timeString = messageTime.toLocaleTimeString('pt-BR', { 
             hour: '2-digit', 
@@ -2867,7 +2936,6 @@ async function displayMessage(message) {
             hour12: false 
         });
         
-        // Status da mensagem (✓, ✓✓, ✓✓ azul)
         let statusHtml = '';
         if (message.user === auth.currentUser.uid) {
             if (message.seen) {
@@ -2918,6 +2986,7 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     document.getElementById('chatHeaderName').innerText = userName;
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
     
+    // CORREÇÃO: Verificação de mobile mais robusta
     if (window.innerWidth <= 768) {
         document.getElementById('chatSidebar').classList.add('hidden-mobile');
         document.getElementById('chatMain').classList.add('active');
@@ -2983,12 +3052,13 @@ function updateUnreadBadges() {
     unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
 }
 
+// CORREÇÃO: Função backToUsersList melhorada
 function backToUsersList() {
     document.getElementById('chatSidebar').classList.remove('hidden-mobile');
     document.getElementById('chatMain').classList.remove('active');
 }
 
-// Send Message - CORRIGIDO: Adiciona status inicial da mensagem
+// Send Message
 function sendMessage() {
     const chatInput = document.getElementById('chatInput');
     const messageText = chatInput.value.trim();
@@ -3098,7 +3168,7 @@ function searchUsers() {
     filteredUsers.forEach(user => {
         const li = document.createElement('li');
         li.className = 'user-search-item';
-        li.onclick = () => {
+        li.onclick = function() {
             hideUserSearchModal();
             const chatId = `private_${user.id}`;
             selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
@@ -3714,6 +3784,14 @@ function loadReadTimestamps() {
 }
 
 loadReadTimestamps();
+
+// CORREÇÃO: Forçar atualização do layout em mobile
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+        document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+        document.getElementById('chatMain').classList.remove('active');
+    }
+});
 </script>
 
 </body>
