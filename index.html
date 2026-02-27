@@ -38,6 +38,7 @@
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --hover-shadow: 0 20px 60px -10px rgba(139, 92, 246, 0.3);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --unread-badge: #ef4444;
 }
 
 .dark {
@@ -47,6 +48,7 @@
     --text-secondary: #94a3b8;
     --border: #334155;
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --unread-badge: #ef4444;
 }
 
 body {
@@ -604,6 +606,32 @@ header {
     font-size: 10px;
     opacity: 0.5;
     align-self: flex-start;
+}
+
+/* Estilo para mensagens não lidas */
+.chat-user.unread {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.chat-user.unread .chat-user-info strong {
+    font-weight: 700;
+}
+
+.unread-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--unread-badge);
+    color: white;
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-weight: 600;
 }
 
 .chat-main {
@@ -2056,6 +2084,10 @@ let allUsers = [];
 let currentUserData = null;
 let unsubscribeChat = null;
 
+// Controle de mensagens não lidas
+let unreadMessages = {};
+let lastReadTimestamps = {};
+
 // Auth State Observer
 auth.onAuthStateChanged(user => {
     if (user) {
@@ -2584,12 +2616,24 @@ function loadChatList() {
         .get()
         .then(snapshot => {
             const chatUsers = new Map();
+            const unreadCounts = new Map();
             
             snapshot.forEach(doc => {
                 const chat = doc.data();
                 const otherUserId = chat.participants.find(id => id !== user.uid);
                 
                 if (otherUserId) {
+                    // Contar mensagens não lidas
+                    if (chat.user !== user.uid) {
+                        const chatKey = `private_${otherUserId}`;
+                        const lastRead = lastReadTimestamps[chatKey] || new Date(0);
+                        const messageTime = chat.created ? new Date(chat.created.seconds * 1000) : new Date(0);
+                        
+                        if (messageTime > lastRead) {
+                            unreadCounts.set(otherUserId, (unreadCounts.get(otherUserId) || 0) + 1);
+                        }
+                    }
+                    
                     // Manter apenas a última mensagem de cada conversa
                     const existing = chatUsers.get(otherUserId);
                     if (!existing || (chat.created && existing.created < chat.created)) {
@@ -2607,12 +2651,20 @@ function loadChatList() {
                     if (userDoc.exists) {
                         const userData = userDoc.data();
                         const chatItem = document.createElement('li');
-                        chatItem.className = 'chat-user';
+                        const unreadCount = unreadCounts.get(userId) || 0;
+                        
+                        chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
                         chatItem.setAttribute('data-chat-id', `private_${userId}`);
                         chatItem.setAttribute('data-user-id', userId);
                         chatItem.setAttribute('data-user-name', userData.username);
                         chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
                         chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+                        
+                        let unreadBadge = '';
+                        if (unreadCount > 0) {
+                            unreadBadge = `<span class="unread-badge">${unreadCount}</span>`;
+                        }
+                        
                         chatItem.innerHTML = `
                             <div class="chat-user-avatar">${userData.username.charAt(1).toUpperCase()}</div>
                             <div class="chat-user-info">
@@ -2620,6 +2672,7 @@ function loadChatList() {
                                 <span>${chatInfo.lastMessage || 'Clique para conversar'}</span>
                             </div>
                             <div class="chat-user-time">${formatTime(chatInfo.lastMessageTime)}</div>
+                            ${unreadBadge}
                         `;
                         usersList.appendChild(chatItem);
                     }
@@ -2697,6 +2750,19 @@ function loadChat(chatId, otherUserId = null) {
                     messages.forEach(message => {
                         displayMessage(message);
                     });
+                    
+                    // Marcar como lida quando visualizar
+                    lastReadTimestamps[chatId] = new Date();
+                    
+                    // Atualizar a lista de chats para remover o badge
+                    const chatItems = document.querySelectorAll('.chat-user');
+                    chatItems.forEach(item => {
+                        if (item.getAttribute('data-chat-id') === chatId) {
+                            item.classList.remove('unread');
+                            const badge = item.querySelector('.unread-badge');
+                            if (badge) badge.remove();
+                        }
+                    });
                 }
                 
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -2761,6 +2827,10 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
             item.classList.add('active');
         } else if (item.getAttribute('data-user-id') === userId) {
             item.classList.add('active');
+            // Remover badge de não lida ao selecionar
+            item.classList.remove('unread');
+            const badge = item.querySelector('.unread-badge');
+            if (badge) badge.remove();
         }
     });
     
@@ -2809,6 +2879,15 @@ function sendMessage() {
         db.collection('private_chats').add(chatData)
             .then(() => {
                 chatInput.value = '';
+                
+                // Atualizar última mensagem na lista
+                const chatItems = document.querySelectorAll('.chat-user');
+                chatItems.forEach(item => {
+                    if (item.getAttribute('data-user-id') === currentChatUser) {
+                        const span = item.querySelector('.chat-user-info span');
+                        if (span) span.innerText = messageText;
+                    }
+                });
             })
             .catch(error => {
                 console.error('Erro ao enviar mensagem privada:', error);
