@@ -2705,7 +2705,7 @@ function loadChatList() {
         });
 }
 
-// Load Chat Messages
+// Load Chat Messages - CORRIGIDO: Agora filtra corretamente as mensagens entre dois usuários
 function loadChat(chatId, otherUserId = null) {
     // Cancelar listener anterior
     if (unsubscribeChat) {
@@ -2740,7 +2740,7 @@ function loadChat(chatId, otherUserId = null) {
                 chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
             });
     } else {
-        // Chat privado - buscar TODAS as mensagens e filtrar manualmente
+        // Chat privado - filtrar mensagens entre os dois usuários
         unsubscribeChat = db.collection('private_chats')
             .where('participants', 'array-contains', user.uid)
             .onSnapshot(snapshot => {
@@ -2749,12 +2749,17 @@ function loadChat(chatId, otherUserId = null) {
                 
                 snapshot.forEach(doc => {
                     const message = doc.data();
-                    // Verificar se a mensagem é desta conversa específica
+                    
+                    // Verificar se a mensagem é entre estes dois usuários específicos
                     if (message.participants && 
+                        message.participants.length === 2 && 
                         message.participants.includes(otherUserId) && 
                         message.participants.includes(user.uid)) {
                         
-                        messages.push(message);
+                        messages.push({
+                            ...message,
+                            id: doc.id
+                        });
                         
                         // Verificar se é mensagem não lida
                         if (message.user !== user.uid) {
@@ -2774,7 +2779,7 @@ function loadChat(chatId, otherUserId = null) {
                     updateUnreadBadges();
                 }
                 
-                // Ordenar manualmente por data
+                // Ordenar por data (mais antiga primeiro)
                 messages.sort((a, b) => {
                     const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                     const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -2948,11 +2953,11 @@ function sendMessage() {
             alert('Erro ao enviar mensagem: ' + error.message);
         });
     } else {
-        // Mensagem privada
+        // Mensagem privada - garantir que os participantes estão corretos
         const chatData = {
             text: messageText,
             user: user.uid,
-            participants: [user.uid, currentChatUser],
+            participants: [user.uid, currentChatUser].sort(), // Sort para garantir ordem consistente
             created: new Date()
         };
         
