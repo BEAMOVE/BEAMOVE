@@ -38,7 +38,8 @@
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --hover-shadow: 0 20px 60px -10px rgba(139, 92, 246, 0.3);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --unread-badge: #ef4444;
+    --unread-bg: rgba(139, 92, 246, 0.1);
+    --unread-border: #8b5cf6;
 }
 
 .dark {
@@ -48,7 +49,7 @@
     --text-secondary: #94a3b8;
     --border: #334155;
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-    --unread-badge: #ef4444;
+    --unread-bg: rgba(139, 92, 246, 0.2);
 }
 
 body {
@@ -519,6 +520,19 @@ header {
 .chat-sidebar-header h3 {
     font-size: 18px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.unread-total {
+    background: var(--accent);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+    margin-left: 8px;
 }
 
 .add-chat-btn {
@@ -555,6 +569,7 @@ header {
     transition: var(--transition);
     margin-bottom: 5px;
     position: relative;
+    border: 2px solid transparent;
 }
 
 .chat-user:hover {
@@ -564,6 +579,11 @@ header {
 .chat-user.active {
     background: var(--accent);
     color: white;
+}
+
+.chat-user.unread {
+    background: var(--unread-bg);
+    border-color: var(--unread-border);
 }
 
 .chat-user-avatar {
@@ -578,6 +598,7 @@ header {
     font-weight: 600;
     font-size: 18px;
     flex-shrink: 0;
+    position: relative;
 }
 
 .chat-user-info {
@@ -608,30 +629,23 @@ header {
     align-self: flex-start;
 }
 
-/* Estilo para mensagens não lidas */
-.chat-user.unread {
-    background: rgba(139, 92, 246, 0.1);
-}
-
-.chat-user.unread .chat-user-info strong {
-    font-weight: 700;
-}
-
 .unread-badge {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: var(--unread-badge);
+    top: -5px;
+    right: -5px;
+    background: var(--accent);
     color: white;
     font-size: 10px;
+    font-weight: 600;
     min-width: 18px;
     height: 18px;
-    border-radius: 9px;
+    border-radius: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 4px;
-    font-weight: 600;
+    border: 2px solid var(--bg-secondary);
+    z-index: 2;
 }
 
 .chat-main {
@@ -673,6 +687,7 @@ header {
     color: white;
     font-weight: 600;
     font-size: 18px;
+    position: relative;
 }
 
 .chat-header-info {
@@ -747,6 +762,19 @@ header {
     opacity: 0.7;
     display: block;
     text-align: right;
+}
+
+.message.unread-indicator {
+    position: relative;
+}
+
+.message.unread-indicator::after {
+    content: '●';
+    color: var(--accent);
+    font-size: 10px;
+    position: absolute;
+    bottom: -12px;
+    right: 10px;
 }
 
 .chat-input {
@@ -1756,7 +1784,10 @@ header {
             <!-- Sidebar com lista de conversas -->
             <div class="chat-sidebar" id="chatSidebar">
                 <div class="chat-sidebar-header">
-                    <h3>Mensagens</h3>
+                    <h3>
+                        Mensagens
+                        <span class="unread-total" id="unreadTotal">0</span>
+                    </h3>
                     <button class="add-chat-btn" onclick="showUserSearchModal()">
                         <i data-lucide="plus"></i>
                     </button>
@@ -2084,9 +2115,9 @@ let allUsers = [];
 let currentUserData = null;
 let unsubscribeChat = null;
 
-// Controle de mensagens não lidas
-let unreadMessages = {};
-let lastReadTimestamps = {};
+// Estados de mensagens não lidas
+let unreadMessages = new Map(); // Mapa de userId -> quantidade de mensagens não lidas
+let lastReadTimestamps = new Map(); // Mapa de userId -> timestamp da última visualização
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -2616,24 +2647,12 @@ function loadChatList() {
         .get()
         .then(snapshot => {
             const chatUsers = new Map();
-            const unreadCounts = new Map();
             
             snapshot.forEach(doc => {
                 const chat = doc.data();
                 const otherUserId = chat.participants.find(id => id !== user.uid);
                 
                 if (otherUserId) {
-                    // Contar mensagens não lidas
-                    if (chat.user !== user.uid) {
-                        const chatKey = `private_${otherUserId}`;
-                        const lastRead = lastReadTimestamps[chatKey] || new Date(0);
-                        const messageTime = chat.created ? new Date(chat.created.seconds * 1000) : new Date(0);
-                        
-                        if (messageTime > lastRead) {
-                            unreadCounts.set(otherUserId, (unreadCounts.get(otherUserId) || 0) + 1);
-                        }
-                    }
-                    
                     // Manter apenas a última mensagem de cada conversa
                     const existing = chatUsers.get(otherUserId);
                     if (!existing || (chat.created && existing.created < chat.created)) {
@@ -2650,9 +2669,9 @@ function loadChatList() {
                 db.collection('users').doc(userId).get().then(userDoc => {
                     if (userDoc.exists) {
                         const userData = userDoc.data();
-                        const chatItem = document.createElement('li');
-                        const unreadCount = unreadCounts.get(userId) || 0;
+                        const unreadCount = unreadMessages.get(userId) || 0;
                         
+                        const chatItem = document.createElement('li');
                         chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
                         chatItem.setAttribute('data-chat-id', `private_${userId}`);
                         chatItem.setAttribute('data-user-id', userId);
@@ -2666,13 +2685,15 @@ function loadChatList() {
                         }
                         
                         chatItem.innerHTML = `
-                            <div class="chat-user-avatar">${userData.username.charAt(1).toUpperCase()}</div>
+                            <div class="chat-user-avatar">
+                                ${userData.username.charAt(1).toUpperCase()}
+                                ${unreadBadge}
+                            </div>
                             <div class="chat-user-info">
                                 <strong>${userData.username}</strong>
                                 <span>${chatInfo.lastMessage || 'Clique para conversar'}</span>
                             </div>
                             <div class="chat-user-time">${formatTime(chatInfo.lastMessageTime)}</div>
-                            ${unreadBadge}
                         `;
                         usersList.appendChild(chatItem);
                     }
@@ -2724,6 +2745,7 @@ function loadChat(chatId, otherUserId = null) {
             .where('participants', 'array-contains', user.uid)
             .onSnapshot(snapshot => {
                 const messages = [];
+                let newUnreadCount = 0;
                 
                 snapshot.forEach(doc => {
                     const message = doc.data();
@@ -2731,9 +2753,26 @@ function loadChat(chatId, otherUserId = null) {
                     if (message.participants && 
                         message.participants.includes(otherUserId) && 
                         message.participants.includes(user.uid)) {
+                        
                         messages.push(message);
+                        
+                        // Verificar se é mensagem não lida
+                        if (message.user !== user.uid) {
+                            const lastRead = lastReadTimestamps.get(otherUserId) || 0;
+                            const messageTime = message.created ? new Date(message.created.seconds * 1000).getTime() : 0;
+                            
+                            if (messageTime > lastRead) {
+                                newUnreadCount++;
+                            }
+                        }
                     }
                 });
+                
+                // Atualizar contador de não lidas
+                if (chatId === currentChatId && otherUserId) {
+                    unreadMessages.set(otherUserId, newUnreadCount);
+                    updateUnreadBadges();
+                }
                 
                 // Ordenar manualmente por data
                 messages.sort((a, b) => {
@@ -2749,19 +2788,6 @@ function loadChat(chatId, otherUserId = null) {
                 } else {
                     messages.forEach(message => {
                         displayMessage(message);
-                    });
-                    
-                    // Marcar como lida quando visualizar
-                    lastReadTimestamps[chatId] = new Date();
-                    
-                    // Atualizar a lista de chats para remover o badge
-                    const chatItems = document.querySelectorAll('.chat-user');
-                    chatItems.forEach(item => {
-                        if (item.getAttribute('data-chat-id') === chatId) {
-                            item.classList.remove('unread');
-                            const badge = item.querySelector('.unread-badge');
-                            if (badge) badge.remove();
-                        }
                     });
                 }
                 
@@ -2802,6 +2828,11 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     currentChatUserAvatar = userAvatar;
     currentChatId = chatId;
     
+    // Marcar mensagens como lidas
+    if (userId) {
+        markAsRead(userId);
+    }
+    
     // Salvar última conversa
     localStorage.setItem('lastChat', JSON.stringify({
         chatId: chatId,
@@ -2827,15 +2858,64 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
             item.classList.add('active');
         } else if (item.getAttribute('data-user-id') === userId) {
             item.classList.add('active');
-            // Remover badge de não lida ao selecionar
             item.classList.remove('unread');
-            const badge = item.querySelector('.unread-badge');
-            if (badge) badge.remove();
         }
     });
     
     // Carregar mensagens
     loadChat(chatId, userId);
+}
+
+// Marcar mensagens como lidas
+function markAsRead(userId) {
+    if (!userId) return;
+    
+    const now = Date.now();
+    lastReadTimestamps.set(userId, now);
+    unreadMessages.set(userId, 0);
+    
+    // Salvar no localStorage
+    const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
+    readData[userId] = now;
+    localStorage.setItem('readTimestamps', JSON.stringify(readData));
+    
+    updateUnreadBadges();
+}
+
+// Atualizar badges de mensagens não lidas
+function updateUnreadBadges() {
+    const usersList = document.getElementById('chatUsersList');
+    const unreadTotal = document.getElementById('unreadTotal');
+    
+    let totalUnread = 0;
+    
+    unreadMessages.forEach((count, userId) => {
+        totalUnread += count;
+        
+        // Atualizar classe do item na lista
+        const userItem = usersList.querySelector(`[data-user-id="${userId}"]`);
+        if (userItem) {
+            if (count > 0) {
+                userItem.classList.add('unread');
+                
+                // Atualizar ou adicionar badge
+                let badge = userItem.querySelector('.unread-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'unread-badge';
+                    userItem.querySelector('.chat-user-avatar').appendChild(badge);
+                }
+                badge.textContent = count;
+            } else {
+                userItem.classList.remove('unread');
+                const badge = userItem.querySelector('.unread-badge');
+                if (badge) badge.remove();
+            }
+        }
+    });
+    
+    unreadTotal.textContent = totalUnread;
+    unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
 }
 
 // Back to Users List (mobile)
@@ -2881,13 +2961,14 @@ function sendMessage() {
                 chatInput.value = '';
                 
                 // Atualizar última mensagem na lista
-                const chatItems = document.querySelectorAll('.chat-user');
-                chatItems.forEach(item => {
-                    if (item.getAttribute('data-user-id') === currentChatUser) {
-                        const span = item.querySelector('.chat-user-info span');
-                        if (span) span.innerText = messageText;
+                const usersList = document.getElementById('chatUsersList');
+                const userItem = usersList.querySelector(`[data-user-id="${currentChatUser}"]`);
+                if (userItem) {
+                    const lastMessageSpan = userItem.querySelector('.chat-user-info span');
+                    if (lastMessageSpan) {
+                        lastMessageSpan.textContent = messageText;
                     }
-                });
+                }
             })
             .catch(error => {
                 console.error('Erro ao enviar mensagem privada:', error);
@@ -3580,6 +3661,17 @@ function commentPost(postId) {
 function sharePost(postId) {
     alert('Funcionalidade de compartilhamento em breve!');
 }
+
+// Carregar timestamps de leitura do localStorage
+function loadReadTimestamps() {
+    const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
+    Object.entries(readData).forEach(([userId, timestamp]) => {
+        lastReadTimestamps.set(userId, timestamp);
+    });
+}
+
+// Inicializar timestamps de leitura
+loadReadTimestamps();
 </script>
 
 </body>
