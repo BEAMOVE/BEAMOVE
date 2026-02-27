@@ -40,7 +40,6 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --unread-bg: rgba(139, 92, 246, 0.1);
     --unread-border: #8b5cf6;
-    --seen-blue: #34b7f1;
 }
 
 .dark {
@@ -756,43 +755,13 @@ header {
 
 .message-content p {
     margin-bottom: 5px;
-    padding-right: 20px;
-}
-
-.message-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 4px;
-    margin-top: 2px;
 }
 
 .message-time {
     font-size: 10px;
     opacity: 0.7;
-}
-
-.message-status {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    font-size: 12px;
-}
-
-.message-status .sent {
-    color: var(--text-secondary);
-}
-
-.message-status .delivered {
-    color: var(--text-secondary);
-}
-
-.message-status .seen {
-    color: var(--seen-blue);
-}
-
-.message-status i {
-    font-size: 12px;
+    display: block;
+    text-align: right;
 }
 
 .message.unread-indicator {
@@ -2152,7 +2121,6 @@ let unsubscribeChat = null;
 // Estados de mensagens não lidas
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
-let messageStatus = new Map(); // status das mensagens: 'sent', 'delivered', 'seen'
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -2334,7 +2302,6 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        // Reset para a tela principal de chats
         const lastChat = localStorage.getItem('lastChat');
         if (lastChat) {
             const chatData = JSON.parse(lastChat);
@@ -2743,7 +2710,7 @@ function loadChatList() {
         });
 }
 
-// Load Chat Messages - CORRIGIDO: Ordenação cronológica e status das mensagens
+// Load Chat Messages - CORRIGIDO: Ordenação cronológica correta
 function loadChat(chatId, otherUserId = null) {
     if (unsubscribeChat) {
         unsubscribeChat();
@@ -2802,16 +2769,6 @@ function loadChat(chatId, otherUserId = null) {
                             if (messageTime > lastRead) {
                                 newUnreadCount++;
                             }
-                            
-                            // Marcar como entregue quando carregar
-                            if (!message.delivered) {
-                                doc.ref.update({ delivered: true, deliveredAt: new Date() });
-                            }
-                            
-                            // Marcar como visto se a conversa estiver aberta
-                            if (chatId === currentChatId && message.user !== user.uid) {
-                                doc.ref.update({ seen: true, seenAt: new Date() });
-                            }
                         }
                     }
                 });
@@ -2825,7 +2782,7 @@ function loadChat(chatId, otherUserId = null) {
                 messages.sort((a, b) => {
                     const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                     const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-                    return dateA - dateB;
+                    return dateA - dateB; // Crescente = mais antiga primeiro
                 });
                 
                 chatBox.innerHTML = '';
@@ -2846,7 +2803,7 @@ function loadChat(chatId, otherUserId = null) {
     }
 }
 
-// Display a message in the chat - CORRIGIDO: Horário e status da mensagem
+// Display a message in the chat - Usando cache para melhor performance
 async function displayMessage(message) {
     try {
         let userData = userCache.get(message.user);
@@ -2858,39 +2815,14 @@ async function displayMessage(message) {
         
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
-        
-        // CORREÇÃO: Formatação correta do horário
-        const messageTime = message.created ? new Date(message.created.seconds * 1000) : new Date();
-        const timeString = messageTime.toLocaleTimeString('pt-BR', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: false 
-        });
-        
-        // Status da mensagem (✓, ✓✓, ✓✓ azul)
-        let statusHtml = '';
-        if (message.user === auth.currentUser.uid) {
-            if (message.seen) {
-                statusHtml = '<span class="message-status"><i data-lucide="check-check" class="seen" style="color: var(--seen-blue); width: 14px; height: 14px;"></i></span>';
-            } else if (message.delivered) {
-                statusHtml = '<span class="message-status"><i data-lucide="check-check" style="width: 14px; height: 14px;"></i></span>';
-            } else {
-                statusHtml = '<span class="message-status"><i data-lucide="check" style="width: 14px; height: 14px;"></i></span>';
-            }
-        }
-        
         messageElement.innerHTML = `
             <div class="message-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
             <div class="message-content">
                 <p>${message.text}</p>
-                <div class="message-footer">
-                    <span class="message-time">${timeString}</span>
-                    ${statusHtml}
-                </div>
+                <span class="message-time">${formatTime(message.created)}</span>
             </div>
         `;
         document.getElementById('chatBox').appendChild(messageElement);
-        lucide.createIcons();
     } catch (error) {
         console.error('Erro ao exibir mensagem:', error);
     }
@@ -2988,7 +2920,7 @@ function backToUsersList() {
     document.getElementById('chatMain').classList.remove('active');
 }
 
-// Send Message - CORRIGIDO: Adiciona status inicial da mensagem
+// Send Message
 function sendMessage() {
     const chatInput = document.getElementById('chatInput');
     const messageText = chatInput.value.trim();
@@ -3001,9 +2933,7 @@ function sendMessage() {
         db.collection('chat').add({
             text: messageText,
             user: user.uid,
-            created: new Date(),
-            delivered: false,
-            seen: false
+            created: new Date()
         })
         .then(() => {
             chatInput.value = '';
@@ -3017,9 +2947,7 @@ function sendMessage() {
             text: messageText,
             user: user.uid,
             participants: [user.uid, currentChatUser].sort(),
-            created: new Date(),
-            delivered: false,
-            seen: false
+            created: new Date()
         };
         
         db.collection('private_chats').add(chatData)
@@ -3679,7 +3607,7 @@ function formatTime(date) {
     if (diff < 60000) return 'agora';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}min`;
     if (diff < 86400000) {
-        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
     
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
