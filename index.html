@@ -2589,11 +2589,15 @@ function loadChatList() {
                 const chat = doc.data();
                 const otherUserId = chat.participants.find(id => id !== user.uid);
                 
-                if (otherUserId && !chatUsers.has(otherUserId)) {
-                    chatUsers.set(otherUserId, {
-                        lastMessage: chat.text,
-                        lastMessageTime: chat.created
-                    });
+                if (otherUserId) {
+                    // Manter apenas a última mensagem de cada conversa
+                    const existing = chatUsers.get(otherUserId);
+                    if (!existing || (chat.created && existing.created < chat.created)) {
+                        chatUsers.set(otherUserId, {
+                            lastMessage: chat.text,
+                            lastMessageTime: chat.created
+                        });
+                    }
                 }
             });
             
@@ -2672,7 +2676,7 @@ function loadChat(chatId, otherUserId = null) {
                 snapshot.forEach(doc => {
                     const message = doc.data();
                     // Filtrar apenas mensagens desta conversa específica
-                    if (message.participants.includes(otherUserId)) {
+                    if (message.participants && message.participants.includes(otherUserId)) {
                         messages.push(message);
                     }
                 });
