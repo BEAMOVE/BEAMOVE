@@ -41,7 +41,6 @@
     --unread-bg: rgba(139, 92, 246, 0.1);
     --unread-border: #8b5cf6;
     --message-status-sent: #94a3b8;
-    --message-status-delivered: #60a5fa;
     --message-status-read: #8b5cf6;
 }
 
@@ -54,7 +53,6 @@
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
     --unread-bg: rgba(139, 92, 246, 0.2);
     --message-status-sent: #64748b;
-    --message-status-delivered: #3b82f6;
 }
 
 body {
@@ -778,25 +776,22 @@ header {
 
 .message-status {
     font-size: 12px;
-    margin-left: 2px;
 }
 
 .message-status.sent {
     color: var(--message-status-sent);
 }
 
-.message-status.delivered {
-    color: var(--message-status-delivered);
-}
-
 .message-status.read {
     color: var(--message-status-read);
 }
 
-.message.sent .message-status.sent,
-.message.sent .message-status.delivered,
+.message.sent .message-status.sent {
+    color: rgba(255, 255, 255, 0.7);
+}
+
 .message.sent .message-status.read {
-    color: rgba(255, 255, 255, 0.9);
+    color: white;
 }
 
 .message.unread-indicator {
@@ -2178,6 +2173,14 @@ auth.onAuthStateChanged(user => {
         loadAllUsers();
         loadChatList();
         
+        // CORREÇÃO: Em dispositivos móveis, mostrar lista de chats ao iniciar
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+                document.getElementById('chatMain').classList.remove('active');
+            }, 100);
+        }
+        
         console.log('Usuário logado:', user.uid);
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
@@ -2304,7 +2307,7 @@ function toggleDark() {
     lucide.createIcons();
 }
 
-// CORREÇÃO: Mostrar sempre a lista de chats ao entrar
+// Show Tab
 function showTab(tabName) {
     document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.add('hidden');
@@ -2326,31 +2329,30 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        // IMPORTANTE: Mostrar sempre a lista de chats primeiro
+        // CORREÇÃO: Em dispositivos móveis, mostrar lista de chats ao entrar
         if (window.innerWidth <= 768) {
             document.getElementById('chatSidebar').classList.remove('hidden-mobile');
             document.getElementById('chatMain').classList.remove('active');
-        }
-        
-        // Selecionar o chat geral mas manter a lista visível
-        currentChat = 'geral';
-        currentChatUser = null;
-        currentChatUserName = 'Geral';
-        currentChatUserAvatar = 'G';
-        currentChatId = 'geral';
-        
-        document.getElementById('chatHeaderName').innerText = 'Geral';
-        document.getElementById('chatHeaderAvatar').innerText = 'G';
-        
-        // Atualizar active state na lista
-        document.querySelectorAll('.chat-user').forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('data-chat-id') === 'geral') {
-                item.classList.add('active');
+            
+            // Selecionar o chat geral por padrão mas não mostrar a conversa
+            currentChat = 'geral';
+            currentChatUser = null;
+            currentChatUserName = 'Geral';
+            currentChatUserAvatar = 'G';
+            currentChatId = 'geral';
+            
+            document.getElementById('chatHeaderName').innerText = 'Geral';
+            document.getElementById('chatHeaderAvatar').innerText = 'G';
+        } else {
+            // Em desktop, restaurar última conversa
+            const lastChat = localStorage.getItem('lastChat');
+            if (lastChat) {
+                const chatData = JSON.parse(lastChat);
+                selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
+            } else {
+                selectChat('geral', 'Geral', 'G', null);
             }
-        });
-        
-        loadChat('geral', null);
+        }
     }
     
     lucide.createIcons();
@@ -2765,6 +2767,7 @@ function loadChat(chatId, otherUserId = null) {
     const user = auth.currentUser;
     
     if (chatId === 'geral') {
+        // Chat geral - sem status de leitura
         unsubscribeChat = db.collection('chat')
             .orderBy('created')
             .onSnapshot(snapshot => {
@@ -2777,8 +2780,7 @@ function loadChat(chatId, otherUserId = null) {
                 
                 snapshot.forEach(doc => {
                     const message = doc.data();
-                    // Chat geral não tem status de leitura
-                    displayMessage(message, false, doc.id, false);
+                    displayMessage(message, false, doc.id);
                 });
                 
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -2787,6 +2789,7 @@ function loadChat(chatId, otherUserId = null) {
                 chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
             });
     } else {
+        // Chat privado - com status de leitura
         unsubscribeChat = db.collection('private_chats')
             .where('participants', 'array-contains', user.uid)
             .onSnapshot(snapshot => {
@@ -2849,7 +2852,7 @@ function loadChat(chatId, otherUserId = null) {
     }
 }
 
-// CORREÇÃO: Display message com status de cores diferentes
+// Display a message in the chat
 async function displayMessage(message, isPrivate = false, messageId = null, isRead = true) {
     try {
         let userData = userCache.get(message.user);
@@ -2862,7 +2865,7 @@ async function displayMessage(message, isPrivate = false, messageId = null, isRe
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         
-        // CORREÇÃO: Status com cores diferentes
+        // CORREÇÃO: Status da mensagem com cores diferentes
         let statusIcon = '';
         if (message.user === auth.currentUser.uid && isPrivate) {
             if (isRead) {
@@ -2899,6 +2902,13 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     if (userId) {
         markAsRead(userId);
     }
+    
+    localStorage.setItem('lastChat', JSON.stringify({
+        chatId: chatId,
+        userName: userName,
+        userAvatar: userAvatar,
+        userId: userId
+    }));
     
     document.getElementById('chatHeaderName').innerText = userName;
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
