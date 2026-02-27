@@ -764,6 +764,19 @@ header {
     text-align: right;
 }
 
+.message.unread-indicator {
+    position: relative;
+}
+
+.message.unread-indicator::after {
+    content: '●';
+    color: var(--accent);
+    font-size: 10px;
+    position: absolute;
+    bottom: -12px;
+    right: 10px;
+}
+
 .chat-input {
     padding: 20px;
     border-top: 1px solid var(--border);
@@ -2089,6 +2102,9 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Cache de usuários para melhor performance
+const userCache = new Map();
+
 // Current forum category
 let currentForum = 'treino';
 
@@ -2106,9 +2122,6 @@ let unsubscribeChat = null;
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
-// Cache para dados de usuários
-let userCache = new Map();
-
 // Auth State Observer
 auth.onAuthStateChanged(user => {
     if (user) {
@@ -2119,6 +2132,7 @@ auth.onAuthStateChanged(user => {
         // Carregar dados do usuário atual
         db.collection('users').doc(user.uid).get().then(doc => {
             currentUserData = doc.data();
+            userCache.set(user.uid, currentUserData);
         });
         
         loadFeed();
@@ -2428,12 +2442,13 @@ function loadForumPostsSimple() {
                 const postId = doc.id;
                 
                 try {
-                    const userDoc = await db.collection('users').doc(post.user).get();
-                    let username = '@usuario';
-                    
-                    if (userDoc.exists) {
-                        username = userDoc.data().username || '@usuario';
+                    let userData = userCache.get(post.user);
+                    if (!userData) {
+                        const userDoc = await db.collection('users').doc(post.user).get();
+                        userData = userDoc.data();
+                        userCache.set(post.user, userData);
                     }
+                    let username = userData?.username || '@usuario';
                     
                     postsArray.push({
                         postId,
@@ -2530,16 +2545,20 @@ function loadFeed() {
             snapshot.forEach(async doc => {
                 const post = doc.data();
                 try {
-                    const userDoc = await db.collection('users').doc(post.user).get();
-                    const userData = userDoc.exists ? userDoc.data() : { username: '@usuario' };
+                    let userData = userCache.get(post.user);
+                    if (!userData) {
+                        const userDoc = await db.collection('users').doc(post.user).get();
+                        userData = userDoc.data();
+                        userCache.set(post.user, userData);
+                    }
                     
                     const postElement = document.createElement('div');
                     postElement.className = 'post-card';
                     postElement.innerHTML = `
                         <div class="post-header">
-                            <div class="post-avatar">${userData.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                            <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                             <div class="post-info">
-                                <h4>${userData.username || '@usuario'}</h4>
+                                <h4>${userData?.username || '@usuario'}</h4>
                                 <span>${formatDate(post.created)}</span>
                             </div>
                         </div>
@@ -2631,32 +2650,31 @@ function loadChatList() {
     
     db.collection('private_chats')
         .where('participants', 'array-contains', user.uid)
-        .orderBy('created', 'desc')
-        .onSnapshot(snapshot => {
+        .get()
+        .then(snapshot => {
             const chatUsers = new Map();
             
             snapshot.forEach(doc => {
                 const chat = doc.data();
                 const otherUserId = chat.participants.find(id => id !== user.uid);
                 
-                if (otherUserId && !chatUsers.has(otherUserId)) {
-                    chatUsers.set(otherUserId, {
-                        lastMessage: chat.text,
-                        lastMessageTime: chat.created,
-                        messageId: doc.id
-                    });
+                if (otherUserId) {
+                    const existing = chatUsers.get(otherUserId);
+                    if (!existing || (chat.created && existing.created < chat.created)) {
+                        chatUsers.set(otherUserId, {
+                            lastMessage: chat.text,
+                            lastMessageTime: chat.created
+                        });
+                    }
                 }
             });
             
             chatUsers.forEach((chatInfo, userId) => {
-                getUserData(userId).then(userData => {
-                    if (userData) {
+                db.collection('users').doc(userId).get().then(userDoc => {
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        userCache.set(userId, userData);
                         const unreadCount = unreadMessages.get(userId) || 0;
-                        
-                        let existingItem = usersList.querySelector(`[data-user-id="${userId}"]`);
-                        if (existingItem) {
-                            existingItem.remove();
-                        }
                         
                         const chatItem = document.createElement('li');
                         chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
@@ -2686,29 +2704,13 @@ function loadChatList() {
                     }
                 });
             });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar lista de chats:', error);
         });
 }
 
-// Get user data with cache
-async function getUserData(userId) {
-    if (userCache.has(userId)) {
-        return userCache.get(userId);
-    }
-    
-    try {
-        const doc = await db.collection('users').doc(userId).get();
-        if (doc.exists) {
-            const data = doc.data();
-            userCache.set(userId, data);
-            return data;
-        }
-    } catch (error) {
-        console.error('Erro ao buscar usuário:', error);
-    }
-    return null;
-}
-
-// Load Chat Messages - CORRIGIDO: Agora ordena corretamente por data
+// Load Chat Messages - CORRIGIDO: Ordenação cronológica correta
 function loadChat(chatId, otherUserId = null) {
     if (unsubscribeChat) {
         unsubscribeChat();
@@ -2722,7 +2724,7 @@ function loadChat(chatId, otherUserId = null) {
     if (chatId === 'geral') {
         unsubscribeChat = db.collection('chat')
             .orderBy('created')
-            .onSnapshot(async snapshot => {
+            .onSnapshot(snapshot => {
                 chatBox.innerHTML = '';
                 
                 if (snapshot.empty) {
@@ -2730,24 +2732,8 @@ function loadChat(chatId, otherUserId = null) {
                     return;
                 }
                 
-                const messages = [];
-                for (const doc of snapshot.docs) {
+                snapshot.forEach(doc => {
                     const message = doc.data();
-                    const userData = await getUserData(message.user);
-                    messages.push({
-                        ...message,
-                        userData,
-                        id: doc.id
-                    });
-                }
-                
-                messages.sort((a, b) => {
-                    const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-                    const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-                    return dateA - dateB;
-                });
-                
-                messages.forEach(message => {
                     displayMessage(message);
                 });
                 
@@ -2759,12 +2745,11 @@ function loadChat(chatId, otherUserId = null) {
     } else {
         unsubscribeChat = db.collection('private_chats')
             .where('participants', 'array-contains', user.uid)
-            .orderBy('created')
-            .onSnapshot(async snapshot => {
+            .onSnapshot(snapshot => {
                 const messages = [];
                 let newUnreadCount = 0;
                 
-                for (const doc of snapshot.docs) {
+                snapshot.forEach(doc => {
                     const message = doc.data();
                     
                     if (message.participants && 
@@ -2772,10 +2757,8 @@ function loadChat(chatId, otherUserId = null) {
                         message.participants.includes(otherUserId) && 
                         message.participants.includes(user.uid)) {
                         
-                        const userData = await getUserData(message.user);
                         messages.push({
                             ...message,
-                            userData,
                             id: doc.id
                         });
                         
@@ -2788,18 +2771,19 @@ function loadChat(chatId, otherUserId = null) {
                             }
                         }
                     }
-                }
-                
-                messages.sort((a, b) => {
-                    const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-                    const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-                    return dateA - dateB;
                 });
                 
                 if (chatId === currentChatId && otherUserId) {
                     unreadMessages.set(otherUserId, newUnreadCount);
                     updateUnreadBadges();
                 }
+                
+                // CORREÇÃO: Ordenar por data (mais antiga primeiro)
+                messages.sort((a, b) => {
+                    const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+                    const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+                    return dateA - dateB; // Crescente = mais antiga primeiro
+                });
                 
                 chatBox.innerHTML = '';
                 
@@ -2819,21 +2803,29 @@ function loadChat(chatId, otherUserId = null) {
     }
 }
 
-// Display a message in the chat
-function displayMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
-    
-    const avatar = message.userData?.username ? message.userData.username.charAt(1).toUpperCase() : 'U';
-    
-    messageElement.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
-        <div class="message-content">
-            <p>${message.text}</p>
-            <span class="message-time">${formatTime(message.created)}</span>
-        </div>
-    `;
-    document.getElementById('chatBox').appendChild(messageElement);
+// Display a message in the chat - Usando cache para melhor performance
+async function displayMessage(message) {
+    try {
+        let userData = userCache.get(message.user);
+        if (!userData) {
+            const userDoc = await db.collection('users').doc(message.user).get();
+            userData = userDoc.data();
+            userCache.set(message.user, userData);
+        }
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
+        messageElement.innerHTML = `
+            <div class="message-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+            <div class="message-content">
+                <p>${message.text}</p>
+                <span class="message-time">${formatTime(message.created)}</span>
+            </div>
+        `;
+        document.getElementById('chatBox').appendChild(messageElement);
+    } catch (error) {
+        console.error('Erro ao exibir mensagem:', error);
+    }
 }
 
 // Select Chat
@@ -2876,7 +2868,6 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     loadChat(chatId, userId);
 }
 
-// Marcar mensagens como lidas
 function markAsRead(userId) {
     if (!userId) return;
     
@@ -2891,7 +2882,6 @@ function markAsRead(userId) {
     updateUnreadBadges();
 }
 
-// Atualizar badges de mensagens não lidas
 function updateUnreadBadges() {
     const usersList = document.getElementById('chatUsersList');
     const unreadTotal = document.getElementById('unreadTotal');
@@ -2925,7 +2915,6 @@ function updateUnreadBadges() {
     unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
 }
 
-// Back to Users List (mobile)
 function backToUsersList() {
     document.getElementById('chatSidebar').classList.remove('hidden-mobile');
     document.getElementById('chatMain').classList.remove('active');
@@ -2957,7 +2946,7 @@ function sendMessage() {
         const chatData = {
             text: messageText,
             user: user.uid,
-            participants: [user.uid, currentChatUser],
+            participants: [user.uid, currentChatUser].sort(),
             created: new Date()
         };
         
@@ -2981,7 +2970,6 @@ function sendMessage() {
     }
 }
 
-// Handle Enter key in chat
 function handleChatKeyPress(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
@@ -2996,9 +2984,11 @@ function loadAllUsers() {
             allUsers = [];
             snapshot.forEach(doc => {
                 if (doc.id !== auth.currentUser.uid) {
+                    const userData = doc.data();
+                    userCache.set(doc.id, userData);
                     allUsers.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...userData
                     });
                 }
             });
@@ -3008,7 +2998,6 @@ function loadAllUsers() {
         });
 }
 
-// Show User Search Modal
 function showUserSearchModal() {
     document.getElementById('userSearchModal').classList.remove('hidden');
     document.getElementById('userSearchInput').value = '';
@@ -3016,12 +3005,10 @@ function showUserSearchModal() {
     searchUsers();
 }
 
-// Hide User Search Modal
 function hideUserSearchModal() {
     document.getElementById('userSearchModal').classList.add('hidden');
 }
 
-// Search Users
 function searchUsers() {
     const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
     const searchList = document.getElementById('userSearchList');
@@ -3062,6 +3049,7 @@ function loadProfile() {
     db.collection('users').doc(user.uid).get()
         .then(doc => {
             const data = doc.data();
+            userCache.set(user.uid, data);
             document.getElementById('profileUsername').innerText = data.username || '@usuario';
             document.getElementById('profileDisplayName').innerText = data.displayName || '';
             document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
@@ -3103,7 +3091,6 @@ function loadProfile() {
         });
 }
 
-// Load Profile Stats
 function loadProfileStats() {
     const user = auth.currentUser;
     
@@ -3119,7 +3106,6 @@ function loadProfileStats() {
     document.getElementById('profileFollowing').innerText = '56';
 }
 
-// Load Profile Posts
 function loadProfilePosts() {
     const user = auth.currentUser;
     
@@ -3163,7 +3149,6 @@ function loadProfilePosts() {
         });
 }
 
-// Toggle Edit Profile
 function toggleEditProfile() {
     const form = document.getElementById('editProfileForm');
     if (!form) {
@@ -3198,7 +3183,6 @@ function toggleEditProfile() {
     }
 }
 
-// Save Profile
 function saveProfile() {
     const name = document.getElementById('editName').value;
     const bio = document.getElementById('editBio').value;
@@ -3220,13 +3204,11 @@ function saveProfile() {
     });
 }
 
-// Toggle Settings
 function toggleSettings() {
     const panel = document.getElementById('settingsPanel');
     panel.classList.toggle('hidden');
 }
 
-// Save Settings
 function saveSettings() {
     const whatsappDDI = document.getElementById('whatsappDDI').value;
     const whatsapp = document.getElementById('editWhatsApp').value;
@@ -3253,7 +3235,6 @@ function saveSettings() {
     });
 }
 
-// Toggle User Card Form
 function toggleUserCardForm() {
     const form = document.getElementById('userCardForm');
     form.classList.toggle('hidden');
@@ -3263,7 +3244,6 @@ function toggleUserCardForm() {
     }
 }
 
-// Load Current User Card Data for Edit
 function loadCurrentUserCard() {
     const user = auth.currentUser;
     
@@ -3304,7 +3284,6 @@ function loadCurrentUserCard() {
         });
 }
 
-// Calculate IMC
 function calculateIMC() {
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
@@ -3318,7 +3297,6 @@ function calculateIMC() {
     }
 }
 
-// Save User Card
 function saveUserCard() {
     if (!auth.currentUser) {
         alert('Você precisa estar logado para salvar a ficha');
@@ -3390,7 +3368,6 @@ function saveUserCard() {
         });
 }
 
-// Load User Card
 function loadUserCard() {
     const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
@@ -3511,7 +3488,6 @@ function loadUserCard() {
         });
 }
 
-// Load Progress History
 function loadProgressHistory() {
     const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
@@ -3579,7 +3555,6 @@ function loadProgressHistory() {
         });
 }
 
-// Get Goal Name
 function getGoalName(goal) {
     const goals = {
         'emagrecimento': 'Emagrecimento',
@@ -3591,7 +3566,6 @@ function getGoalName(goal) {
     return goals[goal] || goal || 'Não definido';
 }
 
-// Format Date
 function formatDate(date) {
     if (!date) return 'Data desconhecida';
     
@@ -3615,7 +3589,6 @@ function formatDate(date) {
     return d.toLocaleDateString('pt-BR');
 }
 
-// Format Time
 function formatTime(date) {
     if (!date) return '';
     
@@ -3640,7 +3613,6 @@ function formatTime(date) {
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
 
-// Like Post
 function likePost(postId) {
     const postRef = db.collection('posts').doc(postId);
     
@@ -3654,17 +3626,14 @@ function likePost(postId) {
     });
 }
 
-// Comment Post
 function commentPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Share Post
 function sharePost(postId) {
     alert('Funcionalidade de compartilhamento em breve!');
 }
 
-// Load read timestamps from localStorage
 function loadReadTimestamps() {
     const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
     Object.entries(readData).forEach(([userId, timestamp]) => {
