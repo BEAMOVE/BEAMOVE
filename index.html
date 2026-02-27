@@ -2666,22 +2666,23 @@ function loadChat(chatId, otherUserId = null) {
                 chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
             });
     } else {
-        // Chat privado - buscar mensagens entre os dois usuários
+        // Chat privado - buscar TODAS as mensagens e filtrar manualmente
         unsubscribeChat = db.collection('private_chats')
             .where('participants', 'array-contains', user.uid)
-            .orderBy('created')
             .onSnapshot(snapshot => {
                 const messages = [];
                 
                 snapshot.forEach(doc => {
                     const message = doc.data();
-                    // Filtrar apenas mensagens desta conversa específica
-                    if (message.participants && message.participants.includes(otherUserId)) {
+                    // Verificar se a mensagem é desta conversa específica
+                    if (message.participants && 
+                        message.participants.includes(otherUserId) && 
+                        message.participants.includes(user.uid)) {
                         messages.push(message);
                     }
                 });
                 
-                // Ordenar por data
+                // Ordenar manualmente por data
                 messages.sort((a, b) => {
                     const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                     const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
