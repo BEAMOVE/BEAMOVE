@@ -2598,7 +2598,7 @@ function showTab(tabName) {
         
         // Garantir que a área de mensagens esteja visível
         document.getElementById('chatSidebar').classList.remove('hidden-mobile');
-        
+        document.getElementById('chatMain').classList.add('active');
         
         // Atualizar status de todos quando abrir o chat
         setTimeout(updateAllUsersOnlineStatus, 500);
@@ -3163,7 +3163,7 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     
     if (window.innerWidth <= 768) {
         document.getElementById('chatSidebar').classList.add('hidden-mobile');
-        
+        document.getElementById('chatMain').classList.add('active');
     }
     
     document.querySelectorAll('.chat-user').forEach(item => {
