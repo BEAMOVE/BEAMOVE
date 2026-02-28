@@ -2596,9 +2596,7 @@ function showTab(tabName) {
             selectChat('geral', 'Geral', 'G', null);
         }
         
-        // Garantir que a área de mensagens esteja visível
-        document.getElementById('chatSidebar').classList.remove('hidden-mobile');
-        document.getElementById('chatMain').classList.add('active');
+        
         
         // Atualizar status de todos quando abrir o chat
         setTimeout(updateAllUsersOnlineStatus, 500);
