@@ -2172,7 +2172,7 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
 // ============================================================
-// FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
+// FUNÇÕES DE STATUS ONLINE EM TEMPO REAL (MODIFICADAS - 5 SEGUNDOS)
 // ============================================================
 
 // Armazena os listeners de cada usuário para não duplicar
@@ -2194,7 +2194,7 @@ function updateUserOnlineStatus() {
 /**
  * Verifica se um usuário está online com base no lastSeen
  * @param {Object} lastSeen - Timestamp do Firestore
- * @returns {boolean} true se online (< 2 minutos)
+ * @returns {boolean} true se online (< 5 segundos)
  */
 function isUserOnline(lastSeen) {
     if (!lastSeen) return false;
@@ -2210,16 +2210,16 @@ function isUserOnline(lastSeen) {
     
     const now = new Date();
     const diffMs = now - lastSeenDate;
-    const diffMin = Math.floor(diffMs / 60000);
+    const diffSec = Math.floor(diffMs / 1000);
     
-    // Considera online se última atividade foi há menos de 2 minutos
-    return diffMin < 2;
+    // Online se atividade foi há menos de 5 segundos
+    return diffSec < 5;
 }
 
 /**
  * Formata o timestamp de último visto em texto amigável
  * @param {Object|Date} timestamp - Timestamp do Firestore ou Date
- * @returns {string} Texto formatado (ex: "Online", "visto há 5 min")
+ * @returns {string} Texto formatado (ex: "Online", "visto há X min")
  */
 function getLastSeenText(timestamp) {
     if (!timestamp) return 'Offline';
@@ -2235,12 +2235,13 @@ function getLastSeenText(timestamp) {
     
     const now = new Date();
     const diffMs = now - lastSeenDate;
+    const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffMs / 60000);
     const diffH = Math.floor(diffMs / 3600000);
     const diffD = Math.floor(diffMs / 86400000);
     
-    // Se atividade foi há menos de 2 minutos, está online
-    if (diffMin < 2) return 'Online';
+    // Se atividade foi há menos de 5 segundos, está online
+    if (diffSec < 5) return 'Online';
     if (diffMin < 60) return `visto há ${diffMin} min`;
     if (diffH < 24) return `visto há ${diffH} h`;
     if (diffD === 1) return 'visto ontem';
@@ -2327,12 +2328,6 @@ function setupUserStatusListener(userId) {
                 
                 // Atualiza a UI para este usuário
                 updateUserOnlineStatusUI(userId);
-                
-                // Se este usuário está na lista de chats, atualiza a linha do tempo também
-                const lastMessageTimeSpan = document.querySelector(`[data-user-id="${userId}"] .chat-user-time`);
-                if (lastMessageTimeSpan && userData.lastSeen) {
-                    // Opcional: atualizar algo mais
-                }
             }
         }, error => {
             console.error(`Erro no listener do usuário ${userId}:`, error);
@@ -2404,27 +2399,24 @@ auth.onAuthStateChanged(user => {
         }
         
         // ============================================================
-        // SISTEMA DE PRESENÇA EM TEMPO REAL
+        // SISTEMA DE PRESENÇA EM TEMPO REAL (MODIFICADO - 5 SEGUNDOS)
         // ============================================================
         
         // Atualizar status online imediatamente
         updateUserOnlineStatus();
         
-        // Atualizar status online a cada 15 segundos enquanto estiver logado
-        // (mais frequente para melhor precisão)
+        // Atualizar status online a cada 5 segundos (era 15s)
         const heartbeatInterval = setInterval(() => {
             updateUserOnlineStatus();
-        }, 15000);
+        }, 5000); // <--- MUDADO DE 15000 PARA 5000
         
-        // Atualizar UI de status online a cada 5 segundos para maior precisão
+        // Atualizar UI de status online a cada 2 segundos (era 5s)
         const uiUpdateInterval = setInterval(() => {
             updateAllUsersOnlineStatus();
-        }, 5000);
+        }, 2000); // <--- MUDADO DE 5000 PARA 2000
         
         // Detectar quando o usuário fecha a aba ou navega para outra página
         window.addEventListener('beforeunload', function() {
-            // Não podemos fazer operações assíncronas aqui, mas o Firestore
-            // já vai detectar a desconexão pelo heartbeat
             clearInterval(heartbeatInterval);
             clearInterval(uiUpdateInterval);
         });
@@ -2433,7 +2425,7 @@ auth.onAuthStateChanged(user => {
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 updateUserOnlineStatus();
-                setTimeout(updateAllUsersOnlineStatus, 1000);
+                setTimeout(updateAllUsersOnlineStatus, 500);
             }
         });
         
@@ -2603,6 +2595,10 @@ function showTab(tabName) {
         } else {
             selectChat('geral', 'Geral', 'G', null);
         }
+        
+        // Garantir que a área de mensagens esteja visível
+        document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+        document.getElementById('chatMain').classList.add('active');
         
         // Atualizar status de todos quando abrir o chat
         setTimeout(updateAllUsersOnlineStatus, 500);
