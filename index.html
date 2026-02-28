@@ -703,6 +703,28 @@ header {
 .chat-header-info p {
     font-size: 12px;
     color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.online-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #10b981;
+    margin-right: 4px;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.offline-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #94a3b8;
+    margin-right: 4px;
 }
 
 .chat-messages {
@@ -1812,7 +1834,7 @@ header {
                     <div class="chat-header-avatar" id="chatHeaderAvatar">G</div>
                     <div class="chat-header-info">
                         <h4 id="chatHeaderName">Geral</h4>
-                        <p id="chatHeaderStatus">Online</p>
+                        <p id="chatHeaderStatus"><span class="online-indicator"></span>Online</p>
                     </div>
                 </div>
                 <div class="chat-messages" id="chatBox"></div>
@@ -2123,26 +2145,89 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
 // ============================================================
-// NOVAS FUNÇÕES: ONLINE / LAST SEEN (CORRIGIDO)
+// NOVAS FUNÇÕES: ONLINE / LAST SEEN (VERSÃO APRIMORADA)
 // ============================================================
 
 /**
- * Atualiza o timestamp de último visto do usuário atual
+ * Atualiza o status online do usuário atual e configura onDisconnect
  */
-function updateUserOnlineStatus() {
+function setupUserOnlineStatus() {
     if (!auth.currentUser) return;
     
-    db.collection('users').doc(auth.currentUser.uid).update({
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    const userRef = db.collection('users').doc(auth.currentUser.uid);
+    
+    // Atualiza status para online
+    userRef.update({
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        online: true
     }).catch(error => {
-        console.error('Erro ao atualizar lastSeen:', error);
+        console.error('Erro ao atualizar status online:', error);
     });
+    
+    // Configura onDisconnect para quando o usuário fechar o app
+    userRef.onSnapshot((doc) => {
+        // Não faz nada, apenas mantém a conexão ativa
+    });
+    
+    // Usando heartbeat do Firebase (já faz onDisconnect automaticamente)
+    firebase.firestore().enableNetwork().then(() => {
+        userRef.update({
+            online: true
+        }).catch(() => {});
+    });
+}
+
+/**
+ * Função heartbeat - atualiza o timestamp a cada 15 segundos
+ * Isso mantém o usuário como "online" enquanto estiver no app
+ */
+function startHeartbeat() {
+    if (!auth.currentUser) return;
+    
+    const userRef = db.collection('users').doc(auth.currentUser.uid);
+    
+    // Atualizar a cada 15 segundos
+    setInterval(() => {
+        if (auth.currentUser) {
+            userRef.update({
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                online: true
+            }).catch(error => {
+                console.error('Erro no heartbeat:', error);
+            });
+        }
+    }, 15000); // 15 segundos
+}
+
+/**
+ * Verifica se um usuário está online com base no lastSeen
+ * @param {Object} lastSeen - Timestamp do Firestore
+ * @returns {boolean} true se visto nos últimos 30 segundos
+ */
+function isUserOnline(lastSeen) {
+    if (!lastSeen) return false;
+    
+    let lastSeenDate;
+    if (lastSeen && typeof lastSeen === 'object' && lastSeen.seconds) {
+        lastSeenDate = new Date(lastSeen.seconds * 1000);
+    } else if (lastSeen instanceof Date) {
+        lastSeenDate = lastSeen;
+    } else {
+        return false;
+    }
+    
+    const now = new Date();
+    const diffMs = now - lastSeenDate;
+    const diffSeconds = diffMs / 1000;
+    
+    // Considera online se visto nos últimos 30 segundos
+    return diffSeconds < 30;
 }
 
 /**
  * Formata o timestamp de último visto em texto amigável
  * @param {Object|Date} timestamp - Timestamp do Firestore ou Date
- * @returns {string} Texto formatado (ex: "visto há 5 min", "visto ontem")
+ * @returns {string} Texto formatado (ex: "Online", "visto há 5 min", "visto ontem")
  */
 function getLastSeenText(timestamp) {
     if (!timestamp) return 'Offline';
@@ -2162,17 +2247,13 @@ function getLastSeenText(timestamp) {
     const diffH = Math.floor(diffMs / 3600000);
     const diffD = Math.floor(diffMs / 86400000);
     
-    // Se estiver online (menos de 1 minuto de diferença)
-    if (diffMin < 1) {
-        return '🟢 Online';
-    }
+    if (diffMin < 1) return 'Online';
+    if (diffMin < 60) return `visto há ${diffMin} min`;
+    if (diffH < 24) return `visto há ${diffH} h`;
+    if (diffD === 1) return 'visto ontem';
+    if (diffD < 7) return `visto há ${diffD} dias`;
     
-    if (diffMin < 60) return `⚫ visto há ${diffMin} min`;
-    if (diffH < 24) return `⚫ visto há ${diffH} h`;
-    if (diffD === 1) return '⚫ visto ontem';
-    if (diffD < 7) return `⚫ visto há ${diffD} dias`;
-    
-    return `⚫ visto em ${lastSeenDate.toLocaleDateString('pt-BR')}`;
+    return `visto em ${lastSeenDate.toLocaleDateString('pt-BR')}`;
 }
 
 /**
@@ -2211,17 +2292,43 @@ function updateUserOnlineStatusUI(userId, userName, userAvatar, userData = null)
         });
     }
     
+    // Atualizar cabeçalho do chat se for o usuário atual
     if (currentChatUser === userId) {
-        const chatStatus = document.getElementById('chatHeaderStatus');
-        if (userData && userData.lastSeen) {
-            chatStatus.textContent = getLastSeenText(userData.lastSeen);
-        } else {
-            db.collection('users').doc(userId).get().then(doc => {
-                if (doc.exists) {
-                    chatStatus.textContent = getLastSeenText(doc.data().lastSeen);
-                }
-            });
+        updateChatHeaderStatus(userId, userData);
+    }
+}
+
+/**
+ * Atualiza o status no cabeçalho do chat com bolinha colorida
+ */
+function updateChatHeaderStatus(userId, userData = null) {
+    const chatStatus = document.getElementById('chatHeaderStatus');
+    if (!chatStatus) return;
+    
+    const processStatus = (data) => {
+        if (!data || !data.lastSeen) {
+            chatStatus.innerHTML = `<span class="offline-indicator"></span>Offline`;
+            return;
         }
+        
+        const online = isUserOnline(data.lastSeen);
+        const lastSeenText = getLastSeenText(data.lastSeen);
+        
+        if (online) {
+            chatStatus.innerHTML = `<span class="online-indicator"></span>Online`;
+        } else {
+            chatStatus.innerHTML = `<span class="offline-indicator"></span>${lastSeenText}`;
+        }
+    };
+    
+    if (userData) {
+        processStatus(userData);
+    } else if (userId) {
+        db.collection('users').doc(userId).get().then(doc => {
+            if (doc.exists) {
+                processStatus(doc.data());
+            }
+        });
     }
 }
 
@@ -2265,96 +2372,38 @@ auth.onAuthStateChanged(user => {
         loadAllUsers();
         loadChatList();
         
-        // Restaurar última conversa
-        const lastChat = localStorage.getItem('lastChat');
-        if (lastChat) {
-            const chatData = JSON.parse(lastChat);
-            setTimeout(() => {
-                selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
-            }, 500);
-        } else {
+        // ============================================================
+        // SEMPRE SELECIONAR O CHAT GERAL AO ABRIR MENSAGENS
+        // ============================================================
+        setTimeout(() => {
             selectChat('geral', 'Geral', 'G', null);
-        }
+        }, 500);
         
         // ============================================================
-        // INÍCIO: Atualizações periódicas de status online
+        // INÍCIO: Sistema de heartbeat para status online em tempo real
         // ============================================================
         
-        // Atualizar status online imediatamente
-        updateUserOnlineStatus();
+        // Configurar status online
+        setupUserOnlineStatus();
         
-        // Atualizar status online a cada 30 segundos enquanto estiver logado
-        const onlineInterval = setInterval(() => {
-            updateUserOnlineStatus();
-        }, 30000);
+        // Iniciar heartbeat (a cada 15 segundos)
+        startHeartbeat();
         
-        // Atualizar UI de status online a cada 20 segundos
-        const uiInterval = setInterval(() => {
+        // Atualizar UI de status online a cada 10 segundos
+        setInterval(() => {
             updateAllUsersOnlineStatus();
-        }, 20000);
-        
-        // Armazenar intervals para limpar depois
-        window.__onlineInterval = onlineInterval;
-        window.__uiInterval = uiInterval;
+        }, 10000);
         
         // ============================================================
-        // FIM: Atualizações periódicas de status online
+        // FIM: Sistema de heartbeat
         // ============================================================
         
         console.log('Usuário logado:', user.uid);
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
-        
-        // Limpar intervals quando deslogar
-        if (window.__onlineInterval) {
-            clearInterval(window.__onlineInterval);
-        }
-        if (window.__uiInterval) {
-            clearInterval(window.__uiInterval);
-        }
     }
 });
-
-// ============================================================
-// EVENTOS DE SAÍDA DA PÁGINA (CORREÇÃO DO PROBLEMA)
-// ============================================================
-
-/**
- * Função para atualizar lastSeen antes de sair da página
- */
-function updateLastSeenBeforeUnload() {
-    if (auth.currentUser) {
-        // Usar set com merge para garantir que atualize mesmo offline
-        db.collection('users').doc(auth.currentUser.uid).set({
-            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).catch(error => {
-            console.error('Erro ao atualizar lastSeen no unload:', error);
-        });
-    }
-}
-
-// Detectar quando o usuário fecha a aba/navegador
-window.addEventListener('beforeunload', function() {
-    updateLastSeenBeforeUnload();
-});
-
-// Detectar quando o usuário muda de aba (opcional, para marcar como ausente)
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        // Usuário mudou de aba, atualizar lastSeen
-        updateLastSeenBeforeUnload();
-    } else {
-        // Usuário voltou para a aba, atualizar status online
-        if (auth.currentUser) {
-            updateUserOnlineStatus();
-        }
-    }
-});
-
-// ============================================================
-// FIM DOS EVENTOS DE SAÍDA DA PÁGINA
-// ============================================================
 
 // Register
 function register() {
@@ -2405,7 +2454,8 @@ function register() {
                 birthDate: '',
                 gender: '',
                 createdAt: new Date(),
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                online: true
             }).then(() => {
                 return userCredential;
             }).catch(error => {
@@ -2455,18 +2505,15 @@ function login() {
 
 // Logout
 function logout() {
-    // Atualizar lastSeen antes de deslogar
+    // Atualizar status para offline antes de sair
     if (auth.currentUser) {
         db.collection('users').doc(auth.currentUser.uid).update({
-            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            auth.signOut();
-        }).catch(() => {
-            auth.signOut();
-        });
-    } else {
-        auth.signOut();
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+            online: false
+        }).catch(() => {});
     }
+    
+    auth.signOut();
 }
 
 // Show Register Screen
@@ -2509,13 +2556,10 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        const lastChat = localStorage.getItem('lastChat');
-        if (lastChat) {
-            const chatData = JSON.parse(lastChat);
-            selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
-        } else {
-            selectChat('geral', 'Geral', 'G', null);
-        }
+        // ============================================================
+        // MODIFICADO: Sempre selecionar o chat Geral ao abrir Mensagens
+        // ============================================================
+        selectChat('geral', 'Geral', 'G', null);
     }
     
     lucide.createIcons();
@@ -3063,22 +3107,12 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
     
     // ============================================================
-    // MODIFICADO: Atualizar status do chat header com getLastSeenText
+    // MODIFICADO: Atualizar status do chat header com getLastSeenText e bolinha
     // ============================================================
     if (userId) {
-        const userData = userCache.get(userId);
-        if (userData && userData.lastSeen) {
-            document.getElementById('chatHeaderStatus').innerText = getLastSeenText(userData.lastSeen);
-        } else {
-            db.collection('users').doc(userId).get().then(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('chatHeaderStatus').innerText = getLastSeenText(data.lastSeen);
-                }
-            });
-        }
+        updateChatHeaderStatus(userId, userCache.get(userId));
     } else {
-        document.getElementById('chatHeaderStatus').innerText = 'Online';
+        document.getElementById('chatHeaderStatus').innerHTML = `<span class="online-indicator"></span>Online`;
     }
     
     if (window.innerWidth <= 768) {
