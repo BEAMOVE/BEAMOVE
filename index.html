@@ -2224,11 +2224,14 @@ let unsubscribeChat = null;
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
-// NOVO: Mapa de status online dos usuários
+// Mapa de status online dos usuários
 let userOnlineStatus = new Map();
 let userLastSeen = new Map();
 
-// NOVO: Função para atualizar status online do usuário atual
+// Intervalo para atualizar status a cada 20 segundos
+let statusUpdateInterval = null;
+
+// Função para atualizar status online do usuário atual
 function updateUserOnlineStatus() {
     const user = auth.currentUser;
     if (!user) return;
@@ -2254,7 +2257,7 @@ function updateUserOnlineStatus() {
     });
 }
 
-// NOVO: Função para monitorar status online de outros usuários
+// Função para monitorar status online de outros usuários
 function monitorUserOnlineStatus(userId) {
     if (!userId || userId === 'geral') return;
     
@@ -2267,14 +2270,14 @@ function monitorUserOnlineStatus(userId) {
             userOnlineStatus.set(userId, isOnline);
             userLastSeen.set(userId, userData.lastSeen);
             
-            // Atualizar UI se necessário
+            // Atualizar UI imediatamente
             updateUserOnlineStatusUI(userId, isOnline, userData.lastSeen);
             
-            // Se o usuário estava offline e ficou online, atualizar UI
+            // Se o usuário estava offline e ficou online
             if (!wasOnline && isOnline) {
                 console.log(`Usuário ${userId} ficou online`);
             }
-            // Se estava online e ficou offline, atualizar UI
+            // Se estava online e ficou offline
             else if (wasOnline && !isOnline) {
                 console.log(`Usuário ${userId} ficou offline`);
             }
@@ -2282,7 +2285,7 @@ function monitorUserOnlineStatus(userId) {
     });
 }
 
-// NOVO: Função para atualizar UI com status online
+// Função para atualizar UI com status online - CORRIGIDA para mostrar "visto por último as HH:MM"
 function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
     // Atualizar na lista de chats
     const userItem = document.querySelector(`.chat-user[data-user-id="${userId}"]`);
@@ -2293,14 +2296,14 @@ function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
             avatar.classList.add(isOnline ? 'online' : 'offline');
         }
         
-        // Atualizar texto de status
-        const statusSpan = userItem.querySelector('.chat-user-info span:last-child');
+        // Atualizar texto de status - segundo span na chat-user-info
+        const statusSpan = userItem.querySelectorAll('.chat-user-info span')[1];
         if (statusSpan) {
             if (isOnline) {
                 statusSpan.textContent = 'Online';
             } else if (lastSeen) {
                 const lastSeenDate = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
-                statusSpan.textContent = `Visto por último ${formatLastSeen(lastSeenDate)}`;
+                statusSpan.textContent = `Visto por último às ${formatTime(lastSeenDate)}`;
             } else {
                 statusSpan.textContent = 'Offline';
             }
@@ -2321,7 +2324,7 @@ function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
                 headerStatus.textContent = 'Online';
             } else if (lastSeen) {
                 const lastSeenDate = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
-                headerStatus.textContent = `Visto por último ${formatLastSeen(lastSeenDate)}`;
+                headerStatus.textContent = `Visto por último às ${formatTime(lastSeenDate)}`;
             } else {
                 headerStatus.textContent = 'Offline';
             }
@@ -2329,15 +2332,55 @@ function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
     }
 }
 
-// NOVO: Função para formatar "visto por último"
+// Função para verificar status de todos os usuários a cada 20 segundos
+function startStatusMonitoring() {
+    if (statusUpdateInterval) {
+        clearInterval(statusUpdateInterval);
+    }
+    
+    statusUpdateInterval = setInterval(() => {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        // Atualizar status do usuário atual
+        updateUserOnlineStatus();
+        
+        // Verificar status de todos os usuários na lista de chats
+        const userItems = document.querySelectorAll('.chat-user[data-user-id]');
+        userItems.forEach(item => {
+            const userId = item.getAttribute('data-user-id');
+            if (userId && userId !== 'geral') {
+                // Forçar atualização do documento do usuário
+                db.collection('users').doc(userId).get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const isOnline = userData.online || false;
+                        userOnlineStatus.set(userId, isOnline);
+                        userLastSeen.set(userId, userData.lastSeen);
+                        updateUserOnlineStatusUI(userId, isOnline, userData.lastSeen);
+                    }
+                }).catch(error => {
+                    console.error('Erro ao verificar status do usuário:', error);
+                });
+            }
+        });
+        
+        console.log('Status dos usuários atualizado:', new Date().toLocaleTimeString());
+    }, 20000); // 20 segundos
+}
+
+// Função para formatar "visto por último" com horas
 function formatLastSeen(date) {
     const now = new Date();
     const diff = now - date;
     
     if (diff < 60000) return 'agora mesmo';
     if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
-    if (diff < 604800000) return `${Math.floor(diff / 86400000)} dias atrás`;
+    if (diff < 86400000) {
+        // Hoje - mostrar horas
+        return `às ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    if (diff < 172800000) return 'ontem';
     
     return date.toLocaleDateString('pt-BR');
 }
@@ -2365,6 +2408,9 @@ auth.onAuthStateChanged(user => {
         loadAllUsers();
         loadChatList();
         
+        // Iniciar monitoramento de status a cada 20 segundos
+        startStatusMonitoring();
+        
         // CORREÇÃO: Em dispositivos móveis, sempre mostrar a lista de conversas primeiro
         if (window.innerWidth <= 768) {
             // Garantir que a sidebar está visível e o chat principal escondido
@@ -2391,6 +2437,11 @@ auth.onAuthStateChanged(user => {
         
         console.log('Usuário logado:', user.uid);
     } else {
+        // Parar monitoramento quando usuário deslogar
+        if (statusUpdateInterval) {
+            clearInterval(statusUpdateInterval);
+            statusUpdateInterval = null;
+        }
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
     }
@@ -2956,8 +3007,11 @@ function loadChatList() {
                         const isOnline = userData.online || false;
                         const avatarClass = isOnline ? 'online' : 'offline';
                         
-                        // NOVO: Iniciar monitoramento de status online para este usuário
+                        // Iniciar monitoramento de status online para este usuário
                         monitorUserOnlineStatus(userId);
+                        
+                        const lastSeenText = isOnline ? 'Online' : 
+                            (userData.lastSeen ? `Visto por último às ${formatTime(userData.lastSeen)}` : 'Offline');
                         
                         chatItem.innerHTML = `
                             <div class="chat-user-avatar ${avatarClass}">
@@ -2967,8 +3021,9 @@ function loadChatList() {
                             <div class="chat-user-info">
                                 <strong>${userData.username}</strong>
                                 <span>${chatInfo.lastMessage ? chatInfo.lastMessage.substring(0, 30) + (chatInfo.lastMessage.length > 30 ? '...' : '') : 'Clique para conversar'}</span>
-                                <span style="font-size: 10px; opacity: 0.5;">${formatTime(chatInfo.lastMessageTime)}</span>
+                                <span>${lastSeenText}</span>
                             </div>
+                            <div class="chat-user-time">${formatTime(chatInfo.lastMessageTime)}</div>
                         `;
                         usersList.appendChild(chatItem);
                     }
@@ -3072,7 +3127,7 @@ function loadChat(chatId, otherUserId = null) {
     }
 }
 
-// Display a message in the chat - CORREÇÃO: Status instantâneo e horas
+// Display a message in the chat
 async function displayMessage(message, chatId) {
     try {
         let userData = userCache.get(message.user);
@@ -3119,13 +3174,12 @@ async function displayMessage(message, chatId) {
     }
 }
 
-// Função para verificar se mensagem foi lida (instantâneo)
+// Função para verificar se mensagem foi lida
 function checkIfMessageRead(message, chatId) {
     if (message.user !== auth.currentUser.uid) return false;
     
     if (chatId === 'geral') {
         // No chat geral, considerar como lida após alguns segundos
-        // (simplificação - em produção teria confirmação de leitura)
         return true;
     } else {
         const otherUserId = currentChatUser;
@@ -3353,11 +3407,15 @@ function searchUsers() {
             const chatId = `private_${user.id}`;
             selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
         };
+        
+        const lastSeenText = isOnline ? 'Online' : 
+            (user.lastSeen ? `Visto por último às ${formatTime(user.lastSeen)}` : 'Offline');
+        
         li.innerHTML = `
             <div class="user-search-avatar ${avatarClass}">${user.username.charAt(1).toUpperCase()}</div>
             <div class="user-search-info">
                 <strong>${user.username}</strong>
-                <span>${isOnline ? 'Online' : (user.lastSeen ? `Visto ${formatLastSeen(user.lastSeen.toDate ? user.lastSeen.toDate() : new Date(user.lastSeen))}` : 'Offline')}</span>
+                <span>${lastSeenText}</span>
             </div>
         `;
         searchList.appendChild(li);
