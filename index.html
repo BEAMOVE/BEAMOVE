@@ -42,6 +42,12 @@
     --unread-border: #8b5cf6;
     --online: #22c55e;
     --offline: #94a3b8;
+    
+    /* Liquid Glass Variables */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --glass-blur: 12px;
 }
 
 .dark {
@@ -54,6 +60,11 @@
     --unread-bg: rgba(139, 92, 246, 0.2);
     --online: #4ade80;
     --offline: #64748b;
+    
+    /* Liquid Glass Variables - Dark Mode */
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 body {
@@ -489,7 +500,16 @@ header {
     color: var(--accent);
 }
 
-/* Chat */
+/* ============================================================ */
+/* CHAT COM EFEITO LIQUID GLASS (ESTILO iOS 16/17) */
+/* ============================================================ */
+
+#chat {
+    height: calc(100vh - 80px);
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
 .chat-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -497,96 +517,96 @@ header {
     display: grid;
     grid-template-columns: 350px 1fr;
     gap: 20px;
-    height: calc(100vh - 140px); /* Header (70px) + Menu (70px) = 140px */
+    height: calc(100vh - 140px);
     overflow: hidden;
 }
 
-.chat-sidebar {
-    background: var(--bg-secondary);
-    border-radius: 25px;
-    padding: 20px;
-    box-shadow: var(--card-shadow);
+/* Liquid Glass Effect para as sidebars */
+.chat-sidebar,
+.chat-main {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    box-shadow: var(--glass-shadow);
     display: flex;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-}
-
-.chat-sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-}
-
-.chat-sidebar-header h3 {
-    font-size: 18px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.unread-total {
-    background: var(--accent);
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 50px;
-    margin-left: 8px;
-}
-
-.add-chat-btn {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: var(--transition);
 }
 
-.add-chat-btn:hover {
-    transform: scale(1.1);
+/* Ajuste para o conteúdo interno */
+.chat-sidebar {
+    padding: 20px;
 }
 
+.chat-main {
+    /* O chat-main já tem padding interno nos filhos */
+}
+
+/* Header do chat com efeito glass */
+.chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+}
+
+/* Lista de usuários */
 .chat-users {
     list-style: none;
     overflow-y: auto;
     flex: 1;
+    padding-right: 5px;
 }
 
+/* Scrollbar personalizada para combinar com o efeito glass */
+.chat-users::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-users::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-users::-webkit-scrollbar-thumb {
+    background: var(--accent-light);
+    border-radius: 10px;
+    opacity: 0.5;
+}
+
+.chat-users::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* Chat user items com efeito hover suave */
 .chat-user {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px;
-    border-radius: 15px;
+    border-radius: 20px;
     cursor: pointer;
     transition: var(--transition);
     margin-bottom: 5px;
-    position: relative;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
+    background: transparent;
 }
 
 .chat-user:hover {
-    background: var(--bg-primary);
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--glass-border);
+    transform: translateY(-1px);
 }
 
 .chat-user.active {
-    background: var(--accent);
+    background: var(--accent-gradient);
     color: white;
-}
-
-.chat-user.active .chat-user-info span {
-    color: rgba(255, 255, 255, 0.8);
+    border-color: transparent;
 }
 
 .chat-user.unread {
@@ -594,153 +614,7 @@ header {
     border-color: var(--unread-border);
 }
 
-.chat-user-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 18px;
-    flex-shrink: 0;
-    position: relative;
-}
-
-.chat-user-avatar.online::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
-    background-color: var(--online);
-    border-radius: 50%;
-    border: 2px solid var(--bg-secondary);
-}
-
-.chat-user.active .chat-user-avatar.online::after {
-    border-color: var(--accent);
-}
-
-.chat-user-info {
-    flex: 1;
-    overflow: hidden;
-}
-
-.chat-user-info strong {
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-}
-
-.chat-user-info span {
-    font-size: 12px;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 0.7;
-}
-
-.chat-user-time {
-    font-size: 10px;
-    opacity: 0.5;
-    align-self: flex-start;
-}
-
-.unread-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--accent);
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    border: 2px solid var(--bg-secondary);
-    z-index: 2;
-}
-
-.chat-main {
-    background: var(--bg-secondary);
-    border-radius: 25px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: var(--card-shadow);
-    height: 100%;
-    overflow: hidden;
-}
-
-.chat-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--bg-secondary);
-}
-
-.back-to-users {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--accent);
-    cursor: pointer;
-    margin-right: 5px;
-}
-
-.chat-header-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 18px;
-    position: relative;
-}
-
-.chat-header-avatar.online::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
-    background-color: var(--online);
-    border-radius: 50%;
-    border: 2px solid var(--bg-secondary);
-}
-
-.chat-header-info {
-    flex: 1;
-}
-
-.chat-header-info h4 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 2px;
-}
-
-.chat-header-info p {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
+/* Chat messages area */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -750,96 +624,56 @@ header {
     gap: 15px;
 }
 
-.message {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    max-width: 70%;
+/* Scrollbar para mensagens */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
 }
 
-.message.sent {
-    align-self: flex-end;
-    flex-direction: row-reverse;
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.message-avatar {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    flex-shrink: 0;
-    position: relative;
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--accent-light);
+    border-radius: 10px;
 }
 
-.message-avatar.online::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 8px;
-    height: 8px;
-    background-color: var(--online);
-    border-radius: 50%;
-    border: 1px solid var(--bg-secondary);
-}
-
+/* Mensagens com efeito glass */
 .message-content {
-    background: var(--bg-primary);
+    background: var(--glass-bg);
+    backdrop-filter: blur(calc(var(--glass-blur) / 2));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) / 2));
+    border: 1px solid var(--glass-border);
     padding: 12px 15px;
     border-radius: 20px;
     position: relative;
     word-break: break-word;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .message.sent .message-content {
-    background: var(--accent);
+    background: var(--accent-gradient);
+    border-color: transparent;
     color: white;
 }
 
-.message-content p {
-    margin-bottom: 5px;
-}
-
-.message-time {
-    font-size: 10px;
-    opacity: 0.7;
-    display: block;
-    text-align: right;
-}
-
-.message.unread-indicator {
-    position: relative;
-}
-
-.message.unread-indicator::after {
-    content: '●';
-    color: var(--accent);
-    font-size: 10px;
-    position: absolute;
-    bottom: -12px;
-    right: 10px;
-}
-
+/* Chat input com efeito glass */
 .chat-input {
     padding: 20px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--glass-border);
     display: flex;
     gap: 10px;
-    background: var(--bg-secondary);
+    background: transparent;
 }
 
 .chat-input input {
     flex: 1;
     padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 25px;
-    background: var(--bg-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(calc(var(--glass-blur) / 2));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) / 2));
     color: var(--text-primary);
     font-size: 16px;
     transition: var(--transition);
@@ -848,6 +682,11 @@ header {
 .chat-input input:focus {
     outline: none;
     border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.dark .chat-input input:focus {
+    background: rgba(30, 41, 59, 0.9);
 }
 
 .chat-input button {
@@ -862,11 +701,81 @@ header {
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .chat-input button:hover {
     transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
 }
+
+/* Modal de busca de usuários com efeito glass */
+.user-search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.user-search-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    padding: 25px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--glass-shadow);
+}
+
+.user-search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(calc(var(--glass-blur) / 2));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) / 2));
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.user-search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.user-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    margin-bottom: 8px;
+}
+
+.user-search-item:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--glass-border);
+}
+
+/* ============================================================ */
+/* FIM DAS MODIFICAÇÕES DO CHAT */
+/* ============================================================ */
 
 /* Modal de busca de usuários */
 .user-search-modal {
@@ -1588,13 +1497,6 @@ header {
     margin: 0 auto;
     padding: 20px;
     padding-bottom: 100px;
-}
-
-/* Ajuste para chat acima do menu */
-#chat {
-    height: calc(100vh - 80px); /* Header (70px) + pequeno espaçamento */
-    overflow: hidden;
-    padding-bottom: 0;
 }
 
 /* Responsividade */
