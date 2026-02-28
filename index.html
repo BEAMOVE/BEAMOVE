@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>BEAMOVE • Sua Jornada Fitness</title>
 
 
@@ -29,7 +29,6 @@
 
 <!-- Manifest -->
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22BEAMOVE%22%2C%22short_name%22%3A%22BEAMOVE%22%2C%22description%22%3A%22Sua%20Jornada%20Fitness%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%238b5cf6%22%2C%22theme_color%22%3A%22%238b5cf6%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%2520width%3D%27192%27%2520height%3D%27192%27%2520viewBox%3D%270%25200%2520192%2520192%27%3E%253Crect%2520width%3D%27192%27%2520height%3D%27192%27%2520rx%3D%2736%27%2520fill%3D%27%238b5cf6%27%2F%3E%253Ctext%2520x%3D%2796%27%2520y%3D%27128%27%2520font-size%3D%27100%27%2520text-anchor%3D%27middle%27%2520fill%3D%27white%27%2520font-family%3D%27Arial%27%2520dominant-baseline%3D%27middle%27%3EB%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%2520width%3D%27512%27%2520height%3D%27512%27%2520viewBox%3D%270%25200%2520512%2520512%27%3E%253Crect%2520width%3D%27512%27%2520height%3D%27512%27%2520rx%3D%27100%27%2520fill%3D%27%238b5cf6%27%2F%3E%253Ctext%2520x%3D%27256%27%2520y%3D%27340%27%2520font-size%3D%27270%27%2520text-anchor%3D%27middle%27%2520fill%3D%27white%27%2520font-family%3D%27Arial%27%2520dominant-baseline%3D%27middle%27%3EB%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-
 
 
 <!-- Firebase -->
@@ -69,24 +68,8 @@
     --unread-border: #8b5cf6;
     --online: #22c55e;
     --offline: #94a3b8;
-    
-    /* Alturas proporcionais */
-    --header-height: 70px;
-    --nav-height: 70px;
-    --safe-area: 0px;
-}
-
-/* Ajuste para dispositivos com notch */
-@supports (padding-top: constant(safe-area-inset-top)) {
-    :root {
-        --safe-area: constant(safe-area-inset-top);
-    }
-}
-
-@supports (padding-top: env(safe-area-inset-top)) {
-    :root {
-        --safe-area: env(safe-area-inset-top);
-    }
+    --header-height: 80px;
+    --nav-height: 80px;
 }
 
 .dark {
@@ -109,7 +92,6 @@ body {
     line-height: 1.6;
     height: 100vh;
     overflow: hidden;
-    padding-top: var(--safe-area);
 }
 
 /* Login/Register Styles */
@@ -206,7 +188,7 @@ body {
 /* Header */
 header {
     background: var(--bg-secondary);
-    padding: 0 20px;
+    padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: fixed;
     top: 0;
@@ -545,18 +527,18 @@ header {
 .chat-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 15px;
+    padding: 20px;
     display: grid;
     grid-template-columns: 350px 1fr;
-    gap: 15px;
-    height: calc(100vh - var(--header-height) - var(--nav-height));
+    gap: 20px;
+    height: calc(100vh - var(--header-height) - var(--nav-height) - 20px);
     overflow: hidden;
 }
 
 .chat-sidebar {
     background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 15px;
+    border-radius: 25px;
+    padding: 20px;
     box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
@@ -568,7 +550,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
 }
@@ -613,7 +595,7 @@ header {
     list-style: none;
     overflow-y: auto;
     flex: 1;
-    height: 100%;
+    max-height: calc(100% - 60px);
 }
 
 .chat-user {
@@ -727,7 +709,7 @@ header {
 
 .chat-main {
     background: var(--bg-secondary);
-    border-radius: 20px;
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
     box-shadow: var(--card-shadow);
@@ -880,7 +862,7 @@ header {
 }
 
 .chat-input {
-    padding: 15px 20px;
+    padding: 20px;
     border-top: 1px solid var(--border);
     display: flex;
     gap: 10px;
@@ -889,7 +871,7 @@ header {
 
 .chat-input input {
     flex: 1;
-    padding: 12px 15px;
+    padding: 15px;
     border: 2px solid var(--border);
     border-radius: 25px;
     background: var(--bg-primary);
@@ -904,8 +886,8 @@ header {
 }
 
 .chat-input button {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: var(--accent-gradient);
     border: none;
@@ -1045,17 +1027,17 @@ header {
 .profile-container {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 15px;
-    height: calc(100vh - var(--header-height) - var(--nav-height));
+    padding: 20px;
+    height: calc(100vh - var(--header-height) - var(--nav-height) - 20px);
     overflow-y: auto;
 }
 
 .profile-header {
     background: var(--bg-secondary);
-    border-radius: 25px;
-    padding: 25px;
+    border-radius: 30px;
+    padding: 30px;
     box-shadow: var(--card-shadow);
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     position: relative;
 }
 
@@ -1068,15 +1050,15 @@ header {
 }
 
 .profile-avatar-large {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 42px;
+    font-size: 48px;
     font-weight: 700;
     border: 4px solid var(--bg-secondary);
     box-shadow: var(--card-shadow);
@@ -1091,22 +1073,22 @@ header {
 }
 
 .profile-username {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .profile-name {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 500;
     color: var(--text-secondary);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .profile-bio {
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 12px;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 15px;
     max-width: 500px;
 }
 
@@ -1117,8 +1099,7 @@ header {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    margin-bottom: 15px;
-    font-size: 14px;
+    margin-bottom: 20px;
 }
 
 .profile-link:hover {
@@ -1127,8 +1108,8 @@ header {
 
 .profile-stats {
     display: flex;
-    gap: 30px;
-    margin-bottom: 15px;
+    gap: 40px;
+    margin-bottom: 20px;
     justify-content: center;
 }
 
@@ -1137,25 +1118,25 @@ header {
 }
 
 .stat-value {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-secondary);
 }
 
 .profile-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 20px;
     justify-content: center;
 }
 
 .profile-edit-btn {
-    padding: 8px 20px;
+    padding: 10px 24px;
     background: var(--accent-gradient);
     color: white;
     border: none;
@@ -1166,7 +1147,7 @@ header {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .profile-edit-btn:hover {
@@ -1175,8 +1156,8 @@ header {
 }
 
 .profile-settings-btn {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background: var(--bg-primary);
     border: 2px solid var(--border);
@@ -1197,17 +1178,17 @@ header {
 /* Ficha do Usuário */
 .user-card {
     background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 25px;
+    padding: 25px;
+    margin-bottom: 30px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border);
 }
 
 .user-card h3 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1216,50 +1197,50 @@ header {
 
 .user-card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
 }
 
 .user-card-item {
     background: var(--bg-primary);
-    padding: 12px;
-    border-radius: 12px;
+    padding: 15px;
+    border-radius: 15px;
     border: 1px solid var(--border);
 }
 
 .user-card-label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
 .user-card-value {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .user-card-value small {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 400;
     color: var(--text-secondary);
     margin-left: 5px;
 }
 
 .user-card-edit {
-    margin-top: 15px;
-    padding-top: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 1px solid var(--border);
 }
 
 .user-card-edit-btn {
     background: none;
     border: 2px solid var(--border);
-    padding: 10px;
-    border-radius: 12px;
+    padding: 12px;
+    border-radius: 15px;
     width: 100%;
     color: var(--text-primary);
     font-weight: 500;
@@ -1269,7 +1250,6 @@ header {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-size: 13px;
 }
 
 .user-card-edit-btn:hover {
@@ -1280,16 +1260,16 @@ header {
 /* Histórico de Progresso */
 .progress-history {
     background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 25px;
+    padding: 25px;
+    margin-bottom: 30px;
     box-shadow: var(--card-shadow);
 }
 
 .progress-history h3 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1298,7 +1278,7 @@ header {
 
 .timeline {
     position: relative;
-    padding-left: 25px;
+    padding-left: 30px;
 }
 
 .timeline::before {
@@ -1313,37 +1293,36 @@ header {
 
 .timeline-item {
     position: relative;
-    padding-bottom: 20px;
+    padding-bottom: 25px;
 }
 
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: -29px;
+    left: -34px;
     top: 0;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: var(--accent);
     border: 2px solid var(--bg-secondary);
 }
 
 .timeline-date {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 }
 
 .timeline-content {
     background: var(--bg-primary);
-    padding: 12px;
-    border-radius: 12px;
+    padding: 15px;
+    border-radius: 15px;
     border: 1px solid var(--border);
 }
 
 .timeline-content p {
-    margin-bottom: 4px;
-    font-size: 13px;
+    margin-bottom: 5px;
 }
 
 .timeline-content strong {
@@ -1353,9 +1332,9 @@ header {
 /* Edit Forms */
 .edit-section {
     background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 25px;
+    padding: 25px;
+    margin-bottom: 30px;
     box-shadow: var(--card-shadow);
     animation: slideDown 0.3s ease;
 }
@@ -1372,9 +1351,9 @@ header {
 }
 
 .edit-section h4 {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1385,13 +1364,13 @@ header {
 .edit-section textarea,
 .edit-section select {
     width: 100%;
-    padding: 10px 12px;
-    margin: 6px 0;
+    padding: 12px 15px;
+    margin: 8px 0;
     border: 2px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 14px;
     transition: var(--transition);
 }
 
@@ -1403,38 +1382,37 @@ header {
 }
 
 .edit-section textarea {
-    min-height: 70px;
+    min-height: 80px;
     resize: vertical;
 }
 
 .edit-section-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 15px;
 }
 
 .edit-section-actions {
     display: flex;
     gap: 10px;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
 .edit-section .btn {
     width: auto;
-    padding: 10px 20px;
+    padding: 12px 24px;
     margin: 0;
-    font-size: 13px;
 }
 
 /* DDI Select */
 .ddi-select {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
 }
 
 .ddi-select select {
-    width: 90px;
+    width: 100px;
     margin: 0;
 }
 
@@ -1445,15 +1423,15 @@ header {
 /* Posts do Perfil */
 .profile-posts {
     background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 25px;
+    padding: 25px;
     box-shadow: var(--card-shadow);
 }
 
 .profile-posts h3 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1462,14 +1440,14 @@ header {
 
 .posts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
 }
 
 .post-thumb {
     background: var(--bg-primary);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 15px;
+    padding: 15px;
     border: 1px solid var(--border);
     cursor: pointer;
     transition: var(--transition);
@@ -1481,8 +1459,8 @@ header {
 }
 
 .post-thumb p {
-    font-size: 13px;
-    margin-bottom: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1501,7 +1479,7 @@ header {
     left: 0;
     right: 0;
     background: var(--bg-secondary);
-    padding: 10px 20px;
+    padding: 15px 30px;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -1516,13 +1494,13 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
     position: relative;
-    padding: 6px 12px;
-    border-radius: 40px;
+    padding: 8px 16px;
+    border-radius: 50px;
 }
 
 .nav-item.active {
@@ -1531,23 +1509,23 @@ header {
 }
 
 .nav-item i {
-    font-size: 22px;
+    font-size: 24px;
 }
 
 .nav-item span {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
 }
 
 .nav-badge {
     position: absolute;
-    top: -3px;
-    right: -3px;
+    top: -5px;
+    right: -5px;
     background: var(--danger);
     color: white;
-    font-size: 9px;
-    padding: 2px 5px;
-    border-radius: 40px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 50px;
 }
 
 /* Forum Styles */
@@ -1555,30 +1533,29 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .forum-title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .forum-add-btn {
     background: var(--accent-gradient);
     color: white;
     border: none;
-    border-radius: 40px;
-    padding: 10px 18px;
+    border-radius: 50px;
+    padding: 12px 24px;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 8px;
 }
 
 .forum-add-btn:hover {
@@ -1587,14 +1564,14 @@ header {
 }
 
 .forum-posts {
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
 .forum-post {
     background: var(--bg-secondary);
-    border-radius: 18px;
-    padding: 18px;
-    margin-bottom: 15px;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
     box-shadow: var(--card-shadow);
 }
 
@@ -1602,30 +1579,28 @@ header {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
 }
 
 .forum-post-author {
     font-weight: 600;
-    font-size: 14px;
 }
 
 .forum-post-date {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
 }
 
 .forum-post-content {
-    margin-bottom: 12px;
-    line-height: 1.5;
-    font-size: 14px;
+    margin-bottom: 15px;
+    line-height: 1.6;
 }
 
 .forum-post-footer {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     border-top: 1px solid var(--border);
-    padding-top: 12px;
+    padding-top: 15px;
 }
 
 .back-btn {
@@ -1637,9 +1612,8 @@ header {
     display: flex;
     align-items: center;
     gap: 5px;
-    margin-bottom: 15px;
-    padding: 8px 0;
-    font-size: 14px;
+    margin-bottom: 20px;
+    padding: 10px 0;
 }
 
 /* Utilitários */
@@ -1650,16 +1624,16 @@ header {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 15px;
-    height: calc(100vh - var(--header-height) - var(--nav-height));
+    padding: 20px;
+    height: calc(100vh - var(--header-height) - var(--nav-height) - 20px);
     overflow-y: auto;
 }
 
 /* Ajuste para chat acima do menu */
 #chat {
-    height: 100vh;
+    height: calc(100vh - var(--header-height) - var(--nav-height));
     overflow: hidden;
-    padding-top: var(--header-height);
+    padding: 10px 0 0 0;
 }
 
 /* Responsividade */
@@ -1667,14 +1641,12 @@ header {
     .chat-container {
         grid-template-columns: 1fr;
         padding: 10px;
-        height: calc(100vh - var(--header-height) - var(--nav-height));
-        gap: 10px;
+        height: calc(100vh - var(--header-height) - var(--nav-height) - 10px);
     }
     
     .chat-sidebar {
         display: block;
         height: 100%;
-        padding: 12px;
     }
     
     .chat-sidebar.hidden-mobile {
@@ -1707,12 +1679,10 @@ header {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 15px;
     }
     
     .profile-stats {
         justify-content: center;
-        gap: 20px;
     }
     
     .profile-actions {
@@ -1730,60 +1700,27 @@ header {
     .ddi-select select {
         width: 100%;
     }
-    
-    .profile-avatar-large {
-        width: 90px;
-        height: 90px;
-        font-size: 38px;
-    }
-}
-
-/* Ajustes para tablets */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .chat-container {
-        grid-template-columns: 300px 1fr;
-    }
-    
-    .container {
-        max-width: 900px;
-    }
 }
 
 /* Ajustes para telas muito pequenas */
 @media (max-width: 380px) {
     :root {
-        --header-height: 60px;
-        --nav-height: 60px;
+        --header-height: 70px;
+        --nav-height: 70px;
     }
     
     .chat-user-avatar {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
         font-size: 16px;
     }
     
     .chat-user-info strong {
-        font-size: 12px;
+        font-size: 13px;
     }
     
     .chat-user-info span {
-        font-size: 10px;
-    }
-    
-    .profile-avatar-large {
-        width: 80px;
-        height: 80px;
-        font-size: 34px;
-    }
-}
-
-/* Ajustes para telas grandes (desktop) */
-@media (min-width: 1200px) {
-    .container,
-    .profile-container,
-    .chat-container {
-        max-width: 1200px;
-        margin: 0 auto;
+        font-size: 11px;
     }
 }
 </style>
