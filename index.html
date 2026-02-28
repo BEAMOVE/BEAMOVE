@@ -2123,7 +2123,7 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
 // ============================================================
-// NOVAS FUNÇÕES: ONLINE / LAST SEEN
+// NOVAS FUNÇÕES: ONLINE / LAST SEEN (CORRIGIDO)
 // ============================================================
 
 /**
@@ -2162,13 +2162,17 @@ function getLastSeenText(timestamp) {
     const diffH = Math.floor(diffMs / 3600000);
     const diffD = Math.floor(diffMs / 86400000);
     
-    if (diffMin < 1) return 'Online';
-    if (diffMin < 60) return `visto há ${diffMin} min`;
-    if (diffH < 24) return `visto há ${diffH} h`;
-    if (diffD === 1) return 'visto ontem';
-    if (diffD < 7) return `visto há ${diffD} dias`;
+    // Se estiver online (menos de 1 minuto de diferença)
+    if (diffMin < 1) {
+        return '🟢 Online';
+    }
     
-    return `visto em ${lastSeenDate.toLocaleDateString('pt-BR')}`;
+    if (diffMin < 60) return `⚫ visto há ${diffMin} min`;
+    if (diffH < 24) return `⚫ visto há ${diffH} h`;
+    if (diffD === 1) return '⚫ visto ontem';
+    if (diffD < 7) return `⚫ visto há ${diffD} dias`;
+    
+    return `⚫ visto em ${lastSeenDate.toLocaleDateString('pt-BR')}`;
 }
 
 /**
@@ -2280,14 +2284,18 @@ auth.onAuthStateChanged(user => {
         updateUserOnlineStatus();
         
         // Atualizar status online a cada 30 segundos enquanto estiver logado
-        setInterval(() => {
+        const onlineInterval = setInterval(() => {
             updateUserOnlineStatus();
         }, 30000);
         
         // Atualizar UI de status online a cada 20 segundos
-        setInterval(() => {
+        const uiInterval = setInterval(() => {
             updateAllUsersOnlineStatus();
         }, 20000);
+        
+        // Armazenar intervals para limpar depois
+        window.__onlineInterval = onlineInterval;
+        window.__uiInterval = uiInterval;
         
         // ============================================================
         // FIM: Atualizações periódicas de status online
@@ -2297,8 +2305,56 @@ auth.onAuthStateChanged(user => {
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
+        
+        // Limpar intervals quando deslogar
+        if (window.__onlineInterval) {
+            clearInterval(window.__onlineInterval);
+        }
+        if (window.__uiInterval) {
+            clearInterval(window.__uiInterval);
+        }
     }
 });
+
+// ============================================================
+// EVENTOS DE SAÍDA DA PÁGINA (CORREÇÃO DO PROBLEMA)
+// ============================================================
+
+/**
+ * Função para atualizar lastSeen antes de sair da página
+ */
+function updateLastSeenBeforeUnload() {
+    if (auth.currentUser) {
+        // Usar set com merge para garantir que atualize mesmo offline
+        db.collection('users').doc(auth.currentUser.uid).set({
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(error => {
+            console.error('Erro ao atualizar lastSeen no unload:', error);
+        });
+    }
+}
+
+// Detectar quando o usuário fecha a aba/navegador
+window.addEventListener('beforeunload', function() {
+    updateLastSeenBeforeUnload();
+});
+
+// Detectar quando o usuário muda de aba (opcional, para marcar como ausente)
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        // Usuário mudou de aba, atualizar lastSeen
+        updateLastSeenBeforeUnload();
+    } else {
+        // Usuário voltou para a aba, atualizar status online
+        if (auth.currentUser) {
+            updateUserOnlineStatus();
+        }
+    }
+});
+
+// ============================================================
+// FIM DOS EVENTOS DE SAÍDA DA PÁGINA
+// ============================================================
 
 // Register
 function register() {
@@ -2399,7 +2455,18 @@ function login() {
 
 // Logout
 function logout() {
-    auth.signOut();
+    // Atualizar lastSeen antes de deslogar
+    if (auth.currentUser) {
+        db.collection('users').doc(auth.currentUser.uid).update({
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            auth.signOut();
+        }).catch(() => {
+            auth.signOut();
+        });
+    } else {
+        auth.signOut();
+    }
 }
 
 // Show Register Screen
