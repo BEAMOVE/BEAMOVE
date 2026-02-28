@@ -489,7 +489,7 @@ header {
     color: var(--accent);
 }
 
-/* Chat */
+/* Chat - CORRIGIDO: tamanho entre header e menu */
 .chat-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -497,10 +497,19 @@ header {
     display: grid;
     grid-template-columns: 350px 1fr;
     gap: 20px;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 140px); /* Altura total menos header (80px) e menu (60px) */
     overflow: hidden;
 }
 
+/* Ajuste para o chat ficar entre o header e o menu */
+#chat {
+    height: calc(100vh - 80px); /* Altura total menos o header (80px) */
+    overflow: hidden;
+    padding-bottom: 0;
+    margin-top: 0;
+}
+
+/* Garantir que as sidebars ocupem toda a altura disponível */
 .chat-sidebar {
     background: var(--bg-secondary);
     border-radius: 25px;
@@ -510,8 +519,43 @@ header {
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-secondary-rgb), 0.9); /* Efeito translúcido */
 }
 
+.chat-main {
+    background: var(--bg-secondary);
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--card-shadow);
+    height: 100%;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-secondary-rgb), 0.9); /* Efeito translúcido */
+}
+
+/* Ajuste para o conteúdo interno rolar corretamente */
+.chat-users {
+    list-style: none;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Importante para o flex funcionar */
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 0; /* Importante para o flex funcionar */
+}
+
+/* Garantir que os headers fiquem no topo */
 .chat-sidebar-header {
     display: flex;
     justify-content: space-between;
@@ -519,6 +563,31 @@ header {
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0; /* Não encolher */
+}
+
+.chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-secondary);
+    flex-shrink: 0; /* Não encolher */
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-secondary-rgb), 0.9);
+}
+
+/* Garantir que o input fique no final */
+.chat-input {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    background: var(--bg-secondary);
+    flex-shrink: 0; /* Não encolher */
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-secondary-rgb), 0.9);
 }
 
 .chat-sidebar-header h3 {
@@ -555,12 +624,6 @@ header {
 
 .add-chat-btn:hover {
     transform: scale(1.1);
-}
-
-.chat-users {
-    list-style: none;
-    overflow-y: auto;
-    flex: 1;
 }
 
 .chat-user {
@@ -672,25 +735,6 @@ header {
     z-index: 2;
 }
 
-.chat-main {
-    background: var(--bg-secondary);
-    border-radius: 25px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: var(--card-shadow);
-    height: 100%;
-    overflow: hidden;
-}
-
-.chat-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--bg-secondary);
-}
-
 .back-to-users {
     display: none;
     background: none;
@@ -739,15 +783,6 @@ header {
 .chat-header-info p {
     font-size: 12px;
     color: var(--text-secondary);
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
 }
 
 .message {
@@ -826,46 +861,35 @@ header {
     right: 10px;
 }
 
-.chat-input {
-    padding: 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    background: var(--bg-secondary);
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 25px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 16px;
-    transition: var(--transition);
-}
-
-.chat-input input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-.chat-input button {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-}
-
-.chat-input button:hover {
-    transform: scale(1.1);
+/* Responsividade do chat */
+@media (max-width: 768px) {
+    .chat-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        height: calc(100vh - 140px);
+    }
+    
+    .chat-sidebar {
+        display: block;
+        height: 100%;
+    }
+    
+    .chat-sidebar.hidden-mobile {
+        display: none;
+    }
+    
+    .chat-main {
+        display: none;
+        height: 100%;
+    }
+    
+    .chat-main.active {
+        display: flex;
+    }
+    
+    .back-to-users {
+        display: block;
+    }
 }
 
 /* Modal de busca de usuários */
@@ -1590,43 +1614,15 @@ header {
     padding-bottom: 100px;
 }
 
-/* Ajuste para chat acima do menu */
+/* Ajuste para chat acima do menu - já corrigido acima */
 #chat {
     height: calc(100vh - 80px);
     overflow: hidden;
     padding-bottom: 0;
 }
 
-/* Responsividade */
+/* Responsividade geral */
 @media (max-width: 768px) {
-    .chat-container {
-        grid-template-columns: 1fr;
-        padding: 10px;
-        height: calc(100vh - 140px);
-    }
-    
-    .chat-sidebar {
-        display: block;
-        height: 100%;
-    }
-    
-    .chat-sidebar.hidden-mobile {
-        display: none;
-    }
-    
-    .chat-main {
-        display: none;
-        height: 100%;
-    }
-    
-    .chat-main.active {
-        display: flex;
-    }
-    
-    .back-to-users {
-        display: block;
-    }
-    
     .featured-card {
         flex-direction: column;
         text-align: center;
@@ -2386,17 +2382,6 @@ auth.onAuthStateChanged(user => {
         loadProgressHistory();
         loadAllUsers();
         loadChatList();
-        
-        // Restaurar última conversa (opcional - comentado para não abrir automaticamente)
-        // const lastChat = localStorage.getItem('lastChat');
-        // if (lastChat) {
-        //     const chatData = JSON.parse(lastChat);
-        //     setTimeout(() => {
-        //         selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
-        //     }, 500);
-        // } else {
-        //     selectChat('geral', 'Geral', 'G', null);
-        // }
         
         // ============================================================
         // SISTEMA DE PRESENÇA EM TEMPO REAL
