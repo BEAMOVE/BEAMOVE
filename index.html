@@ -2351,6 +2351,144 @@ function updateAllUsersOnlineStatus() {
 // FIM DAS NOVAS FUNÇÕES
 // ============================================================
 
+// ============================================================
+// NOVA FUNÇÃO: Carregar lista completa de usuários no chat
+// ============================================================
+function loadAllUsersForChat() {
+    if (!auth.currentUser) return;
+    
+    const usersList = document.getElementById('chatUsersList');
+    const currentUserId = auth.currentUser.uid;
+    
+    // Limpar lista mantendo apenas o chat Geral
+    const geralItem = usersList.querySelector('[data-user-id="geral"]');
+    usersList.innerHTML = '';
+    if (geralItem) usersList.appendChild(geralItem);
+    
+    // Buscar todos os usuários
+    db.collection('users').get().then(snapshot => {
+        const userPromises = [];
+        
+        snapshot.forEach(doc => {
+            const userId = doc.id;
+            if (userId === currentUserId) return; // Pular próprio usuário
+            
+            const userData = doc.data();
+            userCache.set(userId, userData);
+            
+            // Buscar última mensagem (se existir)
+            const promise = db.collection('private_chats')
+                .where('participants', 'array-contains', currentUserId)
+                .get()
+                .then(chatSnapshot => {
+                    let lastMessage = null;
+                    let lastMessageTime = null;
+                    
+                    chatSnapshot.forEach(chatDoc => {
+                        const chat = chatDoc.data();
+                        if (chat.participants && 
+                            chat.participants.length === 2 && 
+                            chat.participants.includes(userId)) {
+                            
+                            if (!lastMessageTime || 
+                                (chat.created && chat.created.seconds * 1000 > lastMessageTime)) {
+                                lastMessage = chat.text;
+                                lastMessageTime = chat.created ? chat.created.seconds * 1000 : null;
+                            }
+                        }
+                    });
+                    
+                    return { lastMessage, lastMessageTime };
+                });
+            
+            userPromises.push(promise.then(result => ({
+                userId,
+                userData,
+                ...result
+            })));
+        });
+        
+        Promise.all(userPromises).then(users => {
+            users.forEach(({ userId, userData, lastMessage, lastMessageTime }) => {
+                const unreadCount = unreadMessages.get(userId) || 0;
+                
+                const chatItem = document.createElement('li');
+                chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
+                chatItem.setAttribute('data-chat-id', `private_${userId}`);
+                chatItem.setAttribute('data-user-id', userId);
+                chatItem.setAttribute('data-user-name', userData.username);
+                chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
+                chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+                
+                let unreadBadge = '';
+                if (unreadCount > 0) {
+                    unreadBadge = `<span class="unread-badge">${unreadCount}</span>`;
+                }
+                
+                const lastSeenText = getLastSeenText(userData.lastSeen);
+                const timeDisplay = lastMessageTime ? formatTimeFromTimestamp(lastMessageTime) : '';
+                
+                chatItem.innerHTML = `
+                    <div class="chat-user-avatar">
+                        ${userData.username.charAt(1).toUpperCase()}
+                        ${unreadBadge}
+                    </div>
+                    <div class="chat-user-info">
+                        <strong>${userData.username}</strong>
+                        <span>${lastSeenText}</span>
+                    </div>
+                    <div class="chat-user-time">${timeDisplay}</div>
+                `;
+                
+                usersList.appendChild(chatItem);
+            });
+            
+            // Ordenar: online primeiro, depois por último visto
+            const items = Array.from(usersList.children);
+            const geralItem = items.find(item => item.getAttribute('data-user-id') === 'geral');
+            const otherItems = items.filter(item => item.getAttribute('data-user-id') !== 'geral');
+            
+            otherItems.sort((a, b) => {
+                const userIdA = a.getAttribute('data-user-id');
+                const userIdB = b.getAttribute('data-user-id');
+                const dataA = userCache.get(userIdA);
+                const dataB = userCache.get(userIdB);
+                
+                const onlineA = dataA && dataA.lastSeen ? isUserOnline(dataA.lastSeen) : false;
+                const onlineB = dataB && dataB.lastSeen ? isUserOnline(dataB.lastSeen) : false;
+                
+                if (onlineA && !onlineB) return -1;
+                if (!onlineA && onlineB) return 1;
+                
+                const timeA = dataA && dataA.lastSeen ? dataA.lastSeen.seconds || 0 : 0;
+                const timeB = dataB && dataB.lastSeen ? dataB.lastSeen.seconds || 0 : 0;
+                return timeB - timeA;
+            });
+            
+            usersList.innerHTML = '';
+            if (geralItem) usersList.appendChild(geralItem);
+            otherItems.forEach(item => usersList.appendChild(item));
+        });
+    }).catch(error => {
+        console.error('Erro ao carregar lista de usuários:', error);
+    });
+}
+
+// Função auxiliar para formatar timestamp
+function formatTimeFromTimestamp(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) return 'agora';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}min`;
+    if (diff < 86400000) {
+        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
 // Auth State Observer
 auth.onAuthStateChanged(user => {
     if (user) {
@@ -2369,8 +2507,12 @@ auth.onAuthStateChanged(user => {
         loadProfilePosts();
         loadUserCard();
         loadProgressHistory();
-        loadAllUsers();
-        loadChatList();
+        loadAllUsers(); // Para a busca
+        
+        // ============================================================
+        // CARREGAR LISTA COMPLETA DE USUÁRIOS NO CHAT
+        // ============================================================
+        loadAllUsersForChat();
         
         // ============================================================
         // SEMPRE SELECIONAR O CHAT GERAL AO ABRIR MENSAGENS
@@ -2874,96 +3016,69 @@ function addPost() {
     });
 }
 
-// Load Chat List
-function loadChatList() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const usersList = document.getElementById('chatUsersList');
-    
-    const geralItem = document.createElement('li');
-    geralItem.className = 'chat-user';
-    geralItem.setAttribute('data-chat-id', 'geral');
-    geralItem.setAttribute('data-user-id', 'geral');
-    geralItem.setAttribute('data-user-name', 'Geral');
-    geralItem.setAttribute('data-user-avatar', 'G');
-    geralItem.onclick = () => selectChat('geral', 'Geral', 'G', null);
-    geralItem.innerHTML = `
-        <div class="chat-user-avatar">G</div>
-        <div class="chat-user-info">
-            <strong>Geral</strong>
-            <span>Conversa com todos</span>
-        </div>
-    `;
-    
-    usersList.innerHTML = '';
-    usersList.appendChild(geralItem);
-    
-    db.collection('private_chats')
-        .where('participants', 'array-contains', user.uid)
-        .get()
+// Load All Users for Search
+function loadAllUsers() {
+    db.collection('users').get()
         .then(snapshot => {
-            const chatUsers = new Map();
-            
+            allUsers = [];
             snapshot.forEach(doc => {
-                const chat = doc.data();
-                const otherUserId = chat.participants.find(id => id !== user.uid);
-                
-                if (otherUserId) {
-                    const existing = chatUsers.get(otherUserId);
-                    if (!existing || (chat.created && existing.created < chat.created)) {
-                        chatUsers.set(otherUserId, {
-                            lastMessage: chat.text,
-                            lastMessageTime: chat.created
-                        });
-                    }
+                if (doc.id !== auth.currentUser.uid) {
+                    const userData = doc.data();
+                    userCache.set(doc.id, userData);
+                    allUsers.push({
+                        id: doc.id,
+                        ...userData
+                    });
                 }
-            });
-            
-            chatUsers.forEach((chatInfo, userId) => {
-                db.collection('users').doc(userId).get().then(userDoc => {
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
-                        userCache.set(userId, userData);
-                        const unreadCount = unreadMessages.get(userId) || 0;
-                        
-                        const chatItem = document.createElement('li');
-                        chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
-                        chatItem.setAttribute('data-chat-id', `private_${userId}`);
-                        chatItem.setAttribute('data-user-id', userId);
-                        chatItem.setAttribute('data-user-name', userData.username);
-                        chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
-                        chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
-                        
-                        let unreadBadge = '';
-                        if (unreadCount > 0) {
-                            unreadBadge = `<span class="unread-badge">${unreadCount}</span>`;
-                        }
-                        
-                        // ============================================================
-                        // MODIFICADO: Usar getLastSeenText no lugar da última mensagem
-                        // ============================================================
-                        const lastSeenText = getLastSeenText(userData.lastSeen);
-                        
-                        chatItem.innerHTML = `
-                            <div class="chat-user-avatar">
-                                ${userData.username.charAt(1).toUpperCase()}
-                                ${unreadBadge}
-                            </div>
-                            <div class="chat-user-info">
-                                <strong>${userData.username}</strong>
-                                <span>${lastSeenText}</span>
-                            </div>
-                            <div class="chat-user-time">${formatTime(chatInfo.lastMessageTime)}</div>
-                        `;
-                        usersList.appendChild(chatItem);
-                    }
-                });
             });
         })
         .catch(error => {
-            console.error('Erro ao carregar lista de chats:', error);
+            console.error('Erro ao carregar usuários:', error);
         });
+}
+
+function showUserSearchModal() {
+    document.getElementById('userSearchModal').classList.remove('hidden');
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('userSearchInput').focus();
+    searchUsers();
+}
+
+function hideUserSearchModal() {
+    document.getElementById('userSearchModal').classList.add('hidden');
+}
+
+function searchUsers() {
+    const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+    const searchList = document.getElementById('userSearchList');
+    
+    const filteredUsers = allUsers.filter(user => 
+        user.username.toLowerCase().includes(searchTerm)
+    );
+    
+    if (filteredUsers.length === 0) {
+        searchList.innerHTML = '<li class="no-users-found">Nenhum usuário encontrado</li>';
+        return;
+    }
+    
+    searchList.innerHTML = '';
+    filteredUsers.forEach(user => {
+        const li = document.createElement('li');
+        li.className = 'user-search-item';
+        li.onclick = () => {
+            hideUserSearchModal();
+            const chatId = `private_${user.id}`;
+            selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
+        };
+        li.innerHTML = `
+            <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
+            <div class="user-search-info">
+                <strong>${user.username}</strong>
+                <span>${user.displayName || 'Membro'}</span>
+            </div>
+        `;
+        searchList.appendChild(li);
+    });
 }
 
 // Load Chat Messages - CORRIGIDO: Ordenação cronológica correta
@@ -3219,14 +3334,8 @@ function sendMessage() {
             .then(() => {
                 chatInput.value = '';
                 
-                const usersList = document.getElementById('chatUsersList');
-                const userItem = usersList.querySelector(`[data-user-id="${currentChatUser}"]`);
-                if (userItem) {
-                    const lastMessageSpan = userItem.querySelector('.chat-user-info span:last-child');
-                    if (lastMessageSpan) {
-                        // Não alterar o lastSeen ao enviar mensagem
-                    }
-                }
+                // Recarregar lista de usuários para atualizar última mensagem
+                loadAllUsersForChat();
             })
             .catch(error => {
                 console.error('Erro ao enviar mensagem privada:', error);
@@ -3240,71 +3349,6 @@ function handleChatKeyPress(e) {
         e.preventDefault();
         sendMessage();
     }
-}
-
-// Load All Users for Search
-function loadAllUsers() {
-    db.collection('users').get()
-        .then(snapshot => {
-            allUsers = [];
-            snapshot.forEach(doc => {
-                if (doc.id !== auth.currentUser.uid) {
-                    const userData = doc.data();
-                    userCache.set(doc.id, userData);
-                    allUsers.push({
-                        id: doc.id,
-                        ...userData
-                    });
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar usuários:', error);
-        });
-}
-
-function showUserSearchModal() {
-    document.getElementById('userSearchModal').classList.remove('hidden');
-    document.getElementById('userSearchInput').value = '';
-    document.getElementById('userSearchInput').focus();
-    searchUsers();
-}
-
-function hideUserSearchModal() {
-    document.getElementById('userSearchModal').classList.add('hidden');
-}
-
-function searchUsers() {
-    const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
-    const searchList = document.getElementById('userSearchList');
-    
-    const filteredUsers = allUsers.filter(user => 
-        user.username.toLowerCase().includes(searchTerm)
-    );
-    
-    if (filteredUsers.length === 0) {
-        searchList.innerHTML = '<li class="no-users-found">Nenhum usuário encontrado</li>';
-        return;
-    }
-    
-    searchList.innerHTML = '';
-    filteredUsers.forEach(user => {
-        const li = document.createElement('li');
-        li.className = 'user-search-item';
-        li.onclick = () => {
-            hideUserSearchModal();
-            const chatId = `private_${user.id}`;
-            selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
-        };
-        li.innerHTML = `
-            <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
-            <div class="user-search-info">
-                <strong>${user.username}</strong>
-                <span>${user.displayName || 'Membro'}</span>
-            </div>
-        `;
-        searchList.appendChild(li);
-    });
 }
 
 // Load Profile
