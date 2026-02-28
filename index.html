@@ -2340,6 +2340,159 @@ function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
     }
 }
 
+    // FUNÇÃO CORRIGIDA - Atualiza o status online/offline na interface
+function updateUserOnlineStatusUI(userId, isOnline, lastSeen) {
+    console.log(`Atualizando UI para ${userId}: online=${isOnline}, lastSeen=`, lastSeen);
+    
+    // 1. ATUALIZAR NA LISTA DE CHATS
+    const userItem = document.querySelector(`.chat-user[data-user-id="${userId}"]`);
+    if (userItem) {
+        // Atualizar o avatar (bolinha)
+        const avatar = userItem.querySelector('.chat-user-avatar');
+        if (avatar) {
+            avatar.classList.remove('online', 'offline');
+            avatar.classList.add(isOnline ? 'online' : 'offline');
+        }
+        
+        // Atualizar o texto de status (segundo span)
+        const statusSpan = userItem.querySelectorAll('.chat-user-info span')[1];
+        if (statusSpan) {
+            if (isOnline) {
+                statusSpan.textContent = 'Online';
+                statusSpan.style.color = 'var(--online)';
+            } else {
+                // Calcular tempo desde o último visto
+                let lastSeenText = 'Offline';
+                if (lastSeen) {
+                    const lastSeenDate = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
+                    const now = new Date();
+                    const diffMs = now - lastSeenDate;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffHours = Math.floor(diffMs / 3600000);
+                    const diffDays = Math.floor(diffMs / 86400000);
+                    
+                    if (diffMins < 1) {
+                        lastSeenText = 'visto agora mesmo';
+                    } else if (diffMins < 60) {
+                        lastSeenText = `visto há ${diffMins} min`;
+                    } else if (diffHours < 24) {
+                        lastSeenText = `visto há ${diffHours} h`;
+                    } else if (diffDays === 1) {
+                        lastSeenText = 'visto ontem';
+                    } else if (diffDays < 7) {
+                        lastSeenText = `visto há ${diffDays} dias`;
+                    } else {
+                        lastSeenText = `visto em ${lastSeenDate.toLocaleDateString('pt-BR')}`;
+                    }
+                }
+                statusSpan.textContent = lastSeenText;
+                statusSpan.style.color = 'var(--text-secondary)';
+            }
+        }
+    }
+    
+    // 2. ATUALIZAR NO HEADER DO CHAT (se for a conversa atual)
+    if (currentChatUser === userId) {
+        const headerAvatar = document.getElementById('chatHeaderAvatar');
+        if (headerAvatar) {
+            headerAvatar.classList.remove('online', 'offline');
+            headerAvatar.classList.add(isOnline ? 'online' : 'offline');
+        }
+        
+        const headerStatus = document.getElementById('chatHeaderStatus');
+        if (headerStatus) {
+            if (isOnline) {
+                headerStatus.textContent = 'Online';
+                headerStatus.style.color = 'var(--online)';
+            } else {
+                let lastSeenText = 'Offline';
+                if (lastSeen) {
+                    const lastSeenDate = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
+                    const now = new Date();
+                    const diffMins = Math.floor((now - lastSeenDate) / 60000);
+                    
+                    if (diffMins < 1) {
+                        lastSeenText = 'visto agora mesmo';
+                    } else if (diffMins < 60) {
+                        lastSeenText = `visto há ${diffMins} min`;
+                    } else {
+                        lastSeenText = `visto às ${lastSeenDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                    }
+                }
+                headerStatus.textContent = lastSeenText;
+                headerStatus.style.color = 'var(--text-secondary)';
+            }
+        }
+    }
+}
+
+// FUNÇÃO CORRIGIDA - Monitorar status online
+function monitorUserOnlineStatus(userId) {
+    if (!userId || userId === 'geral') return;
+    
+    console.log(`Iniciando monitoramento do usuário ${userId}`);
+    
+    db.collection('users').doc(userId).onSnapshot(doc => {
+        if (doc.exists) {
+            const userData = doc.data();
+            const wasOnline = userOnlineStatus.get(userId);
+            const isOnline = userData.online || false;
+            
+            console.log(`Status de ${userId} mudou: ${wasOnline} -> ${isOnline}`);
+            
+            userOnlineStatus.set(userId, isOnline);
+            userLastSeen.set(userId, userData.lastSeen);
+            
+            // Atualizar UI imediatamente
+            updateUserOnlineStatusUI(userId, isOnline, userData.lastSeen);
+        }
+    }, error => {
+        console.error(`Erro ao monitorar usuário ${userId}:`, error);
+    });
+}
+
+// FUNÇÃO CORRIGIDA - Verificação a cada 20 segundos
+function startStatusMonitoring() {
+    if (statusUpdateInterval) {
+        clearInterval(statusUpdateInterval);
+    }
+    
+    statusUpdateInterval = setInterval(() => {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        console.log('Verificando status de todos os usuários...');
+        
+        // Buscar todos os usuários da lista de chats
+        const userItems = document.querySelectorAll('.chat-user[data-user-id]');
+        userItems.forEach(item => {
+            const userId = item.getAttribute('data-user-id');
+            if (userId && userId !== 'geral') {
+                // Forçar atualização do Firestore
+                db.collection('users').doc(userId).get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const isOnline = userData.online || false;
+                        const wasOnline = userOnlineStatus.get(userId);
+                        
+                        // Só atualizar se mudou
+                        if (wasOnline !== isOnline) {
+                            console.log(`Status de ${userId} alterado via polling: ${wasOnline} -> ${isOnline}`);
+                            userOnlineStatus.set(userId, isOnline);
+                            userLastSeen.set(userId, userData.lastSeen);
+                            updateUserOnlineStatusUI(userId, isOnline, userData.lastSeen);
+                        }
+                    }
+                }).catch(error => {
+                    console.error(`Erro ao verificar status de ${userId}:`, error);
+                });
+            }
+        });
+        
+        console.log('Verificação de status concluída:', new Date().toLocaleTimeString());
+    }, 20000);
+}
+
 // Função para verificar status de todos os usuários a cada 20 segundos
 function startStatusMonitoring() {
     if (statusUpdateInterval) {
