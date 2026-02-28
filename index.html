@@ -2172,7 +2172,7 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
 // ============================================================
-// FUNÇÕES DE STATUS ONLINE EM TEMPO REAL (MODIFICADAS - 5 SEGUNDOS)
+// FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
 // ============================================================
 
 // Armazena os listeners de cada usuário para não duplicar
@@ -2387,33 +2387,33 @@ auth.onAuthStateChanged(user => {
         loadAllUsers();
         loadChatList();
         
-        // Restaurar última conversa
-        const lastChat = localStorage.getItem('lastChat');
-        if (lastChat) {
-            const chatData = JSON.parse(lastChat);
-            setTimeout(() => {
-                selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
-            }, 500);
-        } else {
-            selectChat('geral', 'Geral', 'G', null);
-        }
+        // Restaurar última conversa (opcional - comentado para não abrir automaticamente)
+        // const lastChat = localStorage.getItem('lastChat');
+        // if (lastChat) {
+        //     const chatData = JSON.parse(lastChat);
+        //     setTimeout(() => {
+        //         selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
+        //     }, 500);
+        // } else {
+        //     selectChat('geral', 'Geral', 'G', null);
+        // }
         
         // ============================================================
-        // SISTEMA DE PRESENÇA EM TEMPO REAL (MODIFICADO - 5 SEGUNDOS)
+        // SISTEMA DE PRESENÇA EM TEMPO REAL
         // ============================================================
         
         // Atualizar status online imediatamente
         updateUserOnlineStatus();
         
-        // Atualizar status online a cada 5 segundos (era 15s)
+        // Atualizar status online a cada 5 segundos
         const heartbeatInterval = setInterval(() => {
             updateUserOnlineStatus();
-        }, 5000); // <--- MUDADO DE 15000 PARA 5000
+        }, 5000);
         
-        // Atualizar UI de status online a cada 2 segundos (era 5s)
+        // Atualizar UI de status online a cada 2 segundos
         const uiUpdateInterval = setInterval(() => {
             updateAllUsersOnlineStatus();
-        }, 2000); // <--- MUDADO DE 5000 PARA 2000
+        }, 2000);
         
         // Detectar quando o usuário fecha a aba ou navega para outra página
         window.addEventListener('beforeunload', function() {
@@ -2566,7 +2566,9 @@ function toggleDark() {
     lucide.createIcons();
 }
 
-// Show Tab
+// ============================================================
+// SHOW TAB CORRIGIDO - MOSTRA APENAS A LISTA DE CONVERSAS
+// ============================================================
 function showTab(tabName) {
     document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.add('hidden');
@@ -2588,17 +2590,38 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        const lastChat = localStorage.getItem('lastChat');
-        if (lastChat) {
-            const chatData = JSON.parse(lastChat);
-            selectChat(chatData.chatId, chatData.userName, chatData.userAvatar, chatData.userId);
-        } else {
-            selectChat('geral', 'Geral', 'G', null);
+        // CORREÇÃO: Mostrar apenas a lista de conversas (sidebar)
+        
+        // 1. Garantir que a sidebar está visível
+        document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+        
+        // 2. Garantir que a área de mensagens está oculta
+        document.getElementById('chatMain').classList.remove('active');
+        
+        // 3. Remover a seleção automática de qualquer conversa
+        currentChat = null;
+        currentChatUser = null;
+        currentChatId = null;
+        
+        // 4. Remover classe active de todos os itens da lista
+        document.querySelectorAll('.chat-user').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // 5. Se houver um listener de chat ativo, remover
+        if (unsubscribeChat) {
+            unsubscribeChat();
+            unsubscribeChat = null;
         }
         
+        // 6. Limpar a área de mensagens
+        document.getElementById('chatBox').innerHTML = '';
+        document.getElementById('chatHeaderName').innerText = 'Selecione uma conversa';
+        document.getElementById('chatHeaderAvatar').innerText = '👥';
+        document.getElementById('chatHeaderStatus').innerText = '';
+        document.getElementById('chatHeaderAvatar').classList.remove('online');
         
-        
-        // Atualizar status de todos quando abrir o chat
+        // 7. Atualizar status de todos quando abrir o chat
         setTimeout(updateAllUsersOnlineStatus, 500);
     }
     
