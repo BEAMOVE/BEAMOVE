@@ -1,5 +1,3 @@
-Aqui está o código completo com as correções solicitadas (menu inferior permanece no lugar e cabeçalho do chat fixo ao abrir o teclado):
-
 ```html
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -717,7 +715,6 @@ header {
     position: sticky;
     top: 0;
     z-index: 10;
-    backdrop-filter: blur(var(--blur-amount));
 }
 
 .back-to-users {
@@ -864,7 +861,6 @@ header {
     position: sticky;
     bottom: 0;
     z-index: 10;
-    backdrop-filter: blur(var(--blur-amount));
 }
 
 .chat-input input {
@@ -1736,6 +1732,11 @@ header {
     /* Garantir que o chat principal fique sobre o menu */
     .chat-main.active {
         box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Correção: menu permanece na parte inferior */
+    .bottom-nav {
+        transform: none;
     }
 }
 
