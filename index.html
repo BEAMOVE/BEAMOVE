@@ -69,6 +69,29 @@ body {
     line-height: 1.6;
 }
 
+/* Remover controles de edição do iOS para inputs */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="tel"], 
+input[type="number"], 
+textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-user-select: text;
+    -webkit-user-modify: read-write-plaintext-only;
+}
+
+input[type="text"]::-webkit-textfield-decoration-container,
+input[type="email"]::-webkit-textfield-decoration-container,
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="tel"]::-webkit-textfield-decoration-container,
+input[type="number"]::-webkit-textfield-decoration-container,
+textarea::-webkit-textfield-decoration-container {
+    display: none;
+}
+
 /* Login/Register Styles */
 .auth-container {
     min-height: 100vh;
@@ -1940,7 +1963,7 @@ header {
                 </div>
                 <div class="chat-messages" id="chatBox"></div>
                 <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="handleChatKeyPress(event)">
+                    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="handleChatKeyPress(event)" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text">
                     <button onclick="sendMessage()">
                         <i data-lucide="send"></i>
                     </button>
@@ -1956,7 +1979,7 @@ header {
                 Nova mensagem
                 <button class="close-modal-btn" onclick="hideUserSearchModal()">✕</button>
             </h3>
-            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar @usuario..." onkeyup="searchUsers()">
+            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar @usuario..." onkeyup="searchUsers()" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
             <ul class="user-search-list" id="userSearchList">
                 <!-- Lista de usuários será inserida aqui -->
             </ul>
@@ -2042,7 +2065,7 @@ header {
                                 <option value="+353">+353 (Irlanda)</option>
                                 <option value="+41">+41 (Suíça)</option>
                             </select>
-                            <input type="tel" id="editWhatsApp" placeholder="Número">
+                            <input type="tel" id="editWhatsApp" placeholder="Número" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
                         </div>
                     </div>
                     <div>
@@ -2065,7 +2088,7 @@ header {
                                 <option value="+353">+353 (Irlanda)</option>
                                 <option value="+41">+41 (Suíça)</option>
                             </select>
-                            <input type="tel" id="editPhone" placeholder="Número">
+                            <input type="tel" id="editPhone" placeholder="Número" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
                         </div>
                     </div>
                 </div>
@@ -2121,22 +2144,22 @@ header {
                 <div class="edit-section-row">
                     <div>
                         <label style="font-size: 12px; color: var(--text-secondary);">Peso (kg)</label>
-                        <input type="number" id="editWeight" step="0.1" placeholder="Ex: 75.5" oninput="calculateIMC()">
+                        <input type="number" id="editWeight" step="0.1" placeholder="Ex: 75.5" oninput="calculateIMC()" inputmode="decimal">
                     </div>
                     <div>
                         <label style="font-size: 12px; color: var(--text-secondary);">Altura (cm)</label>
-                        <input type="number" id="editHeight" placeholder="Ex: 175" oninput="calculateIMC()">
+                        <input type="number" id="editHeight" placeholder="Ex: 175" oninput="calculateIMC()" inputmode="numeric">
                     </div>
                 </div>
                 
                 <div class="edit-section-row">
                     <div>
                         <label style="font-size: 12px; color: var(--text-secondary);">Idade</label>
-                        <input type="number" id="editAge" placeholder="Ex: 30">
+                        <input type="number" id="editAge" placeholder="Ex: 30" inputmode="numeric">
                     </div>
                     <div>
                         <label style="font-size: 12px; color: var(--text-secondary);">IMC</label>
-                        <input type="text" id="editImc" readonly placeholder="Calculado automaticamente">
+                        <input type="text" id="editImc" readonly placeholder="Calculado automaticamente" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
                     </div>
                 </div>
                 
@@ -2154,7 +2177,7 @@ header {
                 
                 <div>
                     <label style="font-size: 12px; color: var(--text-secondary);">Observações</label>
-                    <textarea id="editNotes" placeholder="Lesões, restrições, etc..."></textarea>
+                    <textarea id="editNotes" placeholder="Lesões, restrições, etc..." autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
                 </div>
                 
                 <div class="edit-section-actions">
