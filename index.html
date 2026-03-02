@@ -24,17 +24,17 @@
 }
 
 :root {
-    --bg-primary: rgba(248, 250, 252, 0.7);
-    --bg-secondary: rgba(255, 255, 255, 0.6);
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --accent: #8b5cf6;
     --accent-light: #a78bfa;
-    --accent-gradient: linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(192, 132, 252, 0.9) 100%);
+    --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
-    --border: rgba(226, 232, 240, 0.5);
+    --border: #e2e8f0;
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --hover-shadow: 0 20px 60px -10px rgba(139, 92, 246, 0.3);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,23 +42,23 @@
     --unread-border: #8b5cf6;
     --online: #22c55e;
     --offline: #94a3b8;
-    --header-bg: rgba(255, 255, 255, 0.5);
-    --nav-bg: rgba(255, 255, 255, 0.5);
+    --header-bg: rgba(255, 255, 255, 0.8);
+    --nav-bg: rgba(255, 255, 255, 0.85);
     --blur-amount: 16px;
 }
 
 .dark {
-    --bg-primary: rgba(15, 23, 42, 0.7);
-    --bg-secondary: rgba(30, 41, 59, 0.6);
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
-    --border: rgba(51, 65, 85, 0.5);
+    --border: #334155;
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
     --unread-bg: rgba(139, 92, 246, 0.2);
     --online: #4ade80;
     --offline: #64748b;
-    --header-bg: rgba(30, 41, 59, 0.5);
-    --nav-bg: rgba(30, 41, 59, 0.5);
+    --header-bg: rgba(30, 41, 59, 0.8);
+    --nav-bg: rgba(30, 41, 59, 0.85);
 }
 
 body {
@@ -67,7 +67,6 @@ body {
     color: var(--text-primary);
     transition: var(--transition);
     line-height: 1.6;
-    backdrop-filter: blur(2px);
 }
 
 /* Login/Register Styles */
@@ -88,8 +87,6 @@ body {
     max-width: 400px;
     box-shadow: var(--card-shadow);
     animation: slideUp 0.5s ease;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @keyframes slideUp {
@@ -122,7 +119,6 @@ body {
     color: var(--text-primary);
     font-size: 16px;
     transition: var(--transition);
-    backdrop-filter: blur(4px);
 }
 
 .auth-card input:focus {
@@ -141,7 +137,6 @@ body {
     cursor: pointer;
     transition: var(--transition);
     margin: 10px 0;
-    backdrop-filter: blur(4px);
 }
 
 .btn-primary {
@@ -246,7 +241,6 @@ header {
     flex-wrap: wrap;
     gap: 20px;
     animation: pulse 2s infinite;
-    backdrop-filter: blur(4px);
 }
 
 @keyframes pulse {
@@ -295,8 +289,6 @@ header {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .product-card::before {
@@ -424,8 +416,6 @@ header {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: var(--card-shadow);
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .create-post textarea {
@@ -447,8 +437,6 @@ header {
     margin-bottom: 20px;
     box-shadow: var(--card-shadow);
     animation: fadeIn 0.5s ease;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .post-header {
@@ -528,8 +516,6 @@ header {
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .chat-sidebar-header {
@@ -700,8 +686,6 @@ header {
     box-shadow: var(--card-shadow);
     height: 100%;
     overflow: hidden;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .chat-header {
@@ -914,8 +898,6 @@ header {
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: var(--card-shadow);
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .user-search-content h3 {
@@ -1026,8 +1008,6 @@ header {
     box-shadow: var(--card-shadow);
     margin-bottom: 30px;
     position: relative;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-top {
@@ -1172,7 +1152,6 @@ header {
     margin-bottom: 30px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border);
-    backdrop-filter: blur(var(--blur-amount));
 }
 
 .user-card h3 {
@@ -1254,8 +1233,6 @@ header {
     padding: 25px;
     margin-bottom: 30px;
     box-shadow: var(--card-shadow);
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid var(--border);
 }
 
 .progress-history h3 {
@@ -1329,8 +1306,6 @@ header {
     margin-bottom: 30px;
     box-shadow: var(--card-shadow);
     animation: slideDown 0.3s ease;
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @keyframes slideDown {
@@ -1420,8 +1395,6 @@ header {
     border-radius: 25px;
     padding: 25px;
     box-shadow: var(--card-shadow);
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-posts h3 {
@@ -1485,6 +1458,10 @@ header {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     z-index: 100;
     transition: transform 0.3s ease;
+}
+
+.bottom-nav.hidden-nav {
+    transform: translateY(100%);
 }
 
 .nav-item {
@@ -1570,8 +1547,6 @@ header {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: var(--card-shadow);
-    backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .forum-post-header {
@@ -1668,15 +1643,15 @@ header {
     .chat-main.active {
         display: flex;
         position: fixed;
-        top: 0;
+        top: 70px;
         left: 0;
         right: 0;
         bottom: 0;
         z-index: 1000;
-        border-radius: 0;
+        border-radius: 20px 20px 0 0;
         margin: 0;
-        width: 100%;
-        height: 100%;
+        width: auto;
+        height: auto;
     }
     
     .back-to-users {
@@ -1728,9 +1703,9 @@ header {
         box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
     }
     
-    /* Ocultar menu inferior quando chat estiver ativo */
-    .chat-main.active ~ .bottom-nav {
-        transform: translateY(100%);
+    /* Ajuste para o container quando o chat está ativo */
+    body.chat-open .container {
+        padding-bottom: 0;
     }
 }
 
@@ -2215,7 +2190,7 @@ header {
     </div>
 
     <!-- Bottom Navigation com efeito vidro -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" id="bottomNav">
         <div class="nav-item active" onclick="showTab('home')">
             <i data-lucide="home"></i>
             <span>Início</span>
@@ -2669,6 +2644,9 @@ function showTab(tabName) {
         item.classList.remove('active');
     });
     event.currentTarget.classList.add('active');
+    
+    // Mostrar o menu novamente se estiver oculto
+    document.getElementById('bottomNav').classList.remove('hidden-nav');
     
     if (tabName === 'profile') {
         loadProfile();
@@ -3232,7 +3210,7 @@ async function displayMessage(message) {
     }
 }
 
-// Select Chat
+// Select Chat - MODIFICADO: Oculta o menu quando o chat é aberto em dispositivos móveis
 function selectChat(chatId, userName, userAvatar, userId = null) {
     currentChat = chatId;
     currentChatUser = userId;
@@ -3265,6 +3243,9 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     if (window.innerWidth <= 768) {
         document.getElementById('chatSidebar').classList.add('hidden-mobile');
         document.getElementById('chatMain').classList.add('active');
+        
+        // Ocultar o menu inferior
+        document.getElementById('bottomNav').classList.add('hidden-nav');
     }
     
     document.querySelectorAll('.chat-user').forEach(item => {
@@ -3331,9 +3312,13 @@ function updateUnreadBadges() {
     unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
 }
 
+// MODIFICADO: Mostrar o menu ao voltar para a lista de usuários
 function backToUsersList() {
     document.getElementById('chatSidebar').classList.remove('hidden-mobile');
     document.getElementById('chatMain').classList.remove('active');
+    
+    // Mostrar o menu inferior novamente
+    document.getElementById('bottomNav').classList.remove('hidden-nav');
     
     // Atualizar status de todos quando voltar para a lista
     setTimeout(updateAllUsersOnlineStatus, 100);
