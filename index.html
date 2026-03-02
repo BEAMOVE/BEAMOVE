@@ -1894,7 +1894,7 @@ header {
             <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
             <button class="btn btn-primary" onclick="addPost()">Publicar</button>
         </div>
-        <div id="feed"></div>
+        <div id="feedPosts"></div>  <!-- CORRIGIDO: ID diferente para os posts -->
     </div>
 
     <!-- Forum Section (Dynamic) -->
@@ -2932,11 +2932,13 @@ function commentForumPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Load Feed
+// Load Feed - CORRIGIDO: usando o ID correto para os posts
 function loadFeed() {
     db.collection('posts').orderBy('created', 'desc')
         .onSnapshot(snapshot => {
-            const feed = document.getElementById('feed');
+            const feed = document.getElementById('feedPosts');
+            if (!feed) return;
+            
             feed.innerHTML = '';
             
             if (snapshot.empty) {
