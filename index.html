@@ -1886,8 +1886,10 @@ header {
                 <button class="btn btn-primary" onclick="window.open('https://kiwify.com', '_blank')">Comprar</button>
             </div>
         </div>
+    </div>
 
-        <!-- Feed -->
+    <!-- Feed Section (Nova aba) -->
+    <div id="feed" class="container hidden">
         <div class="create-post">
             <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
             <button class="btn btn-primary" onclick="addPost()">Publicar</button>
@@ -2214,9 +2216,13 @@ header {
 
     <!-- Bottom Navigation com efeito vidro -->
     <nav class="bottom-nav" id="bottomNav">
-        <div class="nav-item active" onclick="showTab('home')">
+        <div class="nav-item" onclick="showTab('home')">
             <i data-lucide="home"></i>
             <span>Início</span>
+        </div>
+        <div class="nav-item active" onclick="showTab('feed')">
+            <i data-lucide="rss"></i>
+            <span>Feed</span>
         </div>
         <div class="nav-item" onclick="showTab('chat')">
             <i data-lucide="message-circle"></i>
@@ -2657,6 +2663,7 @@ function toggleDark() {
 // ============================================================
 function showTab(tabName) {
     document.getElementById('home').classList.add('hidden');
+    document.getElementById('feed').classList.add('hidden');
     document.getElementById('chat').classList.add('hidden');
     document.getElementById('profile').classList.add('hidden');
     document.getElementById('forum').classList.add('hidden');
