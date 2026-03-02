@@ -1,3 +1,6 @@
+Aqui está o código completo com o card do chat melhorado para ficar mais parecido com o Instagram:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -68,7 +71,6 @@ body {
     transition: var(--transition);
     line-height: 1.6;
     backdrop-filter: blur(2px);
-    padding-top: 120px; /* Espaço para o header fixo + nav fixo */
 }
 
 /* Login/Register Styles */
@@ -166,20 +168,17 @@ body {
     color: var(--accent);
 }
 
-/* Header com efeito vidro - FIXO NO TOPO */
+/* Header com efeito vidro */
 header {
     background: var(--header-bg);
     backdrop-filter: blur(var(--blur-amount));
     -webkit-backdrop-filter: blur(var(--blur-amount));
-    padding: 15px 20px;
+    padding: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
+    z-index: 100;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    height: 60px;
 }
 
 .header-content {
@@ -188,7 +187,6 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 100%;
 }
 
 .logo {
@@ -221,63 +219,6 @@ header {
 .icon-btn:hover {
     background: var(--bg-primary);
     color: var(--accent);
-}
-
-/* Navigation com efeito vidro - FIXO LOGO ABAIXO DO HEADER */
-.bottom-nav {
-    position: fixed;
-    top: 60px; /* Logo abaixo do header */
-    left: 0;
-    right: 0;
-    background: var(--nav-bg);
-    backdrop-filter: blur(var(--blur-amount));
-    -webkit-backdrop-filter: blur(var(--blur-amount));
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    z-index: 999;
-    height: 50px;
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-    padding: 5px 16px;
-    border-radius: 50px;
-}
-
-.nav-item.active {
-    color: var(--accent);
-    background: var(--bg-primary);
-}
-
-.nav-item i {
-    font-size: 20px;
-}
-
-.nav-item span {
-    font-size: 11px;
-    font-weight: 500;
-}
-
-.nav-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--danger);
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 50px;
 }
 
 /* Cards de Produtos */
@@ -569,43 +510,40 @@ header {
     color: var(--accent);
 }
 
-/* Chat */
+/* Chat - Estilo Instagram */
 .chat-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0;
     display: grid;
     grid-template-columns: 350px 1fr;
-    gap: 20px;
-    height: calc(100vh - 130px); /* Ajustado para header + nav */
+    gap: 0;
+    height: calc(100vh - 80px);
     overflow: hidden;
+    background: transparent;
 }
 
 .chat-sidebar {
     background: var(--bg-secondary);
-    border-radius: 25px;
-    padding: 20px;
-    box-shadow: var(--card-shadow);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
     backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .chat-sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
 }
 
 .chat-sidebar-header h3 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -622,12 +560,12 @@ header {
 }
 
 .add-chat-btn {
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--accent-gradient);
-    border: none;
-    color: white;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -636,26 +574,29 @@ header {
 }
 
 .add-chat-btn:hover {
-    transform: scale(1.1);
+    background: var(--bg-primary);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .chat-users {
     list-style: none;
     overflow-y: auto;
     flex: 1;
+    padding: 8px 0;
 }
 
 .chat-user {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px;
-    border-radius: 15px;
+    padding: 12px 20px;
     cursor: pointer;
     transition: var(--transition);
-    margin-bottom: 5px;
     position: relative;
-    border: 2px solid transparent;
+    border: none;
+    border-radius: 0;
+    margin: 0;
 }
 
 .chat-user:hover {
@@ -663,22 +604,21 @@ header {
 }
 
 .chat-user.active {
-    background: var(--accent);
-    color: white;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
-.chat-user.active .chat-user-info span {
-    color: rgba(255, 255, 255, 0.8);
+.chat-user.active .chat-user-info strong {
+    color: var(--accent);
 }
 
 .chat-user.unread {
     background: var(--unread-bg);
-    border-color: var(--unread-border);
 }
 
 .chat-user-avatar {
-    width: 45px;
-    height: 45px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
@@ -686,9 +626,10 @@ header {
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
     flex-shrink: 0;
     position: relative;
+    border: 2px solid transparent;
 }
 
 .chat-user-avatar.online::after {
@@ -696,15 +637,11 @@ header {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     background-color: var(--online);
     border-radius: 50%;
     border: 2px solid var(--bg-secondary);
-}
-
-.chat-user.active .chat-user-avatar.online::after {
-    border-color: var(--accent);
 }
 
 .chat-user-info {
@@ -717,65 +654,63 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
 
 .chat-user-info span {
-    font-size: 12px;
+    font-size: 13px;
     display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    opacity: 0.7;
+    color: var(--text-secondary);
 }
 
 .chat-user-time {
-    font-size: 10px;
-    opacity: 0.5;
+    font-size: 11px;
+    color: var(--text-secondary);
     align-self: flex-start;
+    margin-left: auto;
+    white-space: nowrap;
 }
 
 .unread-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: 0;
+    right: 0;
     background: var(--accent);
     color: white;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    min-width: 18px;
-    height: 18px;
+    min-width: 20px;
+    height: 20px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
+    padding: 0 6px;
     border: 2px solid var(--bg-secondary);
     z-index: 2;
 }
 
 .chat-main {
     background: var(--bg-secondary);
-    border-radius: 25px;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--card-shadow);
     height: 100%;
     overflow: hidden;
     backdrop-filter: blur(var(--blur-amount));
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .chat-header {
-    padding: 15px 20px;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 12px;
     background: var(--bg-secondary);
-    position: sticky;
-    top: 0;
-    z-index: 10;
 }
 
 .back-to-users {
@@ -785,11 +720,13 @@ header {
     color: var(--accent);
     cursor: pointer;
     margin-right: 5px;
+    font-size: 20px;
+    padding: 8px;
 }
 
 .chat-header-avatar {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
@@ -799,13 +736,14 @@ header {
     font-weight: 600;
     font-size: 18px;
     position: relative;
+    border: 2px solid transparent;
 }
 
 .chat-header-avatar.online::after {
     content: '';
     position: absolute;
-    bottom: 2px;
-    right: 2px;
+    bottom: 0;
+    right: 0;
     width: 12px;
     height: 12px;
     background-color: var(--online);
@@ -819,8 +757,8 @@ header {
 
 .chat-header-info h4 {
     font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 2px;
+    font-weight: 700;
+    margin-bottom: 4px;
 }
 
 .chat-header-info p {
@@ -834,14 +772,16 @@ header {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 8px;
+    background: var(--bg-primary);
 }
 
 .message {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: flex-end;
+    gap: 8px;
     max-width: 70%;
+    animation: fadeIn 0.2s ease;
 }
 
 .message.sent {
@@ -850,47 +790,46 @@ header {
 }
 
 .message-avatar {
-    width: 35px;
-    height: 35px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     flex-shrink: 0;
     position: relative;
+    opacity: 0.9;
 }
 
-.message-avatar.online::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 8px;
-    height: 8px;
-    background-color: var(--online);
-    border-radius: 50%;
-    border: 1px solid var(--bg-secondary);
+.message.sent .message-avatar {
+    display: none;
 }
 
 .message-content {
-    background: var(--bg-primary);
-    padding: 12px 15px;
-    border-radius: 20px;
+    background: var(--bg-secondary);
+    padding: 12px 16px;
+    border-radius: 22px;
+    border-top-left-radius: 4px;
     position: relative;
     word-break: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .message.sent .message-content {
     background: var(--accent);
     color: white;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 22px;
 }
 
 .message-content p {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .message-time {
@@ -898,51 +837,41 @@ header {
     opacity: 0.7;
     display: block;
     text-align: right;
+    margin-top: 4px;
 }
 
-.message.unread-indicator {
-    position: relative;
-}
-
-.message.unread-indicator::after {
-    content: '●';
-    color: var(--accent);
-    font-size: 10px;
-    position: absolute;
-    bottom: -12px;
-    right: 10px;
+.message.sent .message-time {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .chat-input {
-    padding: 20px;
+    padding: 16px 20px;
     border-top: 1px solid var(--border);
     display: flex;
-    gap: 10px;
+    gap: 12px;
     background: var(--bg-secondary);
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
+    align-items: center;
 }
 
 .chat-input input {
     flex: 1;
-    padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 25px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 30px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 16px;
+    font-size: 14px;
     transition: var(--transition);
+    outline: none;
 }
 
 .chat-input input:focus {
-    outline: none;
-    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
 .chat-input button {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: var(--accent-gradient);
     border: none;
@@ -952,10 +881,11 @@ header {
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .chat-input button:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 /* Modal de busca de usuários */
@@ -1536,6 +1466,63 @@ header {
     color: var(--text-secondary);
 }
 
+/* Navigation com efeito vidro */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: blur(var(--blur-amount));
+    -webkit-backdrop-filter: blur(var(--blur-amount));
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    padding: 8px 16px;
+    border-radius: 50px;
+}
+
+.nav-item.active {
+    color: var(--accent);
+    background: var(--bg-primary);
+}
+
+.nav-item i {
+    font-size: 24px;
+}
+
+.nav-item span {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.nav-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 50px;
+}
+
 /* Forum Styles */
 .forum-header {
     display: flex;
@@ -1635,35 +1622,21 @@ header {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    padding-bottom: 100px;
 }
 
 /* Ajuste para chat acima do menu */
 #chat {
-    height: calc(100vh - 130px);
+    height: calc(100vh - 80px);
     overflow: hidden;
-    padding-bottom: 0;
+    padding: 0;
 }
 
 /* Responsividade com ajustes para sidebar */
 @media (max-width: 768px) {
-    body {
-        padding-top: 110px; /* Ajuste para mobile */
-    }
-    
-    header {
-        height: 55px;
-    }
-    
-    .bottom-nav {
-        top: 55px;
-        height: 45px;
-    }
-    
     .chat-container {
         grid-template-columns: 1fr;
-        padding: 10px;
-        height: calc(100vh - 120px);
-        gap: 0;
+        height: calc(100vh - 80px);
     }
     
     .chat-sidebar {
@@ -1672,7 +1645,7 @@ header {
         width: 100%;
         position: relative;
         z-index: 90;
-        border-radius: 20px;
+        border-radius: 0;
         margin-bottom: 0;
     }
     
@@ -1691,7 +1664,7 @@ header {
     .chat-main.active {
         display: flex;
         position: fixed;
-        top: 100px; /* Abaixo do header e nav */
+        top: 0;
         left: 0;
         right: 0;
         bottom: 0;
@@ -1699,30 +1672,16 @@ header {
         border-radius: 0;
         margin: 0;
         width: 100%;
-        height: calc(100vh - 100px);
-    }
-    
-    .chat-main.active .chat-header {
-        position: sticky;
-        top: 0;
-        z-index: 1001;
-        background: var(--bg-secondary);
-    }
-    
-    .chat-main.active .chat-input {
-        position: sticky;
-        bottom: 0;
-        z-index: 1001;
-        background: var(--bg-secondary);
+        height: 100%;
     }
     
     .back-to-users {
         display: block;
         font-size: 20px;
-        padding: 8px 12px;
-        background: var(--bg-primary);
-        border-radius: 30px;
-        margin-right: 10px;
+        padding: 8px;
+        background: transparent;
+        border-radius: 50%;
+        margin-right: 8px;
     }
     
     .featured-card {
@@ -1764,6 +1723,29 @@ header {
     .chat-main.active {
         box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
     }
+    
+    /* Ocultar menu inferior quando chat estiver ativo */
+    .chat-main.active ~ .bottom-nav {
+        transform: translateY(100%);
+    }
+    
+    .chat-user-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+    }
+    
+    .chat-user-info strong {
+        font-size: 15px;
+    }
+    
+    .chat-user-info span {
+        font-size: 12px;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -1772,25 +1754,25 @@ header {
     }
     
     .chat-sidebar {
-        padding: 15px;
+        padding: 0;
     }
     
     .chat-user {
-        padding: 10px;
+        padding: 12px 15px;
     }
     
     .chat-user-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
     }
     
     .chat-user-info strong {
-        font-size: 13px;
+        font-size: 14px;
     }
     
     .chat-user-info span {
-        font-size: 11px;
+        font-size: 12px;
     }
 }
 </style>
@@ -1839,22 +1821,6 @@ header {
             </div>
         </div>
     </header>
-
-    <!-- Bottom Navigation - FIXO LOGO ABAIXO DO HEADER -->
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="showTab('home')">
-            <i data-lucide="home"></i>
-            <span>Início</span>
-        </div>
-        <div class="nav-item" onclick="showTab('chat')">
-            <i data-lucide="message-circle"></i>
-            <span>Chat</span>
-        </div>
-        <div class="nav-item" onclick="showTab('profile')">
-            <i data-lucide="user"></i>
-            <span>Perfil</span>
-        </div>
-    </nav>
 
     <!-- Home Section -->
     <div id="home" class="container">
@@ -2261,6 +2227,22 @@ header {
             </div>
         </div>
     </div>
+
+    <!-- Bottom Navigation com efeito vidro -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="showTab('home')">
+            <i data-lucide="home"></i>
+            <span>Início</span>
+        </div>
+        <div class="nav-item" onclick="showTab('chat')">
+            <i data-lucide="message-circle"></i>
+            <span>Chat</span>
+        </div>
+        <div class="nav-item" onclick="showTab('profile')">
+            <i data-lucide="user"></i>
+            <span>Perfil</span>
+        </div>
+    </nav>
 </div>
 
 <script>
@@ -4098,3 +4080,4 @@ loadReadTimestamps();
 
 </body>
 </html>
+```
