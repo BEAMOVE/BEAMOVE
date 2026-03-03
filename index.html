@@ -46,6 +46,7 @@
     --nav-bg: rgba(255, 255, 255, 0.85);
     --blur-amount: 16px;
     --like-active: #ef4444;
+    --like-inactive: #475569;
 }
 
 .dark {
@@ -60,6 +61,7 @@
     --offline: #64748b;
     --header-bg: rgba(30, 41, 59, 0.8);
     --nav-bg: rgba(30, 41, 59, 0.85);
+    --like-inactive: #94a3b8;
 }
 
 body {
@@ -425,6 +427,7 @@ header {
     color: var(--text-secondary);
 }
 
+/* POST CARDS */
 .post-card {
     background: var(--bg-secondary);
     border-radius: 20px;
@@ -477,6 +480,7 @@ header {
     padding-top: 15px;
 }
 
+/* ESTILOS CORRIGIDOS PARA O BOTÃO DE CURTIR */
 .post-action {
     display: flex;
     align-items: center;
@@ -496,13 +500,21 @@ header {
     color: var(--accent);
 }
 
+/* ESTADO NÃO CURTIDO - coração vazio */
+.post-action i {
+    transition: all 0.2s ease;
+    fill: none;
+    color: var(--like-inactive);
+}
+
+/* ESTADO CURTIDO - coração completamente vermelho */
 .post-action.liked {
     color: var(--like-active);
 }
 
 .post-action.liked i {
-    fill: var(--like-active);
-    color: var(--like-active);
+    fill: var(--like-active) !important;
+    color: var(--like-active) !important;
 }
 
 /* Chat */
@@ -2300,8 +2312,13 @@ header {
 </div>
 
 <script>
-// Initialize Lucide icons
-lucide.createIcons();
+// Initialize Lucide icons com atributos corretos para preenchimento
+lucide.createIcons({
+    attrs: {
+        fill: 'currentColor',
+        stroke: 'currentColor'
+    }
+});
 
 // Firebase Config
 const firebaseConfig = {
@@ -2567,7 +2584,12 @@ function showLogin() {
 
 function toggleDark() {
     document.body.classList.toggle('dark');
-    lucide.createIcons();
+    lucide.createIcons({
+        attrs: {
+            fill: 'currentColor',
+            stroke: 'currentColor'
+        }
+    });
 }
 
 // ============================================================
@@ -2614,7 +2636,12 @@ function showTab(tabName) {
         setTimeout(updateAllUsersOnlineStatus, 500);
     }
     
-    lucide.createIcons();
+    lucide.createIcons({
+        attrs: {
+            fill: 'currentColor',
+            stroke: 'currentColor'
+        }
+    });
 }
 
 function openForum(category) {
@@ -2631,7 +2658,12 @@ function openForum(category) {
     document.getElementById('forum').classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     loadForumPosts();
-    lucide.createIcons();
+    lucide.createIcons({
+        attrs: {
+            fill: 'currentColor',
+            stroke: 'currentColor'
+        }
+    });
 }
 
 function backToHome() {
@@ -2639,7 +2671,12 @@ function backToHome() {
     document.getElementById('home').classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelector('.nav-item:first-child').classList.add('active');
-    lucide.createIcons();
+    lucide.createIcons({
+        attrs: {
+            fill: 'currentColor',
+            stroke: 'currentColor'
+        }
+    });
 }
 
 // ============================================================
@@ -2737,19 +2774,24 @@ function loadForumPostsSimple() {
                     </div>
                     <div class="forum-post-content">${item.post.text}</div>
                     <div class="forum-post-footer">
-                        <div class="post-action" onclick="likeForumPost('${item.postId}')">
+                        <button class="post-action" onclick="likeForumPost('${item.postId}')">
                             <i data-lucide="heart"></i>
                             <span>${item.post.likes || 0}</span>
-                        </div>
-                        <div class="post-action" onclick="commentForumPost('${item.postId}')">
+                        </button>
+                        <button class="post-action" onclick="commentForumPost('${item.postId}')">
                             <i data-lucide="message-circle"></i>
                             <span>${item.post.comments || 0}</span>
-                        </div>
+                        </button>
                     </div>
                 `;
                 forumPosts.appendChild(postElement);
             });
-            lucide.createIcons();
+            lucide.createIcons({
+                attrs: {
+                    fill: 'currentColor',
+                    stroke: 'currentColor'
+                }
+            });
         })
         .catch(error => {
             console.error('Erro:', error);
@@ -2772,7 +2814,7 @@ function commentForumPost() {
 }
 
 // ============================================================
-// FUNÇÕES DO FEED - CORRIGIDAS
+// FUNÇÕES DO FEED
 // ============================================================
 
 function loadFeed() {
@@ -2848,7 +2890,12 @@ function loadFeed() {
             feed.appendChild(postElement);
         }
         
-        lucide.createIcons();
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
         feed.scrollTop = scrollPos;
     });
 }
@@ -2884,7 +2931,7 @@ function addPost() {
 }
 
 // ============================================================
-// FUNÇÃO DE CURTIR - CORRIGIDA PARA PREENCHER IMEDIATAMENTE
+// FUNÇÃO DE CURTIR - CORRIGIDA PARA PREENCHER COMPLETAMENTE
 // ============================================================
 
 async function toggleLike(postId) {
@@ -2919,7 +2966,7 @@ async function toggleLike(postId) {
             likeCount.innerText = currentLikes + 1;
             likesCache.set(postId, true);
             
-            // Efeito visual
+            // Efeito visual de escala
             const heartIcon = likeButton.querySelector('i');
             if (heartIcon) {
                 heartIcon.style.transform = 'scale(1.3)';
@@ -2945,7 +2992,7 @@ async function toggleLike(postId) {
             likeCount.innerText = Math.max(0, currentLikes - 1);
             likesCache.set(postId, false);
             
-            // Efeito visual
+            // Efeito visual de escala
             const heartIcon = likeButton.querySelector('i');
             if (heartIcon) {
                 heartIcon.style.transform = 'scale(1.3)';
@@ -3407,7 +3454,12 @@ function toggleEditProfile() {
             </div>
         `;
         document.querySelector('.profile-container').insertBefore(editForm, document.querySelector('.user-card'));
-        lucide.createIcons();
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
         
         db.collection('users').doc(auth.currentUser.uid).get().then(doc => {
             const data = doc.data();
@@ -3590,7 +3642,12 @@ function loadUserCard() {
                 <div class="user-card-value">${getGoalName(latest.goal)}</div>
             </div>
         `;
-        lucide.createIcons();
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
     }).catch(console.error);
 }
 
