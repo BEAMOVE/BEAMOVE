@@ -84,15 +84,6 @@ textarea {
     -webkit-user-modify: read-write-plaintext-only;
 }
 
-input[type="text"]::-webkit-textfield-decoration-container,
-input[type="email"]::-webkit-textfield-decoration-container,
-input[type="password"]::-webkit-textfield-decoration-container,
-input[type="tel"]::-webkit-textfield-decoration-container,
-input[type="number"]::-webkit-textfield-decoration-container,
-textarea::-webkit-textfield-decoration-container {
-    display: none;
-}
-
 /* Login/Register Styles */
 .auth-container {
     min-height: 100vh;
@@ -496,6 +487,7 @@ header {
     background: none;
     border: none;
     font-size: inherit;
+    padding: 0;
 }
 
 .post-action:hover {
@@ -1669,27 +1661,24 @@ header {
     position: relative;
     bottom: 0;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 .create-post textarea {
     width: 100%;
     padding: 15px;
     border: 2px solid var(--border);
-    border-radius: 25px;
+    border-radius: 15px;
     background: var(--bg-primary);
     color: var(--text-primary);
     font-size: 16px;
     resize: none;
-    margin-bottom: 0;
+    margin-bottom: 15px;
 }
 
 .create-post .btn {
     width: 100%;
     padding: 15px;
-    border-radius: 25px;
+    border-radius: 15px;
     margin: 0;
 }
 
@@ -1806,6 +1795,7 @@ header {
     
     .create-post textarea {
         padding: 12px;
+        margin-bottom: 12px;
     }
     
     .create-post .btn {
@@ -1842,7 +1832,6 @@ header {
 }
 </style>
 </head>
-
 <body>
 
 <!-- Login Screen -->
@@ -1969,7 +1958,7 @@ header {
         </div>
     </div>
 
-    <!-- Feed Section (Nova aba) -->
+    <!-- Feed Section -->
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
         <div class="create-post">
@@ -1978,7 +1967,7 @@ header {
         </div>
     </div>
 
-    <!-- Forum Section (Dynamic) -->
+    <!-- Forum Section -->
     <div id="forum" class="container hidden">
         <button class="back-btn" onclick="backToHome()">
             <i data-lucide="arrow-left"></i>
@@ -2046,7 +2035,7 @@ header {
                 </div>
                 <div class="chat-messages" id="chatBox"></div>
                 <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="handleChatKeyPress(event)" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text">
+                    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="handleChatKeyPress(event)">
                     <button onclick="sendMessage()">
                         <i data-lucide="send"></i>
                     </button>
@@ -2062,10 +2051,8 @@ header {
                 Nova mensagem
                 <button class="close-modal-btn" onclick="hideUserSearchModal()">✕</button>
             </h3>
-            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar @usuario..." onkeyup="searchUsers()" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
-            <ul class="user-search-list" id="userSearchList">
-                <!-- Lista de usuários será inserida aqui -->
-            </ul>
+            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar @usuario..." onkeyup="searchUsers()">
+            <ul class="user-search-list" id="userSearchList"></ul>
         </div>
     </div>
 
@@ -2129,7 +2116,7 @@ header {
                 
                 <div class="edit-section-row">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">WhatsApp</label>
+                        <label>WhatsApp</label>
                         <div class="ddi-select">
                             <select id="whatsappDDI">
                                 <option value="+351">+351 (Portugal)</option>
@@ -2148,11 +2135,11 @@ header {
                                 <option value="+353">+353 (Irlanda)</option>
                                 <option value="+41">+41 (Suíça)</option>
                             </select>
-                            <input type="tel" id="editWhatsApp" placeholder="Número" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
+                            <input type="tel" id="editWhatsApp" placeholder="Número">
                         </div>
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">Telefone</label>
+                        <label>Telefone</label>
                         <div class="ddi-select">
                             <select id="phoneDDI">
                                 <option value="+351">+351 (Portugal)</option>
@@ -2171,18 +2158,18 @@ header {
                                 <option value="+353">+353 (Irlanda)</option>
                                 <option value="+41">+41 (Suíça)</option>
                             </select>
-                            <input type="tel" id="editPhone" placeholder="Número" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
+                            <input type="tel" id="editPhone" placeholder="Número">
                         </div>
                     </div>
                 </div>
                 
                 <div class="edit-section-row">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">Data de Nascimento</label>
+                        <label>Data de Nascimento</label>
                         <input type="date" id="editBirthDate">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">Gênero</label>
+                        <label>Gênero</label>
                         <select id="editGender">
                             <option value="">Selecione</option>
                             <option value="masculino">Masculino</option>
@@ -2205,9 +2192,7 @@ header {
                     Minha Ficha Fitness
                 </h3>
                 
-                <div class="user-card-grid" id="userCardGrid">
-                    <!-- Preenchido via JavaScript -->
-                </div>
+                <div class="user-card-grid" id="userCardGrid"></div>
                 
                 <div class="user-card-edit">
                     <button class="user-card-edit-btn" onclick="toggleUserCardForm()">
@@ -2226,28 +2211,28 @@ header {
                 
                 <div class="edit-section-row">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">Peso (kg)</label>
-                        <input type="number" id="editWeight" step="0.1" placeholder="Ex: 75.5" oninput="calculateIMC()" inputmode="decimal">
+                        <label>Peso (kg)</label>
+                        <input type="number" id="editWeight" step="0.1" placeholder="Ex: 75.5" oninput="calculateIMC()">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">Altura (cm)</label>
-                        <input type="number" id="editHeight" placeholder="Ex: 175" oninput="calculateIMC()" inputmode="numeric">
+                        <label>Altura (cm)</label>
+                        <input type="number" id="editHeight" placeholder="Ex: 175" oninput="calculateIMC()">
                     </div>
                 </div>
                 
                 <div class="edit-section-row">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">Idade</label>
-                        <input type="number" id="editAge" placeholder="Ex: 30" inputmode="numeric">
+                        <label>Idade</label>
+                        <input type="number" id="editAge" placeholder="Ex: 30">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--text-secondary);">IMC</label>
-                        <input type="text" id="editImc" readonly placeholder="Calculado automaticamente" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
+                        <label>IMC</label>
+                        <input type="text" id="editImc" readonly placeholder="Calculado automaticamente">
                     </div>
                 </div>
                 
                 <div>
-                    <label style="font-size: 12px; color: var(--text-secondary);">Objetivo</label>
+                    <label>Objetivo</label>
                     <select id="editGoal">
                         <option value="">Selecione seu objetivo</option>
                         <option value="emagrecimento">Emagrecimento</option>
@@ -2259,8 +2244,8 @@ header {
                 </div>
                 
                 <div>
-                    <label style="font-size: 12px; color: var(--text-secondary);">Observações</label>
-                    <textarea id="editNotes" placeholder="Lesões, restrições, etc..." autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                    <label>Observações</label>
+                    <textarea id="editNotes" placeholder="Lesões, restrições, etc..."></textarea>
                 </div>
                 
                 <div class="edit-section-actions">
@@ -2276,9 +2261,7 @@ header {
                     Histórico de Progresso
                 </h3>
                 
-                <div class="timeline" id="progressTimeline">
-                    <!-- Preenchido via JavaScript -->
-                </div>
+                <div class="timeline" id="progressTimeline"></div>
             </div>
 
             <!-- Posts do Perfil -->
@@ -2288,14 +2271,12 @@ header {
                     Meus Posts
                 </h3>
                 
-                <div class="posts-grid" id="profilePostsGrid">
-                    <!-- Preenchido via JavaScript -->
-                </div>
+                <div class="posts-grid" id="profilePostsGrid"></div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Navigation com efeito vidro -->
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav" id="bottomNav">
         <div class="nav-item" onclick="showTab('home')">
             <i data-lucide="home"></i>
@@ -2335,16 +2316,14 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Cache de usuários para melhor performance
+// Cache de usuários
 const userCache = new Map();
 
-// Cache de curtidas para evitar recarregar
+// Cache de curtidas
 const likesCache = new Map();
 
-// Current forum category
+// Variáveis globais
 let currentForum = 'treino';
-
-// Chat state
 let currentChat = 'geral';
 let currentChatUser = null;
 let currentChatUserName = 'Geral';
@@ -2353,39 +2332,23 @@ let currentChatId = 'geral';
 let allUsers = [];
 let currentUserData = null;
 let unsubscribeChat = null;
-
-// Estados de mensagens não lidas
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
-
-// ============================================================
-// FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
-// ============================================================
-
-// Armazena os listeners de cada usuário para não duplicar
 const userStatusListeners = new Map();
 
-/**
- * Atualiza o timestamp de último visto do usuário atual
- */
+// ============================================================
+// FUNÇÕES DE STATUS ONLINE
+// ============================================================
+
 function updateUserOnlineStatus() {
     if (!auth.currentUser) return;
-    
     db.collection('users').doc(auth.currentUser.uid).update({
         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(error => {
-        console.error('Erro ao atualizar lastSeen:', error);
-    });
+    }).catch(console.error);
 }
 
-/**
- * Verifica se um usuário está online com base no lastSeen
- * @param {Object} lastSeen - Timestamp do Firestore
- * @returns {boolean} true se online (< 5 segundos)
- */
 function isUserOnline(lastSeen) {
     if (!lastSeen) return false;
-    
     let lastSeenDate;
     if (lastSeen && typeof lastSeen === 'object' && lastSeen.seconds) {
         lastSeenDate = new Date(lastSeen.seconds * 1000);
@@ -2394,23 +2357,13 @@ function isUserOnline(lastSeen) {
     } else {
         return false;
     }
-    
     const now = new Date();
-    const diffMs = now - lastSeenDate;
-    const diffSec = Math.floor(diffMs / 1000);
-    
-    // Online se atividade foi há menos de 5 segundos
+    const diffSec = Math.floor((now - lastSeenDate) / 1000);
     return diffSec < 5;
 }
 
-/**
- * Formata o timestamp de último visto em texto amigável
- * @param {Object|Date} timestamp - Timestamp do Firestore ou Date
- * @returns {string} Texto formatado (ex: "Online", "visto há X min")
- */
 function getLastSeenText(timestamp) {
     if (!timestamp) return 'Offline';
-    
     let lastSeenDate;
     if (timestamp && typeof timestamp === 'object' && timestamp.seconds) {
         lastSeenDate = new Date(timestamp.seconds * 1000);
@@ -2419,148 +2372,82 @@ function getLastSeenText(timestamp) {
     } else {
         return 'Offline';
     }
-    
     const now = new Date();
-    const diffMs = now - lastSeenDate;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffMs / 60000);
-    const diffH = Math.floor(diffMs / 3600000);
-    const diffD = Math.floor(diffMs / 86400000);
+    const diffSec = Math.floor((now - lastSeenDate) / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffH = Math.floor(diffMin / 60);
+    const diffD = Math.floor(diffH / 24);
     
-    // Se atividade foi há menos de 5 segundos, está online
     if (diffSec < 5) return 'Online';
     if (diffMin < 60) return `visto há ${diffMin} min`;
     if (diffH < 24) return `visto há ${diffH} h`;
     if (diffD === 1) return 'visto ontem';
     if (diffD < 7) return `visto há ${diffD} dias`;
-    
     return `visto em ${lastSeenDate.toLocaleDateString('pt-BR')}`;
 }
 
-/**
- * Atualiza a UI de um usuário específico com base no lastSeen
- * @param {string} userId - ID do usuário
- */
 function updateUserOnlineStatusUI(userId) {
     if (!userId || userId === 'geral') return;
-    
     const usersList = document.getElementById('chatUsersList');
-    const userItem = usersList.querySelector(`[data-user-id="${userId}"]`);
-    
+    const userItem = usersList?.querySelector(`[data-user-id="${userId}"]`);
     if (!userItem) return;
-    
     const userInfoSpan = userItem.querySelector('.chat-user-info span:last-child');
-    if (!userInfoSpan) return;
-    
     const avatarDiv = userItem.querySelector('.chat-user-avatar');
-    
     const userData = userCache.get(userId);
     if (userData && userData.lastSeen) {
         const isOnline = isUserOnline(userData.lastSeen);
         const lastSeenText = getLastSeenText(userData.lastSeen);
-        
-        userInfoSpan.textContent = lastSeenText;
-        
-        // Adiciona/remove classe online no avatar
-        if (isOnline) {
-            avatarDiv.classList.add('online');
-        } else {
-            avatarDiv.classList.remove('online');
-        }
+        if (userInfoSpan) userInfoSpan.textContent = lastSeenText;
+        if (isOnline) avatarDiv.classList.add('online');
+        else avatarDiv.classList.remove('online');
     }
-    
-    // Se este usuário é o que está aberto no chat, atualiza o cabeçalho também
-    if (currentChatUser === userId) {
-        updateChatHeaderStatus(userId);
-    }
+    if (currentChatUser === userId) updateChatHeaderStatus(userId);
 }
 
-/**
- * Atualiza o cabeçalho do chat com o status do usuário atual
- * @param {string} userId - ID do usuário
- */
 function updateChatHeaderStatus(userId) {
     if (!userId) return;
-    
     const chatStatus = document.getElementById('chatHeaderStatus');
     const headerAvatar = document.getElementById('chatHeaderAvatar');
-    
     const userData = userCache.get(userId);
     if (userData && userData.lastSeen) {
         const isOnline = isUserOnline(userData.lastSeen);
         const lastSeenText = getLastSeenText(userData.lastSeen);
-        
-        chatStatus.textContent = lastSeenText;
-        
-        if (isOnline) {
-            headerAvatar.classList.add('online');
-        } else {
-            headerAvatar.classList.remove('online');
-        }
+        if (chatStatus) chatStatus.textContent = lastSeenText;
+        if (isOnline) headerAvatar.classList.add('online');
+        else headerAvatar.classList.remove('online');
     }
 }
 
-/**
- * Configura um listener em tempo real para um usuário
- * @param {string} userId - ID do usuário
- */
 function setupUserStatusListener(userId) {
     if (!userId || userId === 'geral' || userStatusListeners.has(userId)) return;
-    
-    const unsubscribe = db.collection('users').doc(userId)
-        .onSnapshot(doc => {
-            if (doc.exists) {
-                const userData = doc.data();
-                userCache.set(userId, userData);
-                
-                // Atualiza a UI para este usuário
-                updateUserOnlineStatusUI(userId);
-            }
-        }, error => {
-            console.error(`Erro no listener do usuário ${userId}:`, error);
-        });
-    
+    const unsubscribe = db.collection('users').doc(userId).onSnapshot(doc => {
+        if (doc.exists) {
+            userCache.set(userId, doc.data());
+            updateUserOnlineStatusUI(userId);
+        }
+    }, console.error);
     userStatusListeners.set(userId, unsubscribe);
 }
 
-/**
- * Remove listener de um usuário
- * @param {string} userId - ID do usuário
- */
-function removeUserStatusListener(userId) {
-    if (userStatusListeners.has(userId)) {
-        userStatusListeners.get(userId)();
-        userStatusListeners.delete(userId);
-    }
-}
-
-/**
- * Atualiza a UI de todos os usuários na lista de chat
- */
 function updateAllUsersOnlineStatus() {
     const usersList = document.getElementById('chatUsersList');
-    const userItems = usersList.querySelectorAll('[data-user-id]');
-    
+    const userItems = usersList?.querySelectorAll('[data-user-id]') || [];
     userItems.forEach(item => {
         const userId = item.getAttribute('data-user-id');
-        if (userId && userId !== 'geral') {
-            updateUserOnlineStatusUI(userId);
-        }
+        if (userId && userId !== 'geral') updateUserOnlineStatusUI(userId);
     });
 }
 
 // ============================================================
-// FIM DAS FUNÇÕES DE STATUS ONLINE
+// AUTH STATE OBSERVER
 // ============================================================
 
-// Auth State Observer
 auth.onAuthStateChanged(user => {
     if (user) {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('registerScreen').classList.add('hidden');
         document.getElementById('appScreen').classList.remove('hidden');
         
-        // Carregar dados do usuário atual
         db.collection('users').doc(user.uid).get().then(doc => {
             currentUserData = doc.data();
             userCache.set(user.uid, currentUserData);
@@ -2574,72 +2461,44 @@ auth.onAuthStateChanged(user => {
         loadAllUsers();
         loadChatList();
         
-        // ============================================================
-        // SISTEMA DE PRESENÇA EM TEMPO REAL
-        // ============================================================
-        
-        // Atualizar status online imediatamente
         updateUserOnlineStatus();
+        const heartbeatInterval = setInterval(updateUserOnlineStatus, 5000);
+        const uiUpdateInterval = setInterval(updateAllUsersOnlineStatus, 2000);
         
-        // Atualizar status online a cada 5 segundos
-        const heartbeatInterval = setInterval(() => {
-            updateUserOnlineStatus();
-        }, 5000);
-        
-        // Atualizar UI de status online a cada 2 segundos
-        const uiUpdateInterval = setInterval(() => {
-            updateAllUsersOnlineStatus();
-        }, 2000);
-        
-        // Detectar quando o usuário fecha a aba ou navega para outra página
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', () => {
             clearInterval(heartbeatInterval);
             clearInterval(uiUpdateInterval);
         });
         
-        // Quando o usuário volta para a aba, atualiza imediatamente
-        document.addEventListener('visibilitychange', function() {
+        document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 updateUserOnlineStatus();
                 setTimeout(updateAllUsersOnlineStatus, 500);
             }
         });
-        
-        // ============================================================
-        // FIM DO SISTEMA DE PRESENÇA
-        // ============================================================
-        
-        console.log('Usuário logado:', user.uid);
     } else {
-        // Limpar todos os listeners quando desloga
-        userStatusListeners.forEach((unsubscribe, userId) => {
-            unsubscribe();
-        });
+        userStatusListeners.forEach(unsubscribe => unsubscribe());
         userStatusListeners.clear();
-        
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
     }
 });
 
-// Register
+// ============================================================
+// FUNÇÕES DE AUTENTICAÇÃO
+// ============================================================
+
 function register() {
     const username = document.getElementById('username').value.trim();
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     
-    if (!username) {
-        alert('Por favor, preencha o nome de usuário');
-        return;
-    }
-    
-    if (!username.startsWith('@')) {
+    if (!username || !username.startsWith('@')) {
         alert('Username deve começar com @');
         return;
     }
-    
     if (!email || !password) {
-        alert('Por favor, preencha todos os campos');
+        alert('Preencha todos os campos');
         return;
     }
     
@@ -2650,10 +2509,7 @@ function register() {
     
     db.collection('users').where('username', '==', username).get()
         .then(snapshot => {
-            if (!snapshot.empty) {
-                throw new Error('Username já existe');
-            }
-            
+            if (!snapshot.empty) throw new Error('Username já existe');
             return auth.createUserWithEmailAndPassword(email, password);
         })
         .then(userCredential => {
@@ -2662,7 +2518,6 @@ function register() {
                 email: email,
                 bio: '',
                 link: '',
-                name: username,
                 displayName: '',
                 whatsapp: '',
                 whatsappDDI: '+351',
@@ -2672,79 +2527,51 @@ function register() {
                 gender: '',
                 createdAt: new Date(),
                 lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return userCredential;
-            }).catch(error => {
-                if (error.code === 'permission-denied') {
-                    userCredential.user.delete().catch(() => {});
-                    throw new Error('Erro de permissão no Firestore. Verifique as regras do banco de dados.');
-                }
-                throw error;
-            });
+            }).then(() => userCredential);
         })
-        .then(userCredential => {
+        .then(() => {
             alert('Conta criada com sucesso!');
             showLogin();
         })
         .catch(error => {
             btn.innerText = originalText;
             btn.disabled = false;
-            
-            if (error.message === 'Username já existe') {
-                alert('Este nome de usuário já está em uso');
-            } else if (error.code === 'auth/email-already-in-use') {
-                alert('Este email já está sendo usado');
-            } else if (error.code === 'auth/weak-password') {
-                alert('A senha deve ter pelo menos 6 caracteres');
-            } else if (error.code === 'auth/invalid-email') {
-                alert('Email inválido');
-            } else if (error.message.includes('permissão')) {
-                alert('Erro de permissão no banco de dados.');
-                console.error('Erro de permissão:', error);
-            } else {
-                alert('Erro ao criar conta: ' + (error.message || error));
-                console.error('Erro completo:', error);
-            }
+            if (error.message === 'Username já existe') alert('Username já existe');
+            else if (error.code === 'auth/email-already-in-use') alert('Email já usado');
+            else if (error.code === 'auth/weak-password') alert('Senha deve ter 6+ caracteres');
+            else alert('Erro: ' + error.message);
         });
 }
 
-// Login
 function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .catch(error => {
-            alert(error.message);
-        });
+    auth.signInWithEmailAndPassword(email, password).catch(error => alert(error.message));
 }
 
-// Logout
 function logout() {
     auth.signOut();
 }
 
-// Show Register Screen
 function showRegister() {
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('registerScreen').classList.remove('hidden');
 }
 
-// Show Login Screen
 function showLogin() {
     document.getElementById('registerScreen').classList.add('hidden');
     document.getElementById('loginScreen').classList.remove('hidden');
 }
 
-// Toggle Dark Mode
 function toggleDark() {
     document.body.classList.toggle('dark');
     lucide.createIcons();
 }
 
 // ============================================================
-// SHOW TAB - MOSTRA APENAS A LISTA DE CONVERSAS
+// NAVEGAÇÃO
 // ============================================================
+
 function showTab(tabName) {
     document.getElementById('home').classList.add('hidden');
     document.getElementById('feed').classList.add('hidden');
@@ -2754,12 +2581,9 @@ function showTab(tabName) {
     
     document.getElementById(tabName).classList.remove('hidden');
     
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     event.currentTarget.classList.add('active');
     
-    // Mostrar o menu novamente se estiver oculto
     document.getElementById('bottomNav').classList.remove('hidden-nav');
     
     if (tabName === 'profile') {
@@ -2770,187 +2594,127 @@ function showTab(tabName) {
     }
     
     if (tabName === 'chat') {
-        // Mostrar apenas a lista de conversas (sidebar)
         document.getElementById('chatSidebar').classList.remove('hidden-mobile');
         document.getElementById('chatMain').classList.remove('active');
-        
-        // Remover seleção automática
         currentChat = null;
         currentChatUser = null;
         currentChatId = null;
-        
-        document.querySelectorAll('.chat-user').forEach(item => {
-            item.classList.remove('active');
-        });
-        
+        document.querySelectorAll('.chat-user').forEach(item => item.classList.remove('active'));
         if (unsubscribeChat) {
             unsubscribeChat();
             unsubscribeChat = null;
         }
-        
         document.getElementById('chatBox').innerHTML = '';
         document.getElementById('chatHeaderName').innerText = 'Selecione uma conversa';
         document.getElementById('chatHeaderAvatar').innerText = '👥';
         document.getElementById('chatHeaderStatus').innerText = '';
         document.getElementById('chatHeaderAvatar').classList.remove('online');
-        
         setTimeout(updateAllUsersOnlineStatus, 500);
     }
     
     lucide.createIcons();
 }
 
-// Open Forum
 function openForum(category) {
     currentForum = category;
-    
     const titles = {
         'treino': { name: 'Treino', icon: 'dumbbell' },
         'receitas': { name: 'Receitas', icon: 'utensils' },
         'yoga': { name: 'Yoga', icon: 'activity' },
         'dicas': { name: 'Dicas', icon: 'book-open' }
     };
-    
     document.getElementById('forumName').innerText = titles[category].name;
     document.getElementById('forumIcon').setAttribute('data-lucide', titles[category].icon);
-    
     document.getElementById('home').classList.add('hidden');
     document.getElementById('forum').classList.remove('hidden');
-    
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     loadForumPosts();
     lucide.createIcons();
 }
 
-// Back to Home
 function backToHome() {
     document.getElementById('forum').classList.add('hidden');
     document.getElementById('home').classList.remove('hidden');
-    
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelector('.nav-item:first-child').classList.add('active');
-    
     lucide.createIcons();
 }
 
-// Show Add Forum Post Form
+// ============================================================
+// FUNÇÕES DO FORUM
+// ============================================================
+
 function showAddForumPost() {
     document.getElementById('addForumPostForm').classList.remove('hidden');
 }
 
-// Hide Add Forum Post Form
 function hideAddForumPost() {
     document.getElementById('addForumPostForm').classList.add('hidden');
     document.getElementById('forumPostInput').value = '';
 }
 
-// Add Forum Post
 function addForumPost() {
     const postInput = document.getElementById('forumPostInput');
     const postText = postInput.value.trim();
-    
     if (!postText) {
-        alert('Por favor, digite algo para publicar');
+        alert('Digite algo para publicar');
         return;
     }
-    
     if (!auth.currentUser) {
         alert('Você precisa estar logado');
         return;
     }
-    
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = 'Publicando...';
     btn.disabled = true;
     
-    const postData = {
+    db.collection('forum_posts').add({
         text: postText,
-        userId: auth.currentUser.uid,
         user: auth.currentUser.uid,
         category: currentForum,
         created: new Date(),
         likes: 0,
         comments: 0
-    };
-    
-    db.collection('forum_posts').add(postData)
-    .then((docRef) => {
-        console.log('Post criado com sucesso! ID:', docRef.id);
-        
+    }).then(() => {
         postInput.value = '';
         hideAddForumPost();
-        alert('Post publicado com sucesso!');
+        alert('Post publicado!');
         loadForumPostsSimple();
-    })
-    .catch(error => {
-        console.error('ERRO ao publicar:', error);
-        alert('Erro ao publicar: ' + error.message);
-    })
-    .finally(() => {
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    }).finally(() => {
         btn.innerText = originalText;
         btn.disabled = false;
     });
 }
 
-// Load Forum Posts
 function loadForumPostsSimple() {
-    if (!auth.currentUser) {
-        console.log('Usuário não logado, não carregando posts');
-        return;
-    }
-    
-    console.log('Carregando posts para categoria:', currentForum);
-    
+    if (!auth.currentUser) return;
     const forumPosts = document.getElementById('forumPosts');
-    forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando posts...</div>';
+    forumPosts.innerHTML = '<div style="text-align: center; padding: 40px;">Carregando...</div>';
     
-    db.collection('forum_posts')
-        .where('category', '==', currentForum)
-        .get()
-        .then(async (querySnapshot) => {
-            console.log('Posts encontrados:', querySnapshot.size);
-            
-            if (querySnapshot.empty) {
-                forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhum post ainda. Seja o primeiro a compartilhar! 📝</div>';
+    db.collection('forum_posts').where('category', '==', currentForum).get()
+        .then(async snapshot => {
+            if (snapshot.empty) {
+                forumPosts.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhum post ainda.</div>';
                 return;
             }
-            
             const postsArray = [];
-            
-            for (const doc of querySnapshot.docs) {
+            for (const doc of snapshot.docs) {
                 const post = doc.data();
-                const postId = doc.id;
-                
-                try {
-                    let userData = userCache.get(post.user);
-                    if (!userData) {
-                        const userDoc = await db.collection('users').doc(post.user).get();
-                        userData = userDoc.data();
-                        userCache.set(post.user, userData);
-                    }
-                    let username = userData?.username || '@usuario';
-                    
-                    postsArray.push({
-                        postId,
-                        post,
-                        username
-                    });
-                } catch (error) {
-                    console.error('Erro ao buscar usuário:', error);
-                    postsArray.push({
-                        postId,
-                        post,
-                        username: '@usuario'
-                    });
+                let userData = userCache.get(post.user);
+                if (!userData) {
+                    const userDoc = await db.collection('users').doc(post.user).get();
+                    userData = userDoc.data();
+                    userCache.set(post.user, userData);
                 }
+                postsArray.push({
+                    postId: doc.id,
+                    post,
+                    username: userData?.username || '@usuario'
+                });
             }
-            
             postsArray.sort((a, b) => {
                 const dateA = a.post.created ? new Date(a.post.created.seconds * 1000) : new Date(0);
                 const dateB = b.post.created ? new Date(b.post.created.seconds * 1000) : new Date(0);
@@ -2958,13 +2722,12 @@ function loadForumPostsSimple() {
             });
             
             forumPosts.innerHTML = '';
-            
             postsArray.forEach(item => {
                 const postElement = document.createElement('div');
                 postElement.className = 'forum-post';
                 postElement.innerHTML = `
                     <div class="forum-post-header">
-                        <div class="post-avatar">${item.username ? item.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="post-avatar">${item.username.charAt(1).toUpperCase()}</div>
                         <div>
                             <div class="forum-post-author">${item.username}</div>
                             <div class="forum-post-date">${formatDate(item.post.created)}</div>
@@ -2984,12 +2747,11 @@ function loadForumPostsSimple() {
                 `;
                 forumPosts.appendChild(postElement);
             });
-            
             lucide.createIcons();
         })
         .catch(error => {
-            console.error('ERRO ao carregar posts:', error);
-            forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts. Verifique o console (F12)</div>';
+            console.error('Erro:', error);
+            forumPosts.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts</div>';
         });
 }
 
@@ -2997,117 +2759,106 @@ function loadForumPosts() {
     loadForumPostsSimple();
 }
 
-// Like Forum Post
 function likeForumPost(postId) {
-    const postRef = db.collection('forum_posts').doc(postId);
-    
-    postRef.get().then(doc => {
-        if (doc.exists) {
-            const likes = (doc.data().likes || 0) + 1;
-            postRef.update({ likes: likes });
+    db.collection('forum_posts').doc(postId).update({
+        likes: firebase.firestore.FieldValue.increment(1)
+    }).catch(console.error);
+}
+
+function commentForumPost() {
+    alert('Comentários em breve!');
+}
+
+// ============================================================
+// FUNÇÕES DO FEED - CORRIGIDAS
+// ============================================================
+
+function loadFeed() {
+    db.collection('posts').orderBy('created', 'desc').onSnapshot(async snapshot => {
+        const feed = document.getElementById('feedPosts');
+        if (!feed) return;
+        
+        const scrollPos = feed.scrollTop;
+        feed.innerHTML = '';
+        
+        if (snapshot.empty) {
+            feed.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhum post ainda. Compartilhe algo! 📱</div>';
+            return;
         }
-    }).catch(error => {
-        console.error('Erro ao dar like:', error);
+        
+        for (const doc of snapshot.docs) {
+            const post = doc.data();
+            const postId = doc.id;
+            
+            let userData = userCache.get(post.user);
+            if (!userData) {
+                const userDoc = await db.collection('users').doc(post.user).get();
+                userData = userDoc.data();
+                userCache.set(post.user, userData);
+            }
+            
+            // Verificar se o usuário atual já curtiu
+            let userLiked = false;
+            if (auth.currentUser) {
+                // Usar cache local primeiro
+                if (likesCache.has(postId)) {
+                    userLiked = likesCache.get(postId);
+                } else {
+                    const likeDoc = await db.collection('post_likes')
+                        .where('postId', '==', postId)
+                        .where('userId', '==', auth.currentUser.uid)
+                        .get()
+                        .catch(() => ({ empty: true }));
+                    userLiked = !likeDoc.empty;
+                    likesCache.set(postId, userLiked);
+                }
+            }
+            
+            const postElement = document.createElement('div');
+            postElement.className = 'post-card';
+            postElement.id = `post-${postId}`;
+            postElement.setAttribute('data-post-id', postId);
+            
+            // Determinar a cor do coração baseado no estado de curtida
+            const heartFill = userLiked ? 'fill="var(--like-active)"' : '';
+            const likedClass = userLiked ? 'liked' : '';
+            
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                    <div class="post-info">
+                        <h4>${userData?.username || '@usuario'}</h4>
+                        <span>${formatDate(post.created)}</span>
+                    </div>
+                </div>
+                <div class="post-content">${post.text}</div>
+                <div class="post-actions">
+                    <button class="post-action ${likedClass}" onclick="toggleLike('${postId}')" id="like-${postId}">
+                        <i data-lucide="heart" ${heartFill}></i>
+                        <span id="like-count-${postId}">${post.likes || 0}</span>
+                    </button>
+                    <button class="post-action" onclick="commentPost('${postId}')">
+                        <i data-lucide="message-circle"></i>
+                        <span>${post.comments || 0}</span>
+                    </button>
+                    <button class="post-action" onclick="sharePost('${postId}')">
+                        <i data-lucide="share-2"></i>
+                    </button>
+                </div>
+            `;
+            feed.appendChild(postElement);
+        }
+        
+        lucide.createIcons();
+        feed.scrollTop = scrollPos;
     });
 }
 
-// Comment Forum Post
-function commentForumPost(postId) {
-    alert('Funcionalidade de comentários em breve!');
-}
-
-// Load Feed - CORRIGIDO: sem refresh da página
-function loadFeed() {
-    db.collection('posts').orderBy('created', 'desc')
-        .onSnapshot(snapshot => {
-            const feed = document.getElementById('feedPosts');
-            if (!feed) return;
-            
-            // Salvar posição do scroll
-            const scrollPos = feed.scrollTop;
-            
-            feed.innerHTML = '';
-            
-            if (snapshot.empty) {
-                feed.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhum post no feed ainda. Compartilhe algo! 📱</div>';
-                return;
-            }
-            
-            snapshot.forEach(async doc => {
-                const post = doc.data();
-                const postId = doc.id;
-                
-                try {
-                    let userData = userCache.get(post.user);
-                    if (!userData) {
-                        const userDoc = await db.collection('users').doc(post.user).get();
-                        userData = userDoc.data();
-                        userCache.set(post.user, userData);
-                    }
-                    
-                    // Verificar se o usuário atual já curtiu este post
-                    let userLiked = false;
-                    if (auth.currentUser) {
-                        // Usar cache de curtidas
-                        if (likesCache.has(postId)) {
-                            userLiked = likesCache.get(postId);
-                        } else {
-                            const likeDoc = await db.collection('post_likes')
-                                .where('postId', '==', postId)
-                                .where('userId', '==', auth.currentUser.uid)
-                                .get();
-                            userLiked = !likeDoc.empty;
-                            likesCache.set(postId, userLiked);
-                        }
-                    }
-                    
-                    const postElement = document.createElement('div');
-                    postElement.className = 'post-card';
-                    postElement.id = `post-${postId}`;
-                    postElement.setAttribute('data-post-id', postId);
-                    postElement.innerHTML = `
-                        <div class="post-header">
-                            <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
-                            <div class="post-info">
-                                <h4>${userData?.username || '@usuario'}</h4>
-                                <span>${formatDate(post.created)}</span>
-                            </div>
-                        </div>
-                        <div class="post-content">${post.text}</div>
-                        <div class="post-actions">
-                            <button class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
-                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
-                                <span id="like-count-${postId}">${post.likes || 0}</span>
-                            </button>
-                            <button class="post-action" onclick="commentPost('${postId}')">
-                                <i data-lucide="message-circle"></i>
-                                <span>${post.comments || 0}</span>
-                            </button>
-                            <button class="post-action" onclick="sharePost('${postId}')">
-                                <i data-lucide="share-2"></i>
-                            </button>
-                        </div>
-                    `;
-                    feed.appendChild(postElement);
-                } catch (error) {
-                    console.error('Erro ao carregar post do feed:', error);
-                }
-            });
-            
-            lucide.createIcons();
-            
-            // Restaurar posição do scroll
-            feed.scrollTop = scrollPos;
-        });
-}
-
-// Add Post
 function addPost() {
     const postInput = document.getElementById('postInput');
     const postText = postInput.value.trim();
-    
     if (!postText) {
-        alert('Por favor, digite algo para publicar');
+        alert('Digite algo para publicar');
         return;
     }
     
@@ -3122,112 +2873,152 @@ function addPost() {
         created: new Date(),
         likes: 0,
         comments: 0
-    })
-    .then(() => {
+    }).then(() => {
         postInput.value = '';
-        alert('Post publicado com sucesso!');
-    })
-    .catch(error => {
-        console.error('Erro ao publicar:', error);
-        alert('Erro ao publicar: ' + error.message);
-    })
-    .finally(() => {
+        alert('Post publicado!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    }).finally(() => {
         btn.innerText = originalText;
         btn.disabled = false;
     });
 }
 
-// Toggle Like - CORRIGIDO: sem refresh, sem erro
+// ============================================================
+// FUNÇÃO DE CURTIR - TOTALMENTE CORRIGIDA
+// ============================================================
+
 async function toggleLike(postId) {
     if (!auth.currentUser) {
-        alert('Faça login para curtir posts');
+        alert('Faça login para curtir');
         return;
     }
     
     const userId = auth.currentUser.uid;
-    const likeRef = db.collection('post_likes');
-    const postRef = db.collection('posts').doc(postId);
+    const likeButton = document.getElementById(`like-${postId}`);
+    const likeCount = document.getElementById(`like-count-${postId}`);
+    
+    if (!likeButton || !likeCount) return;
     
     // Impedir múltiplos cliques
-    const likeButton = document.getElementById(`like-${postId}`);
     if (likeButton.disabled) return;
     likeButton.disabled = true;
     
     try {
         // Verificar se o usuário já curtiu
-        const existingLike = await likeRef
+        const likeQuery = await db.collection('post_likes')
             .where('postId', '==', postId)
             .where('userId', '==', userId)
             .get();
         
-        const likeCountElement = document.getElementById(`like-count-${postId}`);
-        let currentLikes = parseInt(likeCountElement.innerText);
+        const postRef = db.collection('posts').doc(postId);
+        const currentLikes = parseInt(likeCount.innerText) || 0;
         
-        if (existingLike.empty) {
-            // Curtir
-            await likeRef.add({
+        if (likeQuery.empty) {
+            // CURTIR
+            // 1. Adicionar documento de like
+            await db.collection('post_likes').add({
                 postId: postId,
                 userId: userId,
                 created: new Date()
             });
             
+            // 2. Incrementar contador no post
             await postRef.update({
                 likes: firebase.firestore.FieldValue.increment(1)
             });
             
-            // Atualizar UI imediatamente
+            // 3. Atualizar UI imediatamente
             likeButton.classList.add('liked');
             const heartIcon = likeButton.querySelector('i');
-            heartIcon.setAttribute('fill', 'var(--like-active)');
-            likeCountElement.innerText = currentLikes + 1;
+            if (heartIcon) {
+                heartIcon.setAttribute('fill', 'var(--like-active)');
+            }
+            likeCount.innerText = currentLikes + 1;
             
-            // Atualizar cache
+            // 4. Atualizar cache
             likesCache.set(postId, true);
             
-            // Efeito visual
-            heartIcon.style.transform = 'scale(1.3)';
-            setTimeout(() => {
-                heartIcon.style.transform = 'scale(1)';
-                likeButton.disabled = false;
-            }, 200);
+            // 5. Efeito visual
+            if (heartIcon) {
+                heartIcon.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    heartIcon.style.transform = 'scale(1)';
+                }, 200);
+            }
             
         } else {
-            // Descurtir
-            await likeRef.doc(existingLike.docs[0].id).delete();
+            // DESCURTIR
+            // 1. Remover documento de like
+            await db.collection('post_likes').doc(likeQuery.docs[0].id).delete();
             
+            // 2. Decrementar contador no post
             await postRef.update({
                 likes: firebase.firestore.FieldValue.increment(-1)
             });
             
-            // Atualizar UI imediatamente
+            // 3. Atualizar UI imediatamente
             likeButton.classList.remove('liked');
             const heartIcon = likeButton.querySelector('i');
-            heartIcon.setAttribute('fill', 'none');
-            likeCountElement.innerText = currentLikes - 1;
+            if (heartIcon) {
+                heartIcon.setAttribute('fill', 'none');
+            }
+            likeCount.innerText = Math.max(0, currentLikes - 1);
             
-            // Atualizar cache
+            // 4. Atualizar cache
             likesCache.set(postId, false);
             
-            heartIcon.style.transform = 'scale(1.3)';
-            setTimeout(() => {
-                heartIcon.style.transform = 'scale(1)';
-                likeButton.disabled = false;
-            }, 200);
+            // 5. Efeito visual
+            if (heartIcon) {
+                heartIcon.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    heartIcon.style.transform = 'scale(1)';
+                }, 200);
+            }
         }
         
     } catch (error) {
-        console.error('Erro ao processar curtida:', error);
+        console.error('Erro detalhado:', error);
+        
+        // Fallback: Atualizar apenas localmente em caso de erro de permissão
+        if (error.code === 'permission-denied') {
+            // Toggle local apenas para não travar a UI
+            const currentLikes = parseInt(likeCount.innerText) || 0;
+            const isLiked = likeButton.classList.contains('liked');
+            
+            if (isLiked) {
+                likeButton.classList.remove('liked');
+                const heartIcon = likeButton.querySelector('i');
+                if (heartIcon) heartIcon.setAttribute('fill', 'none');
+                likeCount.innerText = Math.max(0, currentLikes - 1);
+                likesCache.set(postId, false);
+            } else {
+                likeButton.classList.add('liked');
+                const heartIcon = likeButton.querySelector('i');
+                if (heartIcon) heartIcon.setAttribute('fill', 'var(--like-active)');
+                likeCount.innerText = currentLikes + 1;
+                likesCache.set(postId, true);
+            }
+            
+            alert('Nota: Curtida salva apenas localmente devido a permissões');
+        } else {
+            alert('Erro ao processar curtida: ' + error.message);
+        }
+    } finally {
         likeButton.disabled = false;
-        alert('Erro ao processar curtida. Tente novamente.');
     }
 }
 
-// Load Chat List
+// ============================================================
+// FUNÇÕES DO CHAT
+// ============================================================
+
 function loadChatList() {
     const user = auth.currentUser;
     if (!user) return;
     
     const usersList = document.getElementById('chatUsersList');
+    usersList.innerHTML = '';
     
     const geralItem = document.createElement('li');
     geralItem.className = 'chat-user';
@@ -3243,28 +3034,18 @@ function loadChatList() {
             <span>Conversa com todos</span>
         </div>
     `;
-    
-    usersList.innerHTML = '';
     usersList.appendChild(geralItem);
     
-    db.collection('private_chats')
-        .where('participants', 'array-contains', user.uid)
-        .get()
+    db.collection('private_chats').where('participants', 'array-contains', user.uid).get()
         .then(snapshot => {
             const chatUsers = new Map();
-            
             snapshot.forEach(doc => {
                 const chat = doc.data();
                 const otherUserId = chat.participants.find(id => id !== user.uid);
-                
                 if (otherUserId) {
-                    const existing = chatUsers.get(otherUserId);
-                    if (!existing || (chat.created && existing.created < chat.created)) {
-                        chatUsers.set(otherUserId, {
-                            lastMessage: chat.text,
-                            lastMessageTime: chat.created
-                        });
-                    }
+                    chatUsers.set(otherUserId, {
+                        lastMessageTime: chat.created
+                    });
                 }
             });
             
@@ -3283,11 +3064,6 @@ function loadChatList() {
                         chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
                         chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
                         
-                        let unreadBadge = '';
-                        if (unreadCount > 0) {
-                            unreadBadge = `<span class="unread-badge">${unreadCount}</span>`;
-                        }
-                        
                         const isOnline = isUserOnline(userData.lastSeen);
                         const onlineClass = isOnline ? 'online' : '';
                         const lastSeenText = getLastSeenText(userData.lastSeen);
@@ -3295,121 +3071,67 @@ function loadChatList() {
                         chatItem.innerHTML = `
                             <div class="chat-user-avatar ${onlineClass}">
                                 ${userData.username.charAt(1).toUpperCase()}
-                                ${unreadBadge}
+                                ${unreadCount > 0 ? '<span class="unread-badge">' + unreadCount + '</span>' : ''}
                             </div>
                             <div class="chat-user-info">
                                 <strong>${userData.username}</strong>
                                 <span>${lastSeenText}</span>
                             </div>
-                            <div class="chat-user-time">${formatTime(chatInfo.lastMessageTime)}</div>
                         `;
                         usersList.appendChild(chatItem);
-                        
-                        // Configurar listener em tempo real para este usuário
                         setupUserStatusListener(userId);
                     }
                 });
             });
         })
-        .catch(error => {
-            console.error('Erro ao carregar lista de chats:', error);
-        });
+        .catch(console.error);
 }
 
-// Load Chat Messages - CORRIGIDO: Ordenação cronológica correta
 function loadChat(chatId, otherUserId = null) {
-    if (unsubscribeChat) {
-        unsubscribeChat();
-    }
+    if (unsubscribeChat) unsubscribeChat();
     
     const chatBox = document.getElementById('chatBox');
-    chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando mensagens...</div>';
+    chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Carregando...</div>';
     
     const user = auth.currentUser;
     
     if (chatId === 'geral') {
-        unsubscribeChat = db.collection('chat')
-            .orderBy('created')
-            .onSnapshot(snapshot => {
-                chatBox.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhuma mensagem ainda. Envie a primeira! 💬</div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const message = doc.data();
-                    displayMessage(message);
-                });
-                
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, error => {
-                console.error('Erro ao carregar chat geral:', error);
-                chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
-            });
+        unsubscribeChat = db.collection('chat').orderBy('created').onSnapshot(snapshot => {
+            chatBox.innerHTML = '';
+            if (snapshot.empty) {
+                chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhuma mensagem ainda.</div>';
+                return;
+            }
+            snapshot.forEach(doc => displayMessage(doc.data()));
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, console.error);
     } else {
-        unsubscribeChat = db.collection('private_chats')
-            .where('participants', 'array-contains', user.uid)
+        unsubscribeChat = db.collection('private_chats').where('participants', 'array-contains', user.uid)
             .onSnapshot(snapshot => {
                 const messages = [];
-                let newUnreadCount = 0;
-                
                 snapshot.forEach(doc => {
                     const message = doc.data();
-                    
-                    if (message.participants && 
-                        message.participants.length === 2 && 
-                        message.participants.includes(otherUserId) && 
-                        message.participants.includes(user.uid)) {
-                        
-                        messages.push({
-                            ...message,
-                            id: doc.id
-                        });
-                        
-                        if (message.user !== user.uid) {
-                            const lastRead = lastReadTimestamps.get(otherUserId) || 0;
-                            const messageTime = message.created ? new Date(message.created.seconds * 1000).getTime() : 0;
-                            
-                            if (messageTime > lastRead) {
-                                newUnreadCount++;
-                            }
-                        }
+                    if (message.participants && message.participants.includes(otherUserId)) {
+                        messages.push(message);
                     }
                 });
-                
-                if (chatId === currentChatId && otherUserId) {
-                    unreadMessages.set(otherUserId, newUnreadCount);
-                    updateUnreadBadges();
-                }
-                
-                // CORREÇÃO: Ordenar por data (mais antiga primeiro)
                 messages.sort((a, b) => {
                     const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                     const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-                    return dateA - dateB; // Crescente = mais antiga primeiro
+                    return dateA - dateB;
                 });
                 
                 chatBox.innerHTML = '';
-                
                 if (messages.length === 0) {
-                    chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhuma mensagem ainda. Envie a primeira! 💬</div>';
+                    chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhuma mensagem ainda.</div>';
                 } else {
-                    messages.forEach(message => {
-                        displayMessage(message);
-                    });
+                    messages.forEach(message => displayMessage(message));
                 }
-                
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, error => {
-                console.error('Erro ao carregar chat privado:', error);
-                chatBox.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar mensagens</div>';
-            });
+            }, console.error);
     }
 }
 
-// Display a message in the chat - Usando cache para melhor performance
 async function displayMessage(message) {
     try {
         let userData = userCache.get(message.user);
@@ -3437,7 +3159,6 @@ async function displayMessage(message) {
     }
 }
 
-// Select Chat - MODIFICADO: Oculta o menu quando o chat é aberto em dispositivos móveis
 function selectChat(chatId, userName, userAvatar, userId = null) {
     currentChat = chatId;
     currentChatUser = userId;
@@ -3445,24 +3166,13 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     currentChatUserAvatar = userAvatar;
     currentChatId = chatId;
     
-    if (userId) {
-        markAsRead(userId);
-    }
-    
-    localStorage.setItem('lastChat', JSON.stringify({
-        chatId: chatId,
-        userName: userName,
-        userAvatar: userAvatar,
-        userId: userId
-    }));
+    if (userId) markAsRead(userId);
     
     document.getElementById('chatHeaderName').innerText = userName;
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
     
-    // Atualizar status do cabeçalho
-    if (userId) {
-        updateChatHeaderStatus(userId);
-    } else {
+    if (userId) updateChatHeaderStatus(userId);
+    else {
         document.getElementById('chatHeaderStatus').innerText = 'Online';
         document.getElementById('chatHeaderAvatar').classList.remove('online');
     }
@@ -3470,8 +3180,6 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     if (window.innerWidth <= 768) {
         document.getElementById('chatSidebar').classList.add('hidden-mobile');
         document.getElementById('chatMain').classList.add('active');
-        
-        // Ocultar o menu inferior
         document.getElementById('bottomNav').classList.add('hidden-nav');
     }
     
@@ -3482,8 +3190,6 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
         } else if (item.getAttribute('data-user-id') === userId) {
             item.classList.add('active');
             item.classList.remove('unread');
-            
-            // Remover badge de não lido quando seleciona
             const badge = item.querySelector('.unread-badge');
             if (badge) badge.remove();
         }
@@ -3494,32 +3200,26 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
 
 function markAsRead(userId) {
     if (!userId) return;
-    
     const now = Date.now();
     lastReadTimestamps.set(userId, now);
     unreadMessages.set(userId, 0);
-    
     const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
     readData[userId] = now;
     localStorage.setItem('readTimestamps', JSON.stringify(readData));
-    
     updateUnreadBadges();
 }
 
 function updateUnreadBadges() {
     const usersList = document.getElementById('chatUsersList');
     const unreadTotal = document.getElementById('unreadTotal');
-    
     let totalUnread = 0;
     
     unreadMessages.forEach((count, userId) => {
         totalUnread += count;
-        
-        const userItem = usersList.querySelector(`[data-user-id="${userId}"]`);
+        const userItem = usersList?.querySelector(`[data-user-id="${userId}"]`);
         if (userItem) {
             if (count > 0) {
                 userItem.classList.add('unread');
-                
                 let badge = userItem.querySelector('.unread-badge');
                 if (!badge) {
                     badge = document.createElement('span');
@@ -3535,27 +3235,22 @@ function updateUnreadBadges() {
         }
     });
     
-    unreadTotal.textContent = totalUnread;
-    unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
+    if (unreadTotal) {
+        unreadTotal.textContent = totalUnread;
+        unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
+    }
 }
 
-// MODIFICADO: Mostrar o menu ao voltar para a lista de usuários
 function backToUsersList() {
     document.getElementById('chatSidebar').classList.remove('hidden-mobile');
     document.getElementById('chatMain').classList.remove('active');
-    
-    // Mostrar o menu inferior novamente
     document.getElementById('bottomNav').classList.remove('hidden-nav');
-    
-    // Atualizar status de todos quando voltar para a lista
     setTimeout(updateAllUsersOnlineStatus, 100);
 }
 
-// Send Message
 function sendMessage() {
     const chatInput = document.getElementById('chatInput');
     const messageText = chatInput.value.trim();
-    
     if (!messageText) return;
     
     const user = auth.currentUser;
@@ -3565,40 +3260,22 @@ function sendMessage() {
             text: messageText,
             user: user.uid,
             created: new Date()
-        })
-        .then(() => {
+        }).then(() => {
             chatInput.value = '';
-        })
-        .catch(error => {
-            console.error('Erro ao enviar mensagem:', error);
-            alert('Erro ao enviar mensagem: ' + error.message);
+        }).catch(error => {
+            alert('Erro: ' + error.message);
         });
     } else {
-        const chatData = {
+        db.collection('private_chats').add({
             text: messageText,
             user: user.uid,
             participants: [user.uid, currentChatUser].sort(),
             created: new Date()
-        };
-        
-        db.collection('private_chats').add(chatData)
-            .then(() => {
-                chatInput.value = '';
-                
-                // Atualizar tempo da última mensagem na lista
-                const usersList = document.getElementById('chatUsersList');
-                const userItem = usersList.querySelector(`[data-user-id="${currentChatUser}"]`);
-                if (userItem) {
-                    const timeSpan = userItem.querySelector('.chat-user-time');
-                    if (timeSpan) {
-                        timeSpan.textContent = 'agora';
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao enviar mensagem privada:', error);
-                alert('Erro ao enviar mensagem: ' + error.message);
-            });
+        }).then(() => {
+            chatInput.value = '';
+        }).catch(error => {
+            alert('Erro: ' + error.message);
+        });
     }
 }
 
@@ -3609,25 +3286,20 @@ function handleChatKeyPress(e) {
     }
 }
 
-// Load All Users for Search
+// ============================================================
+// FUNÇÕES DE BUSCA DE USUÁRIOS
+// ============================================================
+
 function loadAllUsers() {
-    db.collection('users').get()
-        .then(snapshot => {
-            allUsers = [];
-            snapshot.forEach(doc => {
-                if (doc.id !== auth.currentUser.uid) {
-                    const userData = doc.data();
-                    userCache.set(doc.id, userData);
-                    allUsers.push({
-                        id: doc.id,
-                        ...userData
-                    });
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar usuários:', error);
+    db.collection('users').get().then(snapshot => {
+        allUsers = [];
+        snapshot.forEach(doc => {
+            if (doc.id !== auth.currentUser.uid) {
+                userCache.set(doc.id, doc.data());
+                allUsers.push({ id: doc.id, ...doc.data() });
+            }
         });
+    }).catch(console.error);
 }
 
 function showUserSearchModal() {
@@ -3645,9 +3317,7 @@ function searchUsers() {
     const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
     const searchList = document.getElementById('userSearchList');
     
-    const filteredUsers = allUsers.filter(user => 
-        user.username.toLowerCase().includes(searchTerm)
-    );
+    const filteredUsers = allUsers.filter(user => user.username.toLowerCase().includes(searchTerm));
     
     if (filteredUsers.length === 0) {
         searchList.innerHTML = '<li class="no-users-found">Nenhum usuário encontrado</li>';
@@ -3660,8 +3330,7 @@ function searchUsers() {
         li.className = 'user-search-item';
         li.onclick = () => {
             hideUserSearchModal();
-            const chatId = `private_${user.id}`;
-            selectChat(chatId, user.username, user.username.charAt(1).toUpperCase(), user.id);
+            selectChat(`private_${user.id}`, user.username, user.username.charAt(1).toUpperCase(), user.id);
         };
         li.innerHTML = `
             <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
@@ -3674,111 +3343,74 @@ function searchUsers() {
     });
 }
 
-// Load Profile
+// ============================================================
+// FUNÇÕES DO PERFIL
+// ============================================================
+
 function loadProfile() {
     const user = auth.currentUser;
-    
-    db.collection('users').doc(user.uid).get()
-        .then(doc => {
-            const data = doc.data();
-            userCache.set(user.uid, data);
-            document.getElementById('profileUsername').innerText = data.username || '@usuario';
-            document.getElementById('profileDisplayName').innerText = data.displayName || '';
-            document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
-            document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
-            document.getElementById('profileLink').href = data.link || '#';
-            document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
-            
-            const editName = document.getElementById('editName');
-            if (editName) editName.value = data.displayName || '';
-            
-            const editBio = document.getElementById('editBio');
-            if (editBio) editBio.value = data.bio || '';
-            
-            const editLink = document.getElementById('editLink');
-            if (editLink) editLink.value = data.link || '';
-            
-            const whatsappDDI = document.getElementById('whatsappDDI');
-            if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
-            
-            const editWhatsApp = document.getElementById('editWhatsApp');
-            if (editWhatsApp) editWhatsApp.value = data.whatsapp || '';
-            
-            const phoneDDI = document.getElementById('phoneDDI');
-            if (phoneDDI) phoneDDI.value = data.phoneDDI || '+351';
-            
-            const editPhone = document.getElementById('editPhone');
-            if (editPhone) editPhone.value = data.phone || '';
-            
-            const editBirthDate = document.getElementById('editBirthDate');
-            if (editBirthDate) editBirthDate.value = data.birthDate || '';
-            
-            const editGender = document.getElementById('editGender');
-            if (editGender) editGender.value = data.gender || '';
-            
-            loadProfileStats();
-        })
-        .catch(error => {
-            console.error('Erro ao carregar perfil:', error);
-        });
+    db.collection('users').doc(user.uid).get().then(doc => {
+        const data = doc.data();
+        userCache.set(user.uid, data);
+        document.getElementById('profileUsername').innerText = data.username || '@usuario';
+        document.getElementById('profileDisplayName').innerText = data.displayName || '';
+        document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
+        document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
+        document.getElementById('profileLink').href = data.link || '#';
+        document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
+        
+        const whatsappDDI = document.getElementById('whatsappDDI');
+        if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
+        const editWhatsApp = document.getElementById('editWhatsApp');
+        if (editWhatsApp) editWhatsApp.value = data.whatsapp || '';
+        const phoneDDI = document.getElementById('phoneDDI');
+        if (phoneDDI) phoneDDI.value = data.phoneDDI || '+351';
+        const editPhone = document.getElementById('editPhone');
+        if (editPhone) editPhone.value = data.phone || '';
+        const editBirthDate = document.getElementById('editBirthDate');
+        if (editBirthDate) editBirthDate.value = data.birthDate || '';
+        const editGender = document.getElementById('editGender');
+        if (editGender) editGender.value = data.gender || '';
+        
+        loadProfileStats();
+    }).catch(console.error);
 }
 
 function loadProfileStats() {
     const user = auth.currentUser;
-    
-    db.collection('posts').where('user', '==', user.uid).get()
-        .then(snapshot => {
-            document.getElementById('profilePosts').innerText = snapshot.size;
-        })
-        .catch(error => {
-            console.error('Erro ao carregar stats:', error);
-        });
-    
+    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
+        document.getElementById('profilePosts').innerText = snapshot.size;
+    }).catch(console.error);
     document.getElementById('profileFollowers').innerText = '128';
     document.getElementById('profileFollowing').innerText = '56';
 }
 
 function loadProfilePosts() {
     const user = auth.currentUser;
-    
-    db.collection('posts').where('user', '==', user.uid).get()
-        .then(snapshot => {
-            const grid = document.getElementById('profilePostsGrid');
-            grid.innerHTML = '';
-            
-            if (snapshot.empty) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-secondary);">Você ainda não tem posts</div>';
-                return;
-            }
-            
-            const posts = [];
-            snapshot.forEach(doc => {
-                posts.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            
-            posts.sort((a, b) => {
-                const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-                const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-                return dateB - dateA;
-            });
-            
-            posts.slice(0, 6).forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'post-thumb';
-                postElement.innerHTML = `
-                    <p>${post.text.substring(0, 60)}${post.text.length > 60 ? '...' : ''}</p>
-                    <div class="post-thumb-date">${formatDate(post.created)}</div>
-                `;
-                grid.appendChild(postElement);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar posts do perfil:', error);
-            document.getElementById('profilePostsGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--danger);">Erro ao carregar posts</div>';
+    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
+        const grid = document.getElementById('profilePostsGrid');
+        grid.innerHTML = '';
+        if (snapshot.empty) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Você ainda não tem posts</div>';
+            return;
+        }
+        const posts = [];
+        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
+        posts.sort((a, b) => {
+            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+            return dateB - dateA;
         });
+        posts.slice(0, 6).forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.className = 'post-thumb';
+            postElement.innerHTML = `
+                <p>${post.text.substring(0, 60)}${post.text.length > 60 ? '...' : ''}</p>
+                <div class="post-thumb-date">${formatDate(post.created)}</div>
+            `;
+            grid.appendChild(postElement);
+        });
+    }).catch(console.error);
 }
 
 function toggleEditProfile() {
@@ -3788,10 +3420,7 @@ function toggleEditProfile() {
         editForm.id = 'editProfileForm';
         editForm.className = 'edit-section';
         editForm.innerHTML = `
-            <h4>
-                <i data-lucide="edit-3"></i>
-                Editar Perfil
-            </h4>
+            <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
             <input type="text" id="editName" placeholder="Seu nome">
             <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
             <input type="text" id="editLink" placeholder="Link do seu site">
@@ -3803,8 +3432,7 @@ function toggleEditProfile() {
         document.querySelector('.profile-container').insertBefore(editForm, document.querySelector('.user-card'));
         lucide.createIcons();
         
-        const user = auth.currentUser;
-        db.collection('users').doc(user.uid).get().then(doc => {
+        db.collection('users').doc(auth.currentUser.uid).get().then(doc => {
             const data = doc.data();
             document.getElementById('editName').value = data.displayName || '';
             document.getElementById('editBio').value = data.bio || '';
@@ -3824,21 +3452,17 @@ function saveProfile() {
         displayName: name,
         bio: bio,
         link: link
-    })
-    .then(() => {
+    }).then(() => {
         loadProfile();
         toggleEditProfile();
-        alert('Perfil atualizado com sucesso!');
-    })
-    .catch(error => {
-        console.error('Erro ao atualizar perfil:', error);
-        alert('Erro ao atualizar perfil: ' + error.message);
+        alert('Perfil atualizado!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
     });
 }
 
 function toggleSettings() {
-    const panel = document.getElementById('settingsPanel');
-    panel.classList.toggle('hidden');
+    document.getElementById('settingsPanel').classList.toggle('hidden');
 }
 
 function saveSettings() {
@@ -3850,79 +3474,55 @@ function saveSettings() {
     const gender = document.getElementById('editGender').value;
     
     db.collection('users').doc(auth.currentUser.uid).update({
-        whatsappDDI: whatsappDDI,
-        whatsapp: whatsapp,
-        phoneDDI: phoneDDI,
-        phone: phone,
-        birthDate: birthDate,
-        gender: gender
-    })
-    .then(() => {
+        whatsappDDI, whatsapp, phoneDDI, phone, birthDate, gender
+    }).then(() => {
         toggleSettings();
-        alert('Configurações salvas com sucesso!');
-    })
-    .catch(error => {
-        console.error('Erro ao salvar configurações:', error);
-        alert('Erro ao salvar configurações: ' + error.message);
+        alert('Configurações salvas!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
     });
 }
+
+// ============================================================
+// FUNÇÕES DA FICHA DO USUÁRIO
+// ============================================================
 
 function toggleUserCardForm() {
     const form = document.getElementById('userCardForm');
     form.classList.toggle('hidden');
-    
-    if (!form.classList.contains('hidden')) {
-        loadCurrentUserCard();
-    }
+    if (!form.classList.contains('hidden')) loadCurrentUserCard();
 }
 
 function loadCurrentUserCard() {
-    const user = auth.currentUser;
-    
-    db.collection('user_cards').where('userId', '==', user.uid).get()
-        .then(snapshot => {
-            if (!snapshot.empty) {
-                let latest = null;
-                let latestDate = null;
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
-                    
-                    if (!latestDate || date > latestDate) {
-                        latestDate = date;
-                        latest = data;
-                    }
-                });
-                
-                if (latest) {
-                    document.getElementById('editWeight').value = latest.weight || '';
-                    document.getElementById('editHeight').value = latest.height || '';
-                    document.getElementById('editAge').value = latest.age || '';
-                    document.getElementById('editGoal').value = latest.goal || '';
-                    document.getElementById('editNotes').value = latest.notes || '';
-                    calculateIMC();
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (!snapshot.empty) {
+            let latest = null;
+            let latestDate = null;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+                if (!latestDate || date > latestDate) {
+                    latestDate = date;
+                    latest = data;
                 }
-            } else {
-                document.getElementById('editWeight').value = '';
-                document.getElementById('editHeight').value = '';
-                document.getElementById('editAge').value = '';
-                document.getElementById('editGoal').value = '';
-                document.getElementById('editNotes').value = '';
+            });
+            if (latest) {
+                document.getElementById('editWeight').value = latest.weight || '';
+                document.getElementById('editHeight').value = latest.height || '';
+                document.getElementById('editAge').value = latest.age || '';
+                document.getElementById('editGoal').value = latest.goal || '';
+                document.getElementById('editNotes').value = latest.notes || '';
+                calculateIMC();
             }
-        })
-        .catch(error => {
-            console.error('Erro ao carregar ficha:', error);
-        });
+        }
+    }).catch(console.error);
 }
 
 function calculateIMC() {
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
-    
     if (weight && height) {
-        const heightInMeters = height / 100;
-        const imc = weight / (heightInMeters * heightInMeters);
+        const imc = weight / Math.pow(height / 100, 2);
         document.getElementById('editImc').value = imc.toFixed(2);
     } else {
         document.getElementById('editImc').value = '';
@@ -3930,29 +3530,14 @@ function calculateIMC() {
 }
 
 function saveUserCard() {
-    if (!auth.currentUser) {
-        alert('Você precisa estar logado para salvar a ficha');
-        return;
-    }
-    
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
     const age = parseInt(document.getElementById('editAge').value);
     const goal = document.getElementById('editGoal').value;
     const notes = document.getElementById('editNotes').value;
     
-    if (isNaN(weight) || weight <= 0) {
-        alert('Por favor, preencha um peso válido');
-        return;
-    }
-    
-    if (isNaN(height) || height <= 0) {
-        alert('Por favor, preencha uma altura válida');
-        return;
-    }
-    
-    if (isNaN(age) || age <= 0 || age > 120) {
-        alert('Por favor, preencha uma idade válida');
+    if (isNaN(weight) || weight <= 0 || isNaN(height) || height <= 0 || isNaN(age) || age <= 0) {
+        alert('Preencha valores válidos');
         return;
     }
     
@@ -3961,230 +3546,117 @@ function saveUserCard() {
     btn.innerText = 'Salvando...';
     btn.disabled = true;
     
-    const user = auth.currentUser;
-    const cardData = {
-        userId: user.uid,
-        weight: weight,
-        height: height,
-        age: age,
-        goal: goal || '',
-        notes: notes || '',
+    db.collection('user_cards').add({
+        userId: auth.currentUser.uid,
+        weight, height, age, goal, notes,
         created: new Date()
-    };
-    
-    console.log('Salvando ficha no Firestore:', cardData);
-    
-    db.collection('user_cards').add(cardData)
-        .then((docRef) => {
-            console.log('✅ Ficha salva com sucesso! ID:', docRef.id);
-            alert('Ficha salva com sucesso!');
-            
-            toggleUserCardForm();
-            loadUserCard();
-            loadProgressHistory();
-        })
-        .catch(error => {
-            console.error('❌ Erro ao salvar ficha:', error);
-            
-            if (error.code === 'permission-denied') {
-                alert('Erro de permissão: Você não tem permissão para salvar dados. Verifique as regras do Firestore.');
-            } else if (error.code === 'unavailable') {
-                alert('Erro de conexão: Não foi possível conectar ao banco de dados. Verifique sua internet.');
-            } else {
-                alert('Erro ao salvar ficha: ' + error.message);
-            }
-        })
-        .finally(() => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        });
+    }).then(() => {
+        alert('Ficha salva!');
+        toggleUserCardForm();
+        loadUserCard();
+        loadProgressHistory();
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    }).finally(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
 }
 
 function loadUserCard() {
-    const user = auth.currentUser;
     const grid = document.getElementById('userCardGrid');
-    
-    db.collection('user_cards')
-        .where('userId', '==', user.uid)
-        .get()
-        .then(snapshot => {
-            console.log('Carregando fichas...', snapshot.size, 'encontradas');
-            
-            if (snapshot.empty) {
-                console.log('Nenhuma ficha encontrada');
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--text-secondary);">
-                        Nenhum dado cadastrado ainda. Clique em "Adicionar dados" para começar.
-                    </div>
-                `;
-                return;
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (snapshot.empty) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Nenhum dado cadastrado.</div>';
+            return;
+        }
+        
+        let latest = null;
+        let latestDate = null;
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+            if (!latestDate || date > latestDate) {
+                latestDate = date;
+                latest = data;
             }
-            
-            let latestDoc = null;
-            let latestDate = null;
-            
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
-                
-                if (!latestDate || date > latestDate) {
-                    latestDate = date;
-                    latestDoc = { id: doc.id, ...data };
-                }
-            });
-            
-            if (!latestDoc) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--danger);">Erro ao carregar ficha</div>';
-                return;
-            }
-            
-            const data = latestDoc;
-            console.log('Ficha mais recente carregada:', data);
-            
-            const heightInMeters = data.height / 100;
-            const imc = (data.weight / (heightInMeters * heightInMeters)).toFixed(2);
-            
-            let imcClass = '';
-            let imcStatus = '';
-            if (imc < 18.5) {
-                imcClass = 'warning';
-                imcStatus = 'Abaixo do peso';
-            } else if (imc < 25) {
-                imcClass = 'success';
-                imcStatus = 'Peso normal';
-            } else if (imc < 30) {
-                imcClass = 'warning';
-                imcStatus = 'Sobrepeso';
-            } else {
-                imcClass = 'danger';
-                imcStatus = 'Obesidade';
-            }
-            
-            grid.innerHTML = `
-                <div class="user-card-item">
-                    <div class="user-card-label">
-                        <i data-lucide="scale" size="14"></i>
-                        Peso
-                    </div>
-                    <div class="user-card-value">${data.weight} <small>kg</small></div>
-                </div>
-                <div class="user-card-item">
-                    <div class="user-card-label">
-                        <i data-lucide="ruler" size="14"></i>
-                        Altura
-                    </div>
-                    <div class="user-card-value">${data.height} <small>cm</small></div>
-                </div>
-                <div class="user-card-item">
-                    <div class="user-card-label">
-                        <i data-lucide="calendar" size="14"></i>
-                        Idade
-                    </div>
-                    <div class="user-card-value">${data.age} <small>anos</small></div>
-                </div>
-                <div class="user-card-item">
-                    <div class="user-card-label">
-                        <i data-lucide="activity" size="14"></i>
-                        IMC
-                    </div>
-                    <div class="user-card-value" style="color: var(--${imcClass})">${imc}</div>
-                    <div style="font-size: 12px; color: var(--${imcClass})">${imcStatus}</div>
-                </div>
-                <div class="user-card-item" style="grid-column: span 2;">
-                    <div class="user-card-label">
-                        <i data-lucide="target" size="14"></i>
-                        Objetivo
-                    </div>
-                    <div class="user-card-value">${getGoalName(data.goal)}</div>
-                </div>
-                ${data.notes ? `
-                <div class="user-card-item" style="grid-column: span 2;">
-                    <div class="user-card-label">
-                        <i data-lucide="file-text" size="14"></i>
-                        Observações
-                    </div>
-                    <div class="user-card-value" style="font-size: 14px;">${data.notes}</div>
-                </div>
-                ` : ''}
-            `;
-            
-            lucide.createIcons();
-        })
-        .catch(error => {
-            console.error('Erro ao carregar ficha:', error);
-            grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--danger);">
-                    Erro ao carregar ficha: ${error.message}
-                </div>
-            `;
         });
+        
+        if (!latest) return;
+        
+        const imc = (latest.weight / Math.pow(latest.height / 100, 2)).toFixed(2);
+        let imcClass = '';
+        if (imc < 18.5) imcClass = 'warning';
+        else if (imc < 25) imcClass = 'success';
+        else if (imc < 30) imcClass = 'warning';
+        else imcClass = 'danger';
+        
+        grid.innerHTML = `
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="scale" size="14"></i> Peso</div>
+                <div class="user-card-value">${latest.weight} <small>kg</small></div>
+            </div>
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="ruler" size="14"></i> Altura</div>
+                <div class="user-card-value">${latest.height} <small>cm</small></div>
+            </div>
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="calendar" size="14"></i> Idade</div>
+                <div class="user-card-value">${latest.age} <small>anos</small></div>
+            </div>
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="activity" size="14"></i> IMC</div>
+                <div class="user-card-value" style="color: var(--${imcClass})">${imc}</div>
+            </div>
+            <div class="user-card-item" style="grid-column: span 2;">
+                <div class="user-card-label"><i data-lucide="target" size="14"></i> Objetivo</div>
+                <div class="user-card-value">${getGoalName(latest.goal)}</div>
+            </div>
+        `;
+        lucide.createIcons();
+    }).catch(console.error);
 }
 
 function loadProgressHistory() {
-    const user = auth.currentUser;
     const timeline = document.getElementById('progressTimeline');
-    
-    db.collection('user_cards')
-        .where('userId', '==', user.uid)
-        .get()
-        .then(snapshot => {
-            console.log('Carregando histórico...', snapshot.size, 'registros encontrados');
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (snapshot.size <= 1) {
+            timeline.innerHTML = '<div style="text-align: center; padding: 20px;">Atualize sua ficha para ver histórico</div>';
+            return;
+        }
+        
+        const cards = [];
+        snapshot.forEach(doc => cards.push(doc.data()));
+        cards.sort((a, b) => {
+            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+            return dateB - dateA;
+        });
+        
+        timeline.innerHTML = '';
+        cards.forEach(data => {
+            const imc = (data.weight / Math.pow(data.height / 100, 2)).toFixed(2);
+            let imcClass = '';
+            if (imc < 18.5) imcClass = 'warning';
+            else if (imc < 25) imcClass = 'success';
+            else if (imc < 30) imcClass = 'warning';
+            else imcClass = 'danger';
             
-            if (snapshot.size <= 1) {
-                timeline.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">Atualize sua ficha para ver seu histórico de progresso</div>';
-                return;
-            }
-            
-            const cards = [];
-            snapshot.forEach(doc => {
-                cards.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            
-            cards.sort((a, b) => {
-                const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-                const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-                return dateB - dateA;
-            });
-            
-            timeline.innerHTML = '';
-            
-            cards.forEach((data) => {
-                const heightInMeters = data.height / 100;
-                const imc = (data.weight / (heightInMeters * heightInMeters)).toFixed(2);
-                
-                let imcClass = '';
-                if (imc < 18.5) imcClass = 'warning';
-                else if (imc < 25) imcClass = 'success';
-                else if (imc < 30) imcClass = 'warning';
-                else imcClass = 'danger';
-                
-                const item = document.createElement('div');
-                item.className = 'timeline-item';
-                item.innerHTML = `
-                    <div class="timeline-date">${formatDate(data.created)}</div>
-                    <div class="timeline-content">
-                        <p><strong>Peso:</strong> ${data.weight} kg</p>
-                        <p><strong>Altura:</strong> ${data.height} cm</p>
-                        <p><strong>Idade:</strong> ${data.age} anos</p>
-                        <p><strong>IMC:</strong> <span style="color: var(--${imcClass})">${imc}</span></p>
-                        ${data.goal ? `<p><strong>Objetivo:</strong> ${getGoalName(data.goal)}</p>` : ''}
-                        ${data.notes ? `<p><strong>Obs:</strong> ${data.notes}</p>` : ''}
-                    </div>
-                `;
-                timeline.appendChild(item);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar histórico:', error);
-            timeline.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: var(--danger);">
-                    Erro ao carregar histórico: ${error.message}
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+            item.innerHTML = `
+                <div class="timeline-date">${formatDate(data.created)}</div>
+                <div class="timeline-content">
+                    <p><strong>Peso:</strong> ${data.weight} kg</p>
+                    <p><strong>Altura:</strong> ${data.height} cm</p>
+                    <p><strong>Idade:</strong> ${data.age} anos</p>
+                    <p><strong>IMC:</strong> <span style="color: var(--${imcClass})">${imc}</span></p>
+                    ${data.goal ? `<p><strong>Objetivo:</strong> ${getGoalName(data.goal)}</p>` : ''}
                 </div>
             `;
+            timeline.appendChild(item);
         });
+    }).catch(console.error);
 }
 
 function getGoalName(goal) {
@@ -4198,9 +3670,12 @@ function getGoalName(goal) {
     return goals[goal] || goal || 'Não definido';
 }
 
+// ============================================================
+// FUNÇÕES UTILITÁRIAS
+// ============================================================
+
 function formatDate(date) {
     if (!date) return 'Data desconhecida';
-    
     let d;
     if (date && typeof date === 'object' && date.seconds) {
         d = new Date(date.seconds * 1000);
@@ -4209,7 +3684,6 @@ function formatDate(date) {
     } else {
         return 'Data desconhecida';
     }
-    
     const now = new Date();
     const diff = now - d;
     
@@ -4217,13 +3691,11 @@ function formatDate(date) {
     if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
     if (diff < 604800000) return `${Math.floor(diff / 86400000)} dias atrás`;
-    
     return d.toLocaleDateString('pt-BR');
 }
 
 function formatTime(date) {
     if (!date) return '';
-    
     let d;
     if (date && typeof date === 'object' && date.seconds) {
         d = new Date(date.seconds * 1000);
@@ -4232,36 +3704,29 @@ function formatTime(date) {
     } else {
         return '';
     }
-    
     const now = new Date();
     const diff = now - d;
     
     if (diff < 60000) return 'agora';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}min`;
-    if (diff < 86400000) {
-        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    }
-    
+    if (diff < 86400000) return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
 
-function commentPost(postId) {
-    alert('Funcionalidade de comentários em breve!');
+function commentPost() {
+    alert('Comentários em breve!');
 }
 
-function sharePost(postId) {
-    alert('Funcionalidade de compartilhamento em breve!');
+function sharePost() {
+    alert('Compartilhamento em breve!');
 }
 
 function loadReadTimestamps() {
     const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
-    Object.entries(readData).forEach(([userId, timestamp]) => {
-        lastReadTimestamps.set(userId, timestamp);
-    });
+    Object.entries(readData).forEach(([userId, timestamp]) => lastReadTimestamps.set(userId, timestamp));
 }
 
 loadReadTimestamps();
 </script>
-
 </body>
 </html>
