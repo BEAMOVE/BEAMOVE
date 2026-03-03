@@ -384,6 +384,9 @@ header {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding-bottom: 120px;
 }
 
 .stories {
@@ -438,8 +441,12 @@ header {
     background: var(--bg-secondary);
     border-radius: 20px;
     padding: 20px;
-    margin-top: 20px;
     box-shadow: var(--card-shadow);
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    margin-top: 20px;
 }
 
 .create-post textarea {
@@ -1633,6 +1640,8 @@ header {
     margin: 0 auto;
     padding: 20px;
     padding-bottom: 100px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
 }
 
 /* Ajuste para chat acima do menu */
@@ -1640,6 +1649,58 @@ header {
     height: calc(100vh - 80px);
     overflow: hidden;
     padding-bottom: 0;
+}
+
+/* Feed com scroll e input fixo */
+#feed {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    overflow: hidden;
+    padding: 0;
+}
+
+.feed-posts-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 20px 0 20px;
+}
+
+.feed-posts-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.feed-posts-container::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+.feed-posts-container::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+.create-post {
+    background: var(--bg-secondary);
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.create-post textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+    resize: none;
+    margin-bottom: 15px;
 }
 
 /* Responsividade com ajustes para sidebar */
@@ -1739,6 +1800,18 @@ header {
     /* Ajuste para o container quando o chat está ativo */
     body.chat-open .container {
         padding-bottom: 0;
+    }
+    
+    #feed {
+        height: calc(100vh - 140px);
+    }
+    
+    .feed-posts-container {
+        padding: 15px 15px 0 15px;
+    }
+    
+    .create-post {
+        padding: 15px;
     }
 }
 
@@ -1899,8 +1972,8 @@ header {
     </div>
 
     <!-- Feed Section (Nova aba) -->
-    <div id="feed" class="container hidden">
-        <div id="feedPosts"></div>
+    <div id="feed" class="hidden">
+        <div class="feed-posts-container" id="feedPosts"></div>
         <div class="create-post">
             <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
             <button class="btn btn-primary" onclick="addPost()">Publicar</button>
@@ -2942,7 +3015,7 @@ function commentForumPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Load Feed - CORRIGIDO: com sistema de curtidas por usuário
+// Load Feed - CORRIGIDO: sistema de curtidas funcional
 function loadFeed() {
     db.collection('posts').orderBy('created', 'desc')
         .onSnapshot(snapshot => {
@@ -2992,7 +3065,7 @@ function loadFeed() {
                         <div class="post-content">${post.text}</div>
                         <div class="post-actions">
                             <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
-                                <i data-lucide="heart"></i>
+                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
                                 <span id="like-count-${postId}">${post.likes || 0}</span>
                             </div>
                             <div class="post-action" onclick="commentPost('${postId}')">
@@ -3050,7 +3123,7 @@ function addPost() {
     });
 }
 
-// Toggle Like - Sistema de curtir/descurtir por usuário
+// Toggle Like - Sistema de curtir/descurtir por usuário CORRIGIDO
 async function toggleLike(postId) {
     if (!auth.currentUser) {
         alert('Faça login para curtir posts');
@@ -3084,12 +3157,13 @@ async function toggleLike(postId) {
                 likes: firebase.firestore.FieldValue.increment(1)
             });
             
-            // Atualizar UI
+            // Atualizar UI imediatamente
             likeElement.classList.add('liked');
+            const heartIcon = likeElement.querySelector('i');
+            heartIcon.setAttribute('fill', 'var(--like-active)');
             likeCountElement.innerText = currentLikes + 1;
             
             // Efeito visual
-            const heartIcon = likeElement.querySelector('i');
             heartIcon.style.transform = 'scale(1.3)';
             setTimeout(() => {
                 heartIcon.style.transform = 'scale(1)';
@@ -3103,12 +3177,12 @@ async function toggleLike(postId) {
                 likes: firebase.firestore.FieldValue.increment(-1)
             });
             
-            // Atualizar UI
+            // Atualizar UI imediatamente
             likeElement.classList.remove('liked');
+            const heartIcon = likeElement.querySelector('i');
+            heartIcon.setAttribute('fill', 'none');
             likeCountElement.innerText = currentLikes - 1;
         }
-        
-        lucide.createIcons();
         
     } catch (error) {
         console.error('Erro ao processar curtida:', error);
