@@ -384,9 +384,6 @@ header {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
-    height: calc(100vh - 180px);
-    overflow-y: auto;
-    padding-bottom: 120px;
 }
 
 .stories {
@@ -435,30 +432,6 @@ header {
     font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
-}
-
-.create-post {
-    background: var(--bg-secondary);
-    border-radius: 20px 20px 0 0;
-    padding: 20px;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
-    border-top: 1px solid var(--border);
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    z-index: 10;
-}
-
-.create-post textarea {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 15px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 16px;
-    resize: none;
-    margin-bottom: 15px;
 }
 
 .post-card {
@@ -520,6 +493,9 @@ header {
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
+    background: none;
+    border: none;
+    font-size: inherit;
 }
 
 .post-action:hover {
@@ -527,6 +503,11 @@ header {
 }
 
 .post-action.liked {
+    color: var(--like-active);
+}
+
+.post-action.liked i {
+    fill: var(--like-active);
     color: var(--like-active);
 }
 
@@ -873,6 +854,9 @@ header {
     display: flex;
     gap: 10px;
     background: var(--bg-secondary);
+    position: relative;
+    bottom: 0;
+    width: 100%;
 }
 
 .chat-input input {
@@ -903,7 +887,6 @@ header {
     align-items: center;
     justify-content: center;
     transition: var(--transition);
-    flex-shrink: 0;
 }
 
 .chat-input button:hover {
@@ -1660,6 +1643,7 @@ header {
     flex: 1;
     overflow-y: auto;
     padding: 20px 20px 0 20px;
+    scroll-behavior: smooth;
 }
 
 .feed-posts-container::-webkit-scrollbar {
@@ -1675,31 +1659,38 @@ header {
     border-radius: 10px;
 }
 
-/* Ajuste do botão de publicar - igual ao chat */
-.create-post .btn {
-    width: auto;
-    padding: 12px 24px;
-    margin: 0;
+.create-post {
+    background: var(--bg-secondary);
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.create-post textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid var(--border);
     border-radius: 25px;
-    background: var(--accent-gradient);
-    color: white;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    float: right;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+    resize: none;
+    margin-bottom: 0;
 }
 
-.create-post .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--hover-shadow);
-}
-
-/* Clear float */
-.create-post::after {
-    content: "";
-    clear: both;
-    display: table;
+.create-post .btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 25px;
+    margin: 0;
 }
 
 /* Responsividade com ajustes para sidebar */
@@ -1811,6 +1802,14 @@ header {
     
     .create-post {
         padding: 15px;
+    }
+    
+    .create-post textarea {
+        padding: 12px;
+    }
+    
+    .create-post .btn {
+        padding: 12px;
     }
 }
 
@@ -1974,7 +1973,7 @@ header {
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
         <div class="create-post">
-            <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
+            <textarea id="postInput" placeholder="Compartilhe sua evolução..." rows="2"></textarea>
             <button class="btn btn-primary" onclick="addPost()">Publicar</button>
         </div>
     </div>
@@ -2339,6 +2338,9 @@ const db = firebase.firestore();
 // Cache de usuários para melhor performance
 const userCache = new Map();
 
+// Cache de curtidas para evitar recarregar
+const likesCache = new Map();
+
 // Current forum category
 let currentForum = 'treino';
 
@@ -2355,9 +2357,6 @@ let unsubscribeChat = null;
 // Estados de mensagens não lidas
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
-
-// Cache de estado de curtidas para evitar chamadas desnecessárias
-let likesCache = new Map();
 
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
@@ -3017,12 +3016,15 @@ function commentForumPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Load Feed - CORRIGIDO: sistema de curtidas sem recarregar a página
+// Load Feed - CORRIGIDO: sem refresh da página
 function loadFeed() {
     db.collection('posts').orderBy('created', 'desc')
         .onSnapshot(snapshot => {
             const feed = document.getElementById('feedPosts');
             if (!feed) return;
+            
+            // Salvar posição do scroll
+            const scrollPos = feed.scrollTop;
             
             feed.innerHTML = '';
             
@@ -3046,23 +3048,23 @@ function loadFeed() {
                     // Verificar se o usuário atual já curtiu este post
                     let userLiked = false;
                     if (auth.currentUser) {
-                        const likeDoc = await db.collection('post_likes')
-                            .where('postId', '==', postId)
-                            .where('userId', '==', auth.currentUser.uid)
-                            .get();
-                        userLiked = !likeDoc.empty;
-                        // Armazenar no cache
-                        likesCache.set(`${postId}_${auth.currentUser.uid}`, userLiked);
+                        // Usar cache de curtidas
+                        if (likesCache.has(postId)) {
+                            userLiked = likesCache.get(postId);
+                        } else {
+                            const likeDoc = await db.collection('post_likes')
+                                .where('postId', '==', postId)
+                                .where('userId', '==', auth.currentUser.uid)
+                                .get();
+                            userLiked = !likeDoc.empty;
+                            likesCache.set(postId, userLiked);
+                        }
                     }
                     
                     const postElement = document.createElement('div');
                     postElement.className = 'post-card';
                     postElement.id = `post-${postId}`;
-                    
-                    const heartIcon = userLiked ? 
-                        '<i data-lucide="heart" fill="var(--like-active)" style="color: var(--like-active);"></i>' : 
-                        '<i data-lucide="heart"></i>';
-                    
+                    postElement.setAttribute('data-post-id', postId);
                     postElement.innerHTML = `
                         <div class="post-header">
                             <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
@@ -3073,17 +3075,17 @@ function loadFeed() {
                         </div>
                         <div class="post-content">${post.text}</div>
                         <div class="post-actions">
-                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
-                                ${heartIcon}
+                            <button class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
+                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
                                 <span id="like-count-${postId}">${post.likes || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="commentPost('${postId}')">
+                            </button>
+                            <button class="post-action" onclick="commentPost('${postId}')">
                                 <i data-lucide="message-circle"></i>
                                 <span>${post.comments || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="sharePost('${postId}')">
+                            </button>
+                            <button class="post-action" onclick="sharePost('${postId}')">
                                 <i data-lucide="share-2"></i>
-                            </div>
+                            </button>
                         </div>
                     `;
                     feed.appendChild(postElement);
@@ -3093,6 +3095,9 @@ function loadFeed() {
             });
             
             lucide.createIcons();
+            
+            // Restaurar posição do scroll
+            feed.scrollTop = scrollPos;
         });
 }
 
@@ -3132,7 +3137,7 @@ function addPost() {
     });
 }
 
-// Toggle Like - Sistema de curtir/descurtir por usuário CORRIGIDO - SEM RECARREGAR A PÁGINA
+// Toggle Like - CORRIGIDO: sem refresh, sem erro
 async function toggleLike(postId) {
     if (!auth.currentUser) {
         alert('Faça login para curtir posts');
@@ -3143,31 +3148,22 @@ async function toggleLike(postId) {
     const likeRef = db.collection('post_likes');
     const postRef = db.collection('posts').doc(postId);
     
-    // Impedir múltiplos cliques rápidos
-    const likeElement = document.getElementById(`like-${postId}`);
-    if (likeElement.classList.contains('processing')) {
-        return;
-    }
-    likeElement.classList.add('processing');
+    // Impedir múltiplos cliques
+    const likeButton = document.getElementById(`like-${postId}`);
+    if (likeButton.disabled) return;
+    likeButton.disabled = true;
     
     try {
-        // Verificar se o usuário já curtiu usando cache primeiro
-        let userLiked = likesCache.get(`${postId}_${userId}`);
-        
-        // Se não estiver no cache, buscar do Firestore
-        if (userLiked === undefined) {
-            const existingLike = await likeRef
-                .where('postId', '==', postId)
-                .where('userId', '==', userId)
-                .get();
-            userLiked = !existingLike.empty;
-            likesCache.set(`${postId}_${userId}`, userLiked);
-        }
+        // Verificar se o usuário já curtiu
+        const existingLike = await likeRef
+            .where('postId', '==', postId)
+            .where('userId', '==', userId)
+            .get();
         
         const likeCountElement = document.getElementById(`like-count-${postId}`);
         let currentLikes = parseInt(likeCountElement.innerText);
         
-        if (!userLiked) {
+        if (existingLike.empty) {
             // Curtir
             await likeRef.add({
                 postId: postId,
@@ -3179,53 +3175,50 @@ async function toggleLike(postId) {
                 likes: firebase.firestore.FieldValue.increment(1)
             });
             
-            // Atualizar UI imediatamente - SEM RECARREGAR
-            likeElement.classList.add('liked');
-            const heartIcon = likeElement.querySelector('i');
+            // Atualizar UI imediatamente
+            likeButton.classList.add('liked');
+            const heartIcon = likeButton.querySelector('i');
             heartIcon.setAttribute('fill', 'var(--like-active)');
-            heartIcon.style.color = 'var(--like-active)';
             likeCountElement.innerText = currentLikes + 1;
             
             // Atualizar cache
-            likesCache.set(`${postId}_${userId}`, true);
+            likesCache.set(postId, true);
             
             // Efeito visual
             heartIcon.style.transform = 'scale(1.3)';
             setTimeout(() => {
                 heartIcon.style.transform = 'scale(1)';
+                likeButton.disabled = false;
             }, 200);
             
         } else {
             // Descurtir
-            const existingLike = await likeRef
-                .where('postId', '==', postId)
-                .where('userId', '==', userId)
-                .get();
+            await likeRef.doc(existingLike.docs[0].id).delete();
             
-            if (!existingLike.empty) {
-                await likeRef.doc(existingLike.docs[0].id).delete();
-                
-                await postRef.update({
-                    likes: firebase.firestore.FieldValue.increment(-1)
-                });
-                
-                // Atualizar UI imediatamente - SEM RECARREGAR
-                likeElement.classList.remove('liked');
-                const heartIcon = likeElement.querySelector('i');
-                heartIcon.setAttribute('fill', 'none');
-                heartIcon.style.color = '';
-                likeCountElement.innerText = currentLikes - 1;
-                
-                // Atualizar cache
-                likesCache.set(`${postId}_${userId}`, false);
-            }
+            await postRef.update({
+                likes: firebase.firestore.FieldValue.increment(-1)
+            });
+            
+            // Atualizar UI imediatamente
+            likeButton.classList.remove('liked');
+            const heartIcon = likeButton.querySelector('i');
+            heartIcon.setAttribute('fill', 'none');
+            likeCountElement.innerText = currentLikes - 1;
+            
+            // Atualizar cache
+            likesCache.set(postId, false);
+            
+            heartIcon.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                heartIcon.style.transform = 'scale(1)';
+                likeButton.disabled = false;
+            }, 200);
         }
         
     } catch (error) {
         console.error('Erro ao processar curtida:', error);
+        likeButton.disabled = false;
         alert('Erro ao processar curtida. Tente novamente.');
-    } finally {
-        likeElement.classList.remove('processing');
     }
 }
 
