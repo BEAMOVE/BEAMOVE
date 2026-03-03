@@ -46,7 +46,6 @@
     --nav-bg: rgba(255, 255, 255, 0.85);
     --blur-amount: 16px;
     --like-active: #ef4444;
-    --story-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
 }
 
 .dark {
@@ -410,29 +409,23 @@ header {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: var(--story-gradient);
+    background: var(--accent-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
     border: 3px solid var(--bg-secondary);
     transition: var(--transition);
-    padding: 2px;
-}
-
-.story-circle span {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: var(--bg-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
 }
 
 .story-item:hover .story-circle {
     transform: scale(1.05);
+}
+
+.story-circle span {
+    color: white;
+    font-weight: 600;
+    font-size: 24px;
 }
 
 .story-label {
@@ -441,75 +434,60 @@ header {
     color: var(--text-secondary);
 }
 
-.story-actions {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 8px;
-    padding: 8px 0;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-}
-
-.story-action {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.story-action:hover {
-    color: var(--accent);
-}
-
-.story-action.liked {
-    color: var(--like-active);
-}
-
-.story-action.liked i {
-    fill: var(--like-active);
-    color: var(--like-active);
-}
-
 .create-post {
     background: var(--bg-secondary);
-    border-radius: 20px;
+    border-radius: 20px 20px 0 0;
     padding: 20px;
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
     border-top: 1px solid var(--border);
-    position: sticky;
-    bottom: 80px;
-    z-index: 90;
-    margin-top: 20px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    margin-top: 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.create-post .input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .create-post textarea {
-    width: 100%;
+    flex: 1;
     padding: 15px;
     border: 2px solid var(--border);
-    border-radius: 15px;
+    border-radius: 25px;
     background: var(--bg-primary);
     color: var(--text-primary);
     font-size: 16px;
     resize: none;
-    margin-bottom: 15px;
+    min-height: 50px;
+    max-height: 100px;
+}
+
+.create-post .btn-post {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: var(--transition);
+    flex-shrink: 0;
+    padding: 0;
 }
 
-.create-post textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+.create-post .btn-post:hover {
+    transform: scale(1.1);
 }
 
-.create-post .btn {
-    margin: 0;
-    width: auto;
-    min-width: 120px;
-    float: right;
+.create-post .btn-post i {
+    width: 20px;
+    height: 20px;
 }
 
 .post-card {
@@ -571,8 +549,6 @@ header {
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
-    position: relative;
-    overflow: hidden;
 }
 
 .post-action:hover {
@@ -581,19 +557,6 @@ header {
 
 .post-action.liked {
     color: var(--like-active);
-}
-
-.post-action.liked i {
-    fill: var(--like-active);
-    color: var(--like-active);
-}
-
-.post-action i {
-    transition: transform 0.2s ease;
-}
-
-.post-action:active i {
-    transform: scale(1.3);
 }
 
 /* Chat */
@@ -969,6 +932,7 @@ header {
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .chat-input button:hover {
@@ -1723,7 +1687,6 @@ header {
     flex: 1;
     overflow-y: auto;
     padding: 20px 20px 0 20px;
-    scroll-behavior: smooth;
 }
 
 .feed-posts-container::-webkit-scrollbar {
@@ -1737,6 +1700,13 @@ header {
 .feed-posts-container::-webkit-scrollbar-thumb {
     background: var(--accent);
     border-radius: 10px;
+}
+
+/* Forum com scroll */
+#forum {
+    height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding-bottom: 20px;
 }
 
 /* Responsividade com ajustes para sidebar */
@@ -1848,7 +1818,6 @@ header {
     
     .create-post {
         padding: 15px;
-        bottom: 80px;
     }
 }
 
@@ -1928,83 +1897,31 @@ header {
 
     <!-- Home Section -->
     <div id="home" class="container">
-        <!-- Stories (Instagram Style) com ações completas -->
+        <!-- Stories (Instagram Style) -->
         <div class="stories">
-            <div class="story-item" id="story-treino">
+            <div class="story-item" onclick="openForum('treino')">
                 <div class="story-circle">
                     <span>💪</span>
                 </div>
                 <span class="story-label">Treino</span>
-                <div class="story-actions">
-                    <div class="story-action" onclick="toggleStoryLike('treino', event)">
-                        <i data-lucide="heart" id="story-heart-treino"></i>
-                        <span id="story-likes-treino">0</span>
-                    </div>
-                    <div class="story-action" onclick="commentStory('treino')">
-                        <i data-lucide="message-circle"></i>
-                        <span>0</span>
-                    </div>
-                    <div class="story-action" onclick="shareStory('treino')">
-                        <i data-lucide="share-2"></i>
-                    </div>
-                </div>
             </div>
-            <div class="story-item" id="story-receitas">
+            <div class="story-item" onclick="openForum('receitas')">
                 <div class="story-circle">
                     <span>🥗</span>
                 </div>
                 <span class="story-label">Receitas</span>
-                <div class="story-actions">
-                    <div class="story-action" onclick="toggleStoryLike('receitas', event)">
-                        <i data-lucide="heart" id="story-heart-receitas"></i>
-                        <span id="story-likes-receitas">0</span>
-                    </div>
-                    <div class="story-action" onclick="commentStory('receitas')">
-                        <i data-lucide="message-circle"></i>
-                        <span>0</span>
-                    </div>
-                    <div class="story-action" onclick="shareStory('receitas')">
-                        <i data-lucide="share-2"></i>
-                    </div>
-                </div>
             </div>
-            <div class="story-item" id="story-yoga">
+            <div class="story-item" onclick="openForum('yoga')">
                 <div class="story-circle">
                     <span>🧘</span>
                 </div>
                 <span class="story-label">Yoga</span>
-                <div class="story-actions">
-                    <div class="story-action" onclick="toggleStoryLike('yoga', event)">
-                        <i data-lucide="heart" id="story-heart-yoga"></i>
-                        <span id="story-likes-yoga">0</span>
-                    </div>
-                    <div class="story-action" onclick="commentStory('yoga')">
-                        <i data-lucide="message-circle"></i>
-                        <span>0</span>
-                    </div>
-                    <div class="story-action" onclick="shareStory('yoga')">
-                        <i data-lucide="share-2"></i>
-                    </div>
-                </div>
             </div>
-            <div class="story-item" id="story-dicas">
+            <div class="story-item" onclick="openForum('dicas')">
                 <div class="story-circle">
                     <span>📚</span>
                 </div>
                 <span class="story-label">Dicas</span>
-                <div class="story-actions">
-                    <div class="story-action" onclick="toggleStoryLike('dicas', event)">
-                        <i data-lucide="heart" id="story-heart-dicas"></i>
-                        <span id="story-likes-dicas">0</span>
-                    </div>
-                    <div class="story-action" onclick="commentStory('dicas')">
-                        <i data-lucide="message-circle"></i>
-                        <span>0</span>
-                    </div>
-                    <div class="story-action" onclick="shareStory('dicas')">
-                        <i data-lucide="share-2"></i>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -2064,9 +1981,12 @@ header {
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
         <div class="create-post">
-            <textarea id="postInput" placeholder="Compartilhe sua evolução..." rows="3"></textarea>
-            <button class="btn btn-primary" onclick="addPost()">Publicar</button>
-            <div style="clear: both;"></div>
+            <div class="input-group">
+                <textarea id="postInput" placeholder="Compartilhe sua evolução..." rows="1"></textarea>
+                <button class="btn-post" onclick="addPost()">
+                    <i data-lucide="send"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2090,9 +2010,13 @@ header {
 
         <!-- Add Forum Post Form -->
         <div id="addForumPostForm" class="create-post hidden">
-            <textarea id="forumPostInput" placeholder="Compartilhe sua dica..."></textarea>
-            <button class="btn btn-primary" onclick="addForumPost()">Publicar</button>
-            <button class="btn btn-secondary" onclick="hideAddForumPost()">Cancelar</button>
+            <div class="input-group">
+                <textarea id="forumPostInput" placeholder="Compartilhe sua dica..."></textarea>
+                <button class="btn-post" onclick="addForumPost()">
+                    <i data-lucide="send"></i>
+                </button>
+            </div>
+            <button class="btn btn-secondary" onclick="hideAddForumPost()" style="margin-top: 10px;">Cancelar</button>
         </div>
 
         <!-- Forum Posts -->
@@ -2447,9 +2371,6 @@ let unsubscribeChat = null;
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
-// Cache de curtidas para evitar atualizações desnecessárias
-const likesCache = new Map();
-
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
 // ============================================================
@@ -2665,7 +2586,6 @@ auth.onAuthStateChanged(user => {
         loadProgressHistory();
         loadAllUsers();
         loadChatList();
-        loadStoryLikes();
         
         // ============================================================
         // SISTEMA DE PRESENÇA EM TEMPO REAL
@@ -2979,7 +2899,7 @@ function addForumPost() {
         postInput.value = '';
         hideAddForumPost();
         alert('Post publicado com sucesso!');
-        loadForumPostsSimple();
+        loadForumPosts();
     })
     .catch(error => {
         console.error('ERRO ao publicar:', error);
@@ -2991,8 +2911,8 @@ function addForumPost() {
     });
 }
 
-// Load Forum Posts
-function loadForumPostsSimple() {
+// Load Forum Posts - CORRIGIDO com sistema de curtidas
+function loadForumPosts() {
     if (!auth.currentUser) {
         console.log('Usuário não logado, não carregando posts');
         return;
@@ -3005,6 +2925,7 @@ function loadForumPostsSimple() {
     
     db.collection('forum_posts')
         .where('category', '==', currentForum)
+        .orderBy('created', 'desc')
         .get()
         .then(async (querySnapshot) => {
             console.log('Posts encontrados:', querySnapshot.size);
@@ -3014,7 +2935,7 @@ function loadForumPostsSimple() {
                 return;
             }
             
-            const postsArray = [];
+            forumPosts.innerHTML = '';
             
             for (const doc of querySnapshot.docs) {
                 const post = doc.data();
@@ -3029,54 +2950,47 @@ function loadForumPostsSimple() {
                     }
                     let username = userData?.username || '@usuario';
                     
-                    postsArray.push({
-                        postId,
-                        post,
-                        username
-                    });
+                    // Verificar se o usuário atual já curtiu este post
+                    let userLiked = false;
+                    if (auth.currentUser) {
+                        const likeDoc = await db.collection('forum_post_likes')
+                            .where('postId', '==', postId)
+                            .where('userId', '==', auth.currentUser.uid)
+                            .get();
+                        userLiked = !likeDoc.empty;
+                    }
+                    
+                    const postElement = document.createElement('div');
+                    postElement.className = 'forum-post';
+                    postElement.id = `forum-post-${postId}`;
+                    postElement.innerHTML = `
+                        <div class="forum-post-header">
+                            <div class="post-avatar">${username.charAt(1).toUpperCase()}</div>
+                            <div>
+                                <div class="forum-post-author">${username}</div>
+                                <div class="forum-post-date">${formatDate(post.created)}</div>
+                            </div>
+                        </div>
+                        <div class="forum-post-content">${post.text}</div>
+                        <div class="forum-post-footer">
+                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleForumLike('${postId}', this)" id="forum-like-${postId}">
+                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
+                                <span id="forum-like-count-${postId}">${post.likes || 0}</span>
+                            </div>
+                            <div class="post-action" onclick="commentForumPost('${postId}')">
+                                <i data-lucide="message-circle"></i>
+                                <span>${post.comments || 0}</span>
+                            </div>
+                            <div class="post-action" onclick="shareForumPost('${postId}')">
+                                <i data-lucide="share-2"></i>
+                            </div>
+                        </div>
+                    `;
+                    forumPosts.appendChild(postElement);
                 } catch (error) {
                     console.error('Erro ao buscar usuário:', error);
-                    postsArray.push({
-                        postId,
-                        post,
-                        username: '@usuario'
-                    });
                 }
             }
-            
-            postsArray.sort((a, b) => {
-                const dateA = a.post.created ? new Date(a.post.created.seconds * 1000) : new Date(0);
-                const dateB = b.post.created ? new Date(b.post.created.seconds * 1000) : new Date(0);
-                return dateB - dateA;
-            });
-            
-            forumPosts.innerHTML = '';
-            
-            postsArray.forEach(item => {
-                const postElement = document.createElement('div');
-                postElement.className = 'forum-post';
-                postElement.innerHTML = `
-                    <div class="forum-post-header">
-                        <div class="post-avatar">${item.username ? item.username.charAt(1).toUpperCase() : 'U'}</div>
-                        <div>
-                            <div class="forum-post-author">${item.username}</div>
-                            <div class="forum-post-date">${formatDate(item.post.created)}</div>
-                        </div>
-                    </div>
-                    <div class="forum-post-content">${item.post.text}</div>
-                    <div class="forum-post-footer">
-                        <div class="post-action" onclick="likeForumPost('${item.postId}')">
-                            <i data-lucide="heart"></i>
-                            <span>${item.post.likes || 0}</span>
-                        </div>
-                        <div class="post-action" onclick="commentForumPost('${item.postId}')">
-                            <i data-lucide="message-circle"></i>
-                            <span>${item.post.comments || 0}</span>
-                        </div>
-                    </div>
-                `;
-                forumPosts.appendChild(postElement);
-            });
             
             lucide.createIcons();
         })
@@ -3086,22 +3000,63 @@ function loadForumPostsSimple() {
         });
 }
 
-function loadForumPosts() {
-    loadForumPostsSimple();
-}
-
-// Like Forum Post
-function likeForumPost(postId) {
+// Toggle Like para posts do fórum
+async function toggleForumLike(postId, element) {
+    if (!auth.currentUser) {
+        alert('Faça login para curtir posts');
+        return;
+    }
+    
+    const userId = auth.currentUser.uid;
+    const likeRef = db.collection('forum_post_likes');
     const postRef = db.collection('forum_posts').doc(postId);
     
-    postRef.get().then(doc => {
-        if (doc.exists) {
-            const likes = (doc.data().likes || 0) + 1;
-            postRef.update({ likes: likes });
+    try {
+        // Verificar se o usuário já curtiu
+        const existingLike = await likeRef
+            .where('postId', '==', postId)
+            .where('userId', '==', userId)
+            .get();
+        
+        const likeCountElement = document.getElementById(`forum-like-count-${postId}`);
+        let currentLikes = parseInt(likeCountElement.innerText);
+        const heartIcon = element.querySelector('i');
+        
+        if (existingLike.empty) {
+            // Curtir
+            await likeRef.add({
+                postId: postId,
+                userId: userId,
+                created: new Date()
+            });
+            
+            await postRef.update({
+                likes: firebase.firestore.FieldValue.increment(1)
+            });
+            
+            // Atualizar UI
+            element.classList.add('liked');
+            heartIcon.setAttribute('fill', 'var(--like-active)');
+            likeCountElement.innerText = currentLikes + 1;
+            
+        } else {
+            // Descurtir
+            await likeRef.doc(existingLike.docs[0].id).delete();
+            
+            await postRef.update({
+                likes: firebase.firestore.FieldValue.increment(-1)
+            });
+            
+            // Atualizar UI
+            element.classList.remove('liked');
+            heartIcon.setAttribute('fill', 'none');
+            likeCountElement.innerText = currentLikes - 1;
         }
-    }).catch(error => {
-        console.error('Erro ao dar like:', error);
-    });
+        
+    } catch (error) {
+        console.error('Erro ao processar curtida:', error);
+        alert('Erro ao processar curtida. Tente novamente.');
+    }
 }
 
 // Comment Forum Post
@@ -3109,19 +3064,17 @@ function commentForumPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Load Feed - CORRIGIDO: sem refresh da página
+// Share Forum Post
+function shareForumPost(postId) {
+    alert('Funcionalidade de compartilhamento em breve!');
+}
+
+// Load Feed - CORRIGIDO: sem recriar elementos
 function loadFeed() {
-    if (!auth.currentUser) return;
-    
-    const feed = document.getElementById('feedPosts');
-    if (!feed) return;
-    
-    feed.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando posts...</div>';
-    
-    // Usar onSnapshot para atualizações em tempo real sem refresh
     db.collection('posts').orderBy('created', 'desc')
         .onSnapshot(snapshot => {
-            const currentScrollPos = feed.scrollTop;
+            const feed = document.getElementById('feedPosts');
+            if (!feed) return;
             
             feed.innerHTML = '';
             
@@ -3130,55 +3083,31 @@ function loadFeed() {
                 return;
             }
             
-            const postsPromises = [];
-            
-            snapshot.forEach(doc => {
+            snapshot.forEach(async doc => {
                 const post = doc.data();
                 const postId = doc.id;
                 
-                const promise = (async () => {
-                    try {
-                        let userData = userCache.get(post.user);
-                        if (!userData) {
-                            const userDoc = await db.collection('users').doc(post.user).get();
-                            userData = userDoc.data();
-                            userCache.set(post.user, userData);
-                        }
-                        
-                        // Verificar se o usuário atual já curtiu este post
-                        let userLiked = false;
-                        if (auth.currentUser) {
-                            const likeDoc = await db.collection('post_likes')
-                                .where('postId', '==', postId)
-                                .where('userId', '==', auth.currentUser.uid)
-                                .get();
-                            userLiked = !likeDoc.empty;
-                        }
-                        
-                        return { post, postId, userData, userLiked };
-                    } catch (error) {
-                        console.error('Erro ao carregar post:', error);
-                        return null;
+                try {
+                    let userData = userCache.get(post.user);
+                    if (!userData) {
+                        const userDoc = await db.collection('users').doc(post.user).get();
+                        userData = userDoc.data();
+                        userCache.set(post.user, userData);
                     }
-                })();
-                
-                postsPromises.push(promise);
-            });
-            
-            Promise.all(postsPromises).then(results => {
-                results.forEach(result => {
-                    if (!result) return;
                     
-                    const { post, postId, userData, userLiked } = result;
+                    // Verificar se o usuário atual já curtiu este post
+                    let userLiked = false;
+                    if (auth.currentUser) {
+                        const likeDoc = await db.collection('post_likes')
+                            .where('postId', '==', postId)
+                            .where('userId', '==', auth.currentUser.uid)
+                            .get();
+                        userLiked = !likeDoc.empty;
+                    }
                     
                     const postElement = document.createElement('div');
                     postElement.className = 'post-card';
                     postElement.id = `post-${postId}`;
-                    
-                    const heartIcon = userLiked ? 
-                        '<i data-lucide="heart" fill="var(--like-active)" style="color: var(--like-active);"></i>' : 
-                        '<i data-lucide="heart"></i>';
-                    
                     postElement.innerHTML = `
                         <div class="post-header">
                             <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
@@ -3189,8 +3118,8 @@ function loadFeed() {
                         </div>
                         <div class="post-content">${post.text}</div>
                         <div class="post-actions">
-                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', event)">
-                                ${heartIcon}
+                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
+                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
                                 <span id="like-count-${postId}">${post.likes || 0}</span>
                             </div>
                             <div class="post-action" onclick="commentPost('${postId}')">
@@ -3202,13 +3131,13 @@ function loadFeed() {
                             </div>
                         </div>
                     `;
-                    
                     feed.appendChild(postElement);
-                });
-                
-                lucide.createIcons();
-                feed.scrollTop = currentScrollPos;
+                } catch (error) {
+                    console.error('Erro ao carregar post do feed:', error);
+                }
             });
+            
+            lucide.createIcons();
         });
 }
 
@@ -3223,8 +3152,8 @@ function addPost() {
     }
     
     const btn = event.target;
-    const originalText = btn.innerText;
-    btn.innerText = 'Publicando...';
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" class="spin"></i>';
     btn.disabled = true;
     
     db.collection('posts').add({
@@ -3236,25 +3165,20 @@ function addPost() {
     })
     .then(() => {
         postInput.value = '';
-        // O feed será atualizado automaticamente pelo onSnapshot
     })
     .catch(error => {
         console.error('Erro ao publicar:', error);
         alert('Erro ao publicar: ' + error.message);
     })
     .finally(() => {
-        btn.innerText = originalText;
+        btn.innerHTML = originalHtml;
         btn.disabled = false;
+        lucide.createIcons();
     });
 }
 
-// Toggle Like - CORRIGIDO: sem refresh e com ícone persistente
-async function toggleLike(postId, event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-    
+// Toggle Like - CORRIGIDO: sem recriar o ícone
+async function toggleLike(postId) {
     if (!auth.currentUser) {
         alert('Faça login para curtir posts');
         return;
@@ -3264,13 +3188,6 @@ async function toggleLike(postId, event) {
     const likeRef = db.collection('post_likes');
     const postRef = db.collection('posts').doc(postId);
     
-    // Elementos da UI
-    const likeElement = document.querySelector(`#post-${postId} .post-action:first-child`);
-    const likeCountElement = document.getElementById(`like-count-${postId}`);
-    const heartIcon = likeElement?.querySelector('i');
-    
-    if (!likeElement || !likeCountElement || !heartIcon) return;
-    
     try {
         // Verificar se o usuário já curtiu
         const existingLike = await likeRef
@@ -3278,7 +3195,10 @@ async function toggleLike(postId, event) {
             .where('userId', '==', userId)
             .get();
         
-        let currentLikes = parseInt(likeCountElement.innerText) || 0;
+        const likeElement = document.getElementById(`like-${postId}`);
+        const likeCountElement = document.getElementById(`like-count-${postId}`);
+        let currentLikes = parseInt(likeCountElement.innerText);
+        const heartIcon = likeElement.querySelector('i');
         
         if (existingLike.empty) {
             // Curtir
@@ -3292,10 +3212,9 @@ async function toggleLike(postId, event) {
                 likes: firebase.firestore.FieldValue.increment(1)
             });
             
-            // Atualizar UI imediatamente
+            // Atualizar UI sem recriar o elemento
             likeElement.classList.add('liked');
             heartIcon.setAttribute('fill', 'var(--like-active)');
-            heartIcon.style.color = 'var(--like-active)';
             likeCountElement.innerText = currentLikes + 1;
             
             // Efeito visual
@@ -3312,97 +3231,16 @@ async function toggleLike(postId, event) {
                 likes: firebase.firestore.FieldValue.increment(-1)
             });
             
-            // Atualizar UI imediatamente
+            // Atualizar UI sem recriar o elemento
             likeElement.classList.remove('liked');
             heartIcon.setAttribute('fill', 'none');
-            heartIcon.style.color = '';
             likeCountElement.innerText = currentLikes - 1;
         }
         
     } catch (error) {
         console.error('Erro ao processar curtida:', error);
-        // Reverter UI em caso de erro
         alert('Erro ao processar curtida. Tente novamente.');
     }
-}
-
-// Load Story Likes
-function loadStoryLikes() {
-    const stories = ['treino', 'receitas', 'yoga', 'dicas'];
-    
-    stories.forEach(story => {
-        const storyLikes = localStorage.getItem(`story_likes_${story}`) || '0';
-        document.getElementById(`story-likes-${story}`).innerText = storyLikes;
-        
-        const userLiked = localStorage.getItem(`story_liked_${story}_${auth.currentUser?.uid}`) === 'true';
-        const storyHeart = document.getElementById(`story-heart-${story}`);
-        const storyAction = storyHeart?.closest('.story-action');
-        
-        if (userLiked && storyAction) {
-            storyAction.classList.add('liked');
-            storyHeart.setAttribute('fill', 'var(--like-active)');
-            storyHeart.style.color = 'var(--like-active)';
-        }
-    });
-}
-
-// Toggle Story Like
-function toggleStoryLike(story, event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-    
-    if (!auth.currentUser) {
-        alert('Faça login para curtir');
-        return;
-    }
-    
-    const userId = auth.currentUser.uid;
-    const storyHeart = document.getElementById(`story-heart-${story}`);
-    const storyAction = storyHeart?.closest('.story-action');
-    const storyLikesElement = document.getElementById(`story-likes-${story}`);
-    
-    if (!storyHeart || !storyAction || !storyLikesElement) return;
-    
-    const userLikedKey = `story_liked_${story}_${userId}`;
-    const userLiked = localStorage.getItem(userLikedKey) === 'true';
-    let currentLikes = parseInt(storyLikesElement.innerText) || 0;
-    
-    if (!userLiked) {
-        // Curtir
-        storyAction.classList.add('liked');
-        storyHeart.setAttribute('fill', 'var(--like-active)');
-        storyHeart.style.color = 'var(--like-active)';
-        storyLikesElement.innerText = currentLikes + 1;
-        localStorage.setItem(userLikedKey, 'true');
-        localStorage.setItem(`story_likes_${story}`, (currentLikes + 1).toString());
-        
-        // Efeito visual
-        storyHeart.style.transform = 'scale(1.3)';
-        setTimeout(() => {
-            storyHeart.style.transform = 'scale(1)';
-        }, 200);
-        
-    } else {
-        // Descurtir
-        storyAction.classList.remove('liked');
-        storyHeart.setAttribute('fill', 'none');
-        storyHeart.style.color = '';
-        storyLikesElement.innerText = currentLikes - 1;
-        localStorage.removeItem(userLikedKey);
-        localStorage.setItem(`story_likes_${story}`, (currentLikes - 1).toString());
-    }
-}
-
-// Story comment function
-function commentStory(story) {
-    alert(`Funcionalidade de comentários para ${story} em breve!`);
-}
-
-// Story share function
-function shareStory(story) {
-    alert(`Funcionalidade de compartilhamento para ${story} em breve!`);
 }
 
 // Load Chat List
