@@ -384,6 +384,9 @@ header {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding-bottom: 120px;
 }
 
 .stories {
@@ -440,54 +443,22 @@ header {
     padding: 20px;
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
     border-top: 1px solid var(--border);
-    margin-top: 0;
     position: relative;
     bottom: 0;
     width: 100%;
-}
-
-.create-post .input-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+    z-index: 10;
 }
 
 .create-post textarea {
-    flex: 1;
+    width: 100%;
     padding: 15px;
     border: 2px solid var(--border);
-    border-radius: 25px;
+    border-radius: 15px;
     background: var(--bg-primary);
     color: var(--text-primary);
     font-size: 16px;
     resize: none;
-    min-height: 50px;
-    max-height: 100px;
-}
-
-.create-post .btn-post {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    flex-shrink: 0;
-    padding: 0;
-}
-
-.create-post .btn-post:hover {
-    transform: scale(1.1);
-}
-
-.create-post .btn-post i {
-    width: 20px;
-    height: 20px;
+    margin-bottom: 15px;
 }
 
 .post-card {
@@ -1665,6 +1636,8 @@ header {
     margin: 0 auto;
     padding: 20px;
     padding-bottom: 100px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
 }
 
 /* Ajuste para chat acima do menu */
@@ -1702,11 +1675,31 @@ header {
     border-radius: 10px;
 }
 
-/* Forum com scroll */
-#forum {
-    height: calc(100vh - 140px);
-    overflow-y: auto;
-    padding-bottom: 20px;
+/* Ajuste do botão de publicar - igual ao chat */
+.create-post .btn {
+    width: auto;
+    padding: 12px 24px;
+    margin: 0;
+    border-radius: 25px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    float: right;
+}
+
+.create-post .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
+/* Clear float */
+.create-post::after {
+    content: "";
+    clear: both;
+    display: table;
 }
 
 /* Responsividade com ajustes para sidebar */
@@ -1981,12 +1974,8 @@ header {
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
         <div class="create-post">
-            <div class="input-group">
-                <textarea id="postInput" placeholder="Compartilhe sua evolução..." rows="1"></textarea>
-                <button class="btn-post" onclick="addPost()">
-                    <i data-lucide="send"></i>
-                </button>
-            </div>
+            <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
+            <button class="btn btn-primary" onclick="addPost()">Publicar</button>
         </div>
     </div>
 
@@ -2010,13 +1999,9 @@ header {
 
         <!-- Add Forum Post Form -->
         <div id="addForumPostForm" class="create-post hidden">
-            <div class="input-group">
-                <textarea id="forumPostInput" placeholder="Compartilhe sua dica..."></textarea>
-                <button class="btn-post" onclick="addForumPost()">
-                    <i data-lucide="send"></i>
-                </button>
-            </div>
-            <button class="btn btn-secondary" onclick="hideAddForumPost()" style="margin-top: 10px;">Cancelar</button>
+            <textarea id="forumPostInput" placeholder="Compartilhe sua dica..."></textarea>
+            <button class="btn btn-primary" onclick="addForumPost()">Publicar</button>
+            <button class="btn btn-secondary" onclick="hideAddForumPost()">Cancelar</button>
         </div>
 
         <!-- Forum Posts -->
@@ -2370,6 +2355,9 @@ let unsubscribeChat = null;
 // Estados de mensagens não lidas
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
+
+// Cache de estado de curtidas para evitar chamadas desnecessárias
+let likesCache = new Map();
 
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
@@ -2899,7 +2887,7 @@ function addForumPost() {
         postInput.value = '';
         hideAddForumPost();
         alert('Post publicado com sucesso!');
-        loadForumPosts();
+        loadForumPostsSimple();
     })
     .catch(error => {
         console.error('ERRO ao publicar:', error);
@@ -2911,8 +2899,8 @@ function addForumPost() {
     });
 }
 
-// Load Forum Posts - CORRIGIDO com sistema de curtidas
-function loadForumPosts() {
+// Load Forum Posts
+function loadForumPostsSimple() {
     if (!auth.currentUser) {
         console.log('Usuário não logado, não carregando posts');
         return;
@@ -2925,7 +2913,6 @@ function loadForumPosts() {
     
     db.collection('forum_posts')
         .where('category', '==', currentForum)
-        .orderBy('created', 'desc')
         .get()
         .then(async (querySnapshot) => {
             console.log('Posts encontrados:', querySnapshot.size);
@@ -2935,7 +2922,7 @@ function loadForumPosts() {
                 return;
             }
             
-            forumPosts.innerHTML = '';
+            const postsArray = [];
             
             for (const doc of querySnapshot.docs) {
                 const post = doc.data();
@@ -2950,47 +2937,54 @@ function loadForumPosts() {
                     }
                     let username = userData?.username || '@usuario';
                     
-                    // Verificar se o usuário atual já curtiu este post
-                    let userLiked = false;
-                    if (auth.currentUser) {
-                        const likeDoc = await db.collection('forum_post_likes')
-                            .where('postId', '==', postId)
-                            .where('userId', '==', auth.currentUser.uid)
-                            .get();
-                        userLiked = !likeDoc.empty;
-                    }
-                    
-                    const postElement = document.createElement('div');
-                    postElement.className = 'forum-post';
-                    postElement.id = `forum-post-${postId}`;
-                    postElement.innerHTML = `
-                        <div class="forum-post-header">
-                            <div class="post-avatar">${username.charAt(1).toUpperCase()}</div>
-                            <div>
-                                <div class="forum-post-author">${username}</div>
-                                <div class="forum-post-date">${formatDate(post.created)}</div>
-                            </div>
-                        </div>
-                        <div class="forum-post-content">${post.text}</div>
-                        <div class="forum-post-footer">
-                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleForumLike('${postId}', this)" id="forum-like-${postId}">
-                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
-                                <span id="forum-like-count-${postId}">${post.likes || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="commentForumPost('${postId}')">
-                                <i data-lucide="message-circle"></i>
-                                <span>${post.comments || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="shareForumPost('${postId}')">
-                                <i data-lucide="share-2"></i>
-                            </div>
-                        </div>
-                    `;
-                    forumPosts.appendChild(postElement);
+                    postsArray.push({
+                        postId,
+                        post,
+                        username
+                    });
                 } catch (error) {
                     console.error('Erro ao buscar usuário:', error);
+                    postsArray.push({
+                        postId,
+                        post,
+                        username: '@usuario'
+                    });
                 }
             }
+            
+            postsArray.sort((a, b) => {
+                const dateA = a.post.created ? new Date(a.post.created.seconds * 1000) : new Date(0);
+                const dateB = b.post.created ? new Date(b.post.created.seconds * 1000) : new Date(0);
+                return dateB - dateA;
+            });
+            
+            forumPosts.innerHTML = '';
+            
+            postsArray.forEach(item => {
+                const postElement = document.createElement('div');
+                postElement.className = 'forum-post';
+                postElement.innerHTML = `
+                    <div class="forum-post-header">
+                        <div class="post-avatar">${item.username ? item.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div>
+                            <div class="forum-post-author">${item.username}</div>
+                            <div class="forum-post-date">${formatDate(item.post.created)}</div>
+                        </div>
+                    </div>
+                    <div class="forum-post-content">${item.post.text}</div>
+                    <div class="forum-post-footer">
+                        <div class="post-action" onclick="likeForumPost('${item.postId}')">
+                            <i data-lucide="heart"></i>
+                            <span>${item.post.likes || 0}</span>
+                        </div>
+                        <div class="post-action" onclick="commentForumPost('${item.postId}')">
+                            <i data-lucide="message-circle"></i>
+                            <span>${item.post.comments || 0}</span>
+                        </div>
+                    </div>
+                `;
+                forumPosts.appendChild(postElement);
+            });
             
             lucide.createIcons();
         })
@@ -3000,63 +2994,22 @@ function loadForumPosts() {
         });
 }
 
-// Toggle Like para posts do fórum
-async function toggleForumLike(postId, element) {
-    if (!auth.currentUser) {
-        alert('Faça login para curtir posts');
-        return;
-    }
-    
-    const userId = auth.currentUser.uid;
-    const likeRef = db.collection('forum_post_likes');
+function loadForumPosts() {
+    loadForumPostsSimple();
+}
+
+// Like Forum Post
+function likeForumPost(postId) {
     const postRef = db.collection('forum_posts').doc(postId);
     
-    try {
-        // Verificar se o usuário já curtiu
-        const existingLike = await likeRef
-            .where('postId', '==', postId)
-            .where('userId', '==', userId)
-            .get();
-        
-        const likeCountElement = document.getElementById(`forum-like-count-${postId}`);
-        let currentLikes = parseInt(likeCountElement.innerText);
-        const heartIcon = element.querySelector('i');
-        
-        if (existingLike.empty) {
-            // Curtir
-            await likeRef.add({
-                postId: postId,
-                userId: userId,
-                created: new Date()
-            });
-            
-            await postRef.update({
-                likes: firebase.firestore.FieldValue.increment(1)
-            });
-            
-            // Atualizar UI
-            element.classList.add('liked');
-            heartIcon.setAttribute('fill', 'var(--like-active)');
-            likeCountElement.innerText = currentLikes + 1;
-            
-        } else {
-            // Descurtir
-            await likeRef.doc(existingLike.docs[0].id).delete();
-            
-            await postRef.update({
-                likes: firebase.firestore.FieldValue.increment(-1)
-            });
-            
-            // Atualizar UI
-            element.classList.remove('liked');
-            heartIcon.setAttribute('fill', 'none');
-            likeCountElement.innerText = currentLikes - 1;
+    postRef.get().then(doc => {
+        if (doc.exists) {
+            const likes = (doc.data().likes || 0) + 1;
+            postRef.update({ likes: likes });
         }
-        
-    } catch (error) {
-        console.error('Erro ao processar curtida:', error);
-        alert('Erro ao processar curtida. Tente novamente.');
-    }
+    }).catch(error => {
+        console.error('Erro ao dar like:', error);
+    });
 }
 
 // Comment Forum Post
@@ -3064,12 +3017,7 @@ function commentForumPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Share Forum Post
-function shareForumPost(postId) {
-    alert('Funcionalidade de compartilhamento em breve!');
-}
-
-// Load Feed - CORRIGIDO: sem recriar elementos
+// Load Feed - CORRIGIDO: sistema de curtidas sem recarregar a página
 function loadFeed() {
     db.collection('posts').orderBy('created', 'desc')
         .onSnapshot(snapshot => {
@@ -3103,11 +3051,18 @@ function loadFeed() {
                             .where('userId', '==', auth.currentUser.uid)
                             .get();
                         userLiked = !likeDoc.empty;
+                        // Armazenar no cache
+                        likesCache.set(`${postId}_${auth.currentUser.uid}`, userLiked);
                     }
                     
                     const postElement = document.createElement('div');
                     postElement.className = 'post-card';
                     postElement.id = `post-${postId}`;
+                    
+                    const heartIcon = userLiked ? 
+                        '<i data-lucide="heart" fill="var(--like-active)" style="color: var(--like-active);"></i>' : 
+                        '<i data-lucide="heart"></i>';
+                    
                     postElement.innerHTML = `
                         <div class="post-header">
                             <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
@@ -3119,7 +3074,7 @@ function loadFeed() {
                         <div class="post-content">${post.text}</div>
                         <div class="post-actions">
                             <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
-                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
+                                ${heartIcon}
                                 <span id="like-count-${postId}">${post.likes || 0}</span>
                             </div>
                             <div class="post-action" onclick="commentPost('${postId}')">
@@ -3152,8 +3107,8 @@ function addPost() {
     }
     
     const btn = event.target;
-    const originalHtml = btn.innerHTML;
-    btn.innerHTML = '<i data-lucide="loader" class="spin"></i>';
+    const originalText = btn.innerText;
+    btn.innerText = 'Publicando...';
     btn.disabled = true;
     
     db.collection('posts').add({
@@ -3165,19 +3120,19 @@ function addPost() {
     })
     .then(() => {
         postInput.value = '';
+        alert('Post publicado com sucesso!');
     })
     .catch(error => {
         console.error('Erro ao publicar:', error);
         alert('Erro ao publicar: ' + error.message);
     })
     .finally(() => {
-        btn.innerHTML = originalHtml;
+        btn.innerText = originalText;
         btn.disabled = false;
-        lucide.createIcons();
     });
 }
 
-// Toggle Like - CORRIGIDO: sem recriar o ícone
+// Toggle Like - Sistema de curtir/descurtir por usuário CORRIGIDO - SEM RECARREGAR A PÁGINA
 async function toggleLike(postId) {
     if (!auth.currentUser) {
         alert('Faça login para curtir posts');
@@ -3188,19 +3143,31 @@ async function toggleLike(postId) {
     const likeRef = db.collection('post_likes');
     const postRef = db.collection('posts').doc(postId);
     
+    // Impedir múltiplos cliques rápidos
+    const likeElement = document.getElementById(`like-${postId}`);
+    if (likeElement.classList.contains('processing')) {
+        return;
+    }
+    likeElement.classList.add('processing');
+    
     try {
-        // Verificar se o usuário já curtiu
-        const existingLike = await likeRef
-            .where('postId', '==', postId)
-            .where('userId', '==', userId)
-            .get();
+        // Verificar se o usuário já curtiu usando cache primeiro
+        let userLiked = likesCache.get(`${postId}_${userId}`);
         
-        const likeElement = document.getElementById(`like-${postId}`);
+        // Se não estiver no cache, buscar do Firestore
+        if (userLiked === undefined) {
+            const existingLike = await likeRef
+                .where('postId', '==', postId)
+                .where('userId', '==', userId)
+                .get();
+            userLiked = !existingLike.empty;
+            likesCache.set(`${postId}_${userId}`, userLiked);
+        }
+        
         const likeCountElement = document.getElementById(`like-count-${postId}`);
         let currentLikes = parseInt(likeCountElement.innerText);
-        const heartIcon = likeElement.querySelector('i');
         
-        if (existingLike.empty) {
+        if (!userLiked) {
             // Curtir
             await likeRef.add({
                 postId: postId,
@@ -3212,10 +3179,15 @@ async function toggleLike(postId) {
                 likes: firebase.firestore.FieldValue.increment(1)
             });
             
-            // Atualizar UI sem recriar o elemento
+            // Atualizar UI imediatamente - SEM RECARREGAR
             likeElement.classList.add('liked');
+            const heartIcon = likeElement.querySelector('i');
             heartIcon.setAttribute('fill', 'var(--like-active)');
+            heartIcon.style.color = 'var(--like-active)';
             likeCountElement.innerText = currentLikes + 1;
+            
+            // Atualizar cache
+            likesCache.set(`${postId}_${userId}`, true);
             
             // Efeito visual
             heartIcon.style.transform = 'scale(1.3)';
@@ -3225,21 +3197,35 @@ async function toggleLike(postId) {
             
         } else {
             // Descurtir
-            await likeRef.doc(existingLike.docs[0].id).delete();
+            const existingLike = await likeRef
+                .where('postId', '==', postId)
+                .where('userId', '==', userId)
+                .get();
             
-            await postRef.update({
-                likes: firebase.firestore.FieldValue.increment(-1)
-            });
-            
-            // Atualizar UI sem recriar o elemento
-            likeElement.classList.remove('liked');
-            heartIcon.setAttribute('fill', 'none');
-            likeCountElement.innerText = currentLikes - 1;
+            if (!existingLike.empty) {
+                await likeRef.doc(existingLike.docs[0].id).delete();
+                
+                await postRef.update({
+                    likes: firebase.firestore.FieldValue.increment(-1)
+                });
+                
+                // Atualizar UI imediatamente - SEM RECARREGAR
+                likeElement.classList.remove('liked');
+                const heartIcon = likeElement.querySelector('i');
+                heartIcon.setAttribute('fill', 'none');
+                heartIcon.style.color = '';
+                likeCountElement.innerText = currentLikes - 1;
+                
+                // Atualizar cache
+                likesCache.set(`${postId}_${userId}`, false);
+            }
         }
         
     } catch (error) {
         console.error('Erro ao processar curtida:', error);
         alert('Erro ao processar curtida. Tente novamente.');
+    } finally {
+        likeElement.classList.remove('processing');
     }
 }
 
