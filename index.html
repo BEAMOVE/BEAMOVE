@@ -45,7 +45,7 @@
     --header-bg: rgba(255, 255, 255, 0.8);
     --nav-bg: rgba(255, 255, 255, 0.85);
     --blur-amount: 16px;
-    --like-color: #ef4444;
+    --like-active: #ef4444;
 }
 
 .dark {
@@ -483,7 +483,7 @@ header {
     gap: 8px;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition);
     background: none;
     border: none;
     font-size: inherit;
@@ -496,19 +496,13 @@ header {
     color: var(--accent);
 }
 
-/* ESTADO NÃO CURTIDO - APENAS BORDA */
-.post-action i {
-    transition: all 0.2s ease;
-}
-
-/* ESTADO CURTIDO - COMPLETAMENTE VERMELHO */
 .post-action.liked {
-    color: var(--like-color);
+    color: var(--like-active);
 }
 
 .post-action.liked i {
-    fill: var(--like-color);
-    color: var(--like-color);
+    fill: var(--like-active);
+    color: var(--like-active);
 }
 
 /* Chat */
@@ -2778,7 +2772,7 @@ function commentForumPost() {
 }
 
 // ============================================================
-// FUNÇÕES DO FEED - TOTALMENTE CORRIGIDAS
+// FUNÇÕES DO FEED - CORRIGIDAS
 // ============================================================
 
 function loadFeed() {
@@ -2890,7 +2884,7 @@ function addPost() {
 }
 
 // ============================================================
-// FUNÇÃO DE CURTIR - DEFINITIVAMENTE CORRIGIDA
+// FUNÇÃO DE CURTIR - CORRIGIDA PARA PREENCHER IMEDIATAMENTE
 // ============================================================
 
 async function toggleLike(postId) {
@@ -2920,46 +2914,72 @@ async function toggleLike(postId) {
         const currentLikes = parseInt(likeCount.innerText) || 0;
         
         if (likeQuery.empty) {
-            // CURTIR
-            // 1. Adicionar documento de like
+            // CURTIR - ATUALIZA UI IMEDIATAMENTE
+            likeButton.classList.add('liked');
+            likeCount.innerText = currentLikes + 1;
+            likesCache.set(postId, true);
+            
+            // Efeito visual
+            const heartIcon = likeButton.querySelector('i');
+            if (heartIcon) {
+                heartIcon.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    heartIcon.style.transform = 'scale(1)';
+                }, 200);
+            }
+            
+            // Depois atualiza no Firebase
             await db.collection('post_likes').add({
                 postId: postId,
                 userId: userId,
                 created: new Date()
             });
             
-            // 2. Incrementar contador no post
             await postRef.update({
                 likes: firebase.firestore.FieldValue.increment(1)
             });
             
-            // 3. Atualizar UI - APENAS ADICIONAR A CLASSE
-            likeButton.classList.add('liked');
-            likeCount.innerText = currentLikes + 1;
-            
-            // 4. Atualizar cache
-            likesCache.set(postId, true);
-            
         } else {
-            // DESCURTIR
-            // 1. Remover documento de like
+            // DESCURTIR - ATUALIZA UI IMEDIATAMENTE
+            likeButton.classList.remove('liked');
+            likeCount.innerText = Math.max(0, currentLikes - 1);
+            likesCache.set(postId, false);
+            
+            // Efeito visual
+            const heartIcon = likeButton.querySelector('i');
+            if (heartIcon) {
+                heartIcon.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    heartIcon.style.transform = 'scale(1)';
+                }, 200);
+            }
+            
+            // Depois atualiza no Firebase
             await db.collection('post_likes').doc(likeQuery.docs[0].id).delete();
             
-            // 2. Decrementar contador no post
             await postRef.update({
                 likes: firebase.firestore.FieldValue.increment(-1)
             });
-            
-            // 3. Atualizar UI - APENAS REMOVER A CLASSE
-            likeButton.classList.remove('liked');
-            likeCount.innerText = Math.max(0, currentLikes - 1);
-            
-            // 4. Atualizar cache
-            likesCache.set(postId, false);
         }
         
     } catch (error) {
         console.error('Erro detalhado:', error);
+        // Em caso de erro, reverte a UI
+        const likeQuery = await db.collection('post_likes')
+            .where('postId', '==', postId)
+            .where('userId', '==', userId)
+            .get();
+        const userLiked = !likeQuery.empty;
+        
+        if (userLiked) {
+            likeButton.classList.add('liked');
+        } else {
+            likeButton.classList.remove('liked');
+        }
+        
+        const postDoc = await db.collection('posts').doc(postId).get();
+        likeCount.innerText = postDoc.data()?.likes || 0;
+        
         alert('Erro ao processar curtida. Tente novamente.');
     } finally {
         likeButton.disabled = false;
