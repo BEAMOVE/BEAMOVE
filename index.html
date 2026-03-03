@@ -46,6 +46,7 @@
     --nav-bg: rgba(255, 255, 255, 0.85);
     --blur-amount: 16px;
     --like-active: #ef4444;
+    --story-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
 }
 
 .dark {
@@ -384,9 +385,6 @@ header {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
-    height: calc(100vh - 180px);
-    overflow-y: auto;
-    padding-bottom: 120px;
 }
 
 .stories {
@@ -412,23 +410,29 @@ header {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: var(--accent-gradient);
+    background: var(--story-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
     border: 3px solid var(--bg-secondary);
     transition: var(--transition);
+    padding: 2px;
+}
+
+.story-circle span {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
 }
 
 .story-item:hover .story-circle {
     transform: scale(1.05);
-}
-
-.story-circle span {
-    color: white;
-    font-weight: 600;
-    font-size: 24px;
 }
 
 .story-label {
@@ -437,16 +441,49 @@ header {
     color: var(--text-secondary);
 }
 
+.story-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 8px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+}
+
+.story-action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.story-action:hover {
+    color: var(--accent);
+}
+
+.story-action.liked {
+    color: var(--like-active);
+}
+
+.story-action.liked i {
+    fill: var(--like-active);
+    color: var(--like-active);
+}
+
 .create-post {
     background: var(--bg-secondary);
     border-radius: 20px;
     padding: 20px;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
     border-top: 1px solid var(--border);
     position: sticky;
-    bottom: 0;
-    z-index: 10;
+    bottom: 80px;
+    z-index: 90;
     margin-top: 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .create-post textarea {
@@ -459,6 +496,20 @@ header {
     font-size: 16px;
     resize: none;
     margin-bottom: 15px;
+    transition: var(--transition);
+}
+
+.create-post textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.create-post .btn {
+    margin: 0;
+    width: auto;
+    min-width: 120px;
+    float: right;
 }
 
 .post-card {
@@ -520,6 +571,8 @@ header {
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
+    position: relative;
+    overflow: hidden;
 }
 
 .post-action:hover {
@@ -533,6 +586,14 @@ header {
 .post-action.liked i {
     fill: var(--like-active);
     color: var(--like-active);
+}
+
+.post-action i {
+    transition: transform 0.2s ease;
+}
+
+.post-action:active i {
+    transform: scale(1.3);
 }
 
 /* Chat */
@@ -1640,8 +1701,6 @@ header {
     margin: 0 auto;
     padding: 20px;
     padding-bottom: 100px;
-    height: calc(100vh - 80px);
-    overflow-y: auto;
 }
 
 /* Ajuste para chat acima do menu */
@@ -1664,6 +1723,7 @@ header {
     flex: 1;
     overflow-y: auto;
     padding: 20px 20px 0 20px;
+    scroll-behavior: smooth;
 }
 
 .feed-posts-container::-webkit-scrollbar {
@@ -1677,30 +1737,6 @@ header {
 .feed-posts-container::-webkit-scrollbar-thumb {
     background: var(--accent);
     border-radius: 10px;
-}
-
-.create-post {
-    background: var(--bg-secondary);
-    border-radius: 20px 20px 0 0;
-    padding: 20px;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
-    border-top: 1px solid var(--border);
-    margin-top: 0;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-}
-
-.create-post textarea {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 15px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 16px;
-    resize: none;
-    margin-bottom: 15px;
 }
 
 /* Responsividade com ajustes para sidebar */
@@ -1812,6 +1848,7 @@ header {
     
     .create-post {
         padding: 15px;
+        bottom: 80px;
     }
 }
 
@@ -1891,31 +1928,83 @@ header {
 
     <!-- Home Section -->
     <div id="home" class="container">
-        <!-- Stories (Instagram Style) -->
+        <!-- Stories (Instagram Style) com ações completas -->
         <div class="stories">
-            <div class="story-item" onclick="openForum('treino')">
+            <div class="story-item" id="story-treino">
                 <div class="story-circle">
                     <span>💪</span>
                 </div>
                 <span class="story-label">Treino</span>
+                <div class="story-actions">
+                    <div class="story-action" onclick="toggleStoryLike('treino', event)">
+                        <i data-lucide="heart" id="story-heart-treino"></i>
+                        <span id="story-likes-treino">0</span>
+                    </div>
+                    <div class="story-action" onclick="commentStory('treino')">
+                        <i data-lucide="message-circle"></i>
+                        <span>0</span>
+                    </div>
+                    <div class="story-action" onclick="shareStory('treino')">
+                        <i data-lucide="share-2"></i>
+                    </div>
+                </div>
             </div>
-            <div class="story-item" onclick="openForum('receitas')">
+            <div class="story-item" id="story-receitas">
                 <div class="story-circle">
                     <span>🥗</span>
                 </div>
                 <span class="story-label">Receitas</span>
+                <div class="story-actions">
+                    <div class="story-action" onclick="toggleStoryLike('receitas', event)">
+                        <i data-lucide="heart" id="story-heart-receitas"></i>
+                        <span id="story-likes-receitas">0</span>
+                    </div>
+                    <div class="story-action" onclick="commentStory('receitas')">
+                        <i data-lucide="message-circle"></i>
+                        <span>0</span>
+                    </div>
+                    <div class="story-action" onclick="shareStory('receitas')">
+                        <i data-lucide="share-2"></i>
+                    </div>
+                </div>
             </div>
-            <div class="story-item" onclick="openForum('yoga')">
+            <div class="story-item" id="story-yoga">
                 <div class="story-circle">
                     <span>🧘</span>
                 </div>
                 <span class="story-label">Yoga</span>
+                <div class="story-actions">
+                    <div class="story-action" onclick="toggleStoryLike('yoga', event)">
+                        <i data-lucide="heart" id="story-heart-yoga"></i>
+                        <span id="story-likes-yoga">0</span>
+                    </div>
+                    <div class="story-action" onclick="commentStory('yoga')">
+                        <i data-lucide="message-circle"></i>
+                        <span>0</span>
+                    </div>
+                    <div class="story-action" onclick="shareStory('yoga')">
+                        <i data-lucide="share-2"></i>
+                    </div>
+                </div>
             </div>
-            <div class="story-item" onclick="openForum('dicas')">
+            <div class="story-item" id="story-dicas">
                 <div class="story-circle">
                     <span>📚</span>
                 </div>
                 <span class="story-label">Dicas</span>
+                <div class="story-actions">
+                    <div class="story-action" onclick="toggleStoryLike('dicas', event)">
+                        <i data-lucide="heart" id="story-heart-dicas"></i>
+                        <span id="story-likes-dicas">0</span>
+                    </div>
+                    <div class="story-action" onclick="commentStory('dicas')">
+                        <i data-lucide="message-circle"></i>
+                        <span>0</span>
+                    </div>
+                    <div class="story-action" onclick="shareStory('dicas')">
+                        <i data-lucide="share-2"></i>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1975,8 +2064,9 @@ header {
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
         <div class="create-post">
-            <textarea id="postInput" placeholder="Compartilhe sua evolução..."></textarea>
+            <textarea id="postInput" placeholder="Compartilhe sua evolução..." rows="3"></textarea>
             <button class="btn btn-primary" onclick="addPost()">Publicar</button>
+            <div style="clear: both;"></div>
         </div>
     </div>
 
@@ -2357,6 +2447,9 @@ let unsubscribeChat = null;
 let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 
+// Cache de curtidas para evitar atualizações desnecessárias
+const likesCache = new Map();
+
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE EM TEMPO REAL
 // ============================================================
@@ -2572,6 +2665,7 @@ auth.onAuthStateChanged(user => {
         loadProgressHistory();
         loadAllUsers();
         loadChatList();
+        loadStoryLikes();
         
         // ============================================================
         // SISTEMA DE PRESENÇA EM TEMPO REAL
@@ -3015,12 +3109,19 @@ function commentForumPost(postId) {
     alert('Funcionalidade de comentários em breve!');
 }
 
-// Load Feed - CORRIGIDO: sistema de curtidas funcional
+// Load Feed - CORRIGIDO: sem refresh da página
 function loadFeed() {
+    if (!auth.currentUser) return;
+    
+    const feed = document.getElementById('feedPosts');
+    if (!feed) return;
+    
+    feed.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Carregando posts...</div>';
+    
+    // Usar onSnapshot para atualizações em tempo real sem refresh
     db.collection('posts').orderBy('created', 'desc')
         .onSnapshot(snapshot => {
-            const feed = document.getElementById('feedPosts');
-            if (!feed) return;
+            const currentScrollPos = feed.scrollTop;
             
             feed.innerHTML = '';
             
@@ -3029,31 +3130,55 @@ function loadFeed() {
                 return;
             }
             
-            snapshot.forEach(async doc => {
+            const postsPromises = [];
+            
+            snapshot.forEach(doc => {
                 const post = doc.data();
                 const postId = doc.id;
                 
-                try {
-                    let userData = userCache.get(post.user);
-                    if (!userData) {
-                        const userDoc = await db.collection('users').doc(post.user).get();
-                        userData = userDoc.data();
-                        userCache.set(post.user, userData);
+                const promise = (async () => {
+                    try {
+                        let userData = userCache.get(post.user);
+                        if (!userData) {
+                            const userDoc = await db.collection('users').doc(post.user).get();
+                            userData = userDoc.data();
+                            userCache.set(post.user, userData);
+                        }
+                        
+                        // Verificar se o usuário atual já curtiu este post
+                        let userLiked = false;
+                        if (auth.currentUser) {
+                            const likeDoc = await db.collection('post_likes')
+                                .where('postId', '==', postId)
+                                .where('userId', '==', auth.currentUser.uid)
+                                .get();
+                            userLiked = !likeDoc.empty;
+                        }
+                        
+                        return { post, postId, userData, userLiked };
+                    } catch (error) {
+                        console.error('Erro ao carregar post:', error);
+                        return null;
                     }
+                })();
+                
+                postsPromises.push(promise);
+            });
+            
+            Promise.all(postsPromises).then(results => {
+                results.forEach(result => {
+                    if (!result) return;
                     
-                    // Verificar se o usuário atual já curtiu este post
-                    let userLiked = false;
-                    if (auth.currentUser) {
-                        const likeDoc = await db.collection('post_likes')
-                            .where('postId', '==', postId)
-                            .where('userId', '==', auth.currentUser.uid)
-                            .get();
-                        userLiked = !likeDoc.empty;
-                    }
+                    const { post, postId, userData, userLiked } = result;
                     
                     const postElement = document.createElement('div');
                     postElement.className = 'post-card';
                     postElement.id = `post-${postId}`;
+                    
+                    const heartIcon = userLiked ? 
+                        '<i data-lucide="heart" fill="var(--like-active)" style="color: var(--like-active);"></i>' : 
+                        '<i data-lucide="heart"></i>';
+                    
                     postElement.innerHTML = `
                         <div class="post-header">
                             <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
@@ -3064,8 +3189,8 @@ function loadFeed() {
                         </div>
                         <div class="post-content">${post.text}</div>
                         <div class="post-actions">
-                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}')" id="like-${postId}">
-                                <i data-lucide="heart" ${userLiked ? 'fill="var(--like-active)"' : ''}></i>
+                            <div class="post-action ${userLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', event)">
+                                ${heartIcon}
                                 <span id="like-count-${postId}">${post.likes || 0}</span>
                             </div>
                             <div class="post-action" onclick="commentPost('${postId}')">
@@ -3077,13 +3202,13 @@ function loadFeed() {
                             </div>
                         </div>
                     `;
+                    
                     feed.appendChild(postElement);
-                } catch (error) {
-                    console.error('Erro ao carregar post do feed:', error);
-                }
+                });
+                
+                lucide.createIcons();
+                feed.scrollTop = currentScrollPos;
             });
-            
-            lucide.createIcons();
         });
 }
 
@@ -3111,7 +3236,7 @@ function addPost() {
     })
     .then(() => {
         postInput.value = '';
-        alert('Post publicado com sucesso!');
+        // O feed será atualizado automaticamente pelo onSnapshot
     })
     .catch(error => {
         console.error('Erro ao publicar:', error);
@@ -3123,8 +3248,13 @@ function addPost() {
     });
 }
 
-// Toggle Like - Sistema de curtir/descurtir por usuário CORRIGIDO
-async function toggleLike(postId) {
+// Toggle Like - CORRIGIDO: sem refresh e com ícone persistente
+async function toggleLike(postId, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
     if (!auth.currentUser) {
         alert('Faça login para curtir posts');
         return;
@@ -3134,6 +3264,13 @@ async function toggleLike(postId) {
     const likeRef = db.collection('post_likes');
     const postRef = db.collection('posts').doc(postId);
     
+    // Elementos da UI
+    const likeElement = document.querySelector(`#post-${postId} .post-action:first-child`);
+    const likeCountElement = document.getElementById(`like-count-${postId}`);
+    const heartIcon = likeElement?.querySelector('i');
+    
+    if (!likeElement || !likeCountElement || !heartIcon) return;
+    
     try {
         // Verificar se o usuário já curtiu
         const existingLike = await likeRef
@@ -3141,9 +3278,7 @@ async function toggleLike(postId) {
             .where('userId', '==', userId)
             .get();
         
-        const likeElement = document.getElementById(`like-${postId}`);
-        const likeCountElement = document.getElementById(`like-count-${postId}`);
-        let currentLikes = parseInt(likeCountElement.innerText);
+        let currentLikes = parseInt(likeCountElement.innerText) || 0;
         
         if (existingLike.empty) {
             // Curtir
@@ -3159,8 +3294,8 @@ async function toggleLike(postId) {
             
             // Atualizar UI imediatamente
             likeElement.classList.add('liked');
-            const heartIcon = likeElement.querySelector('i');
             heartIcon.setAttribute('fill', 'var(--like-active)');
+            heartIcon.style.color = 'var(--like-active)';
             likeCountElement.innerText = currentLikes + 1;
             
             // Efeito visual
@@ -3179,15 +3314,95 @@ async function toggleLike(postId) {
             
             // Atualizar UI imediatamente
             likeElement.classList.remove('liked');
-            const heartIcon = likeElement.querySelector('i');
             heartIcon.setAttribute('fill', 'none');
+            heartIcon.style.color = '';
             likeCountElement.innerText = currentLikes - 1;
         }
         
     } catch (error) {
         console.error('Erro ao processar curtida:', error);
+        // Reverter UI em caso de erro
         alert('Erro ao processar curtida. Tente novamente.');
     }
+}
+
+// Load Story Likes
+function loadStoryLikes() {
+    const stories = ['treino', 'receitas', 'yoga', 'dicas'];
+    
+    stories.forEach(story => {
+        const storyLikes = localStorage.getItem(`story_likes_${story}`) || '0';
+        document.getElementById(`story-likes-${story}`).innerText = storyLikes;
+        
+        const userLiked = localStorage.getItem(`story_liked_${story}_${auth.currentUser?.uid}`) === 'true';
+        const storyHeart = document.getElementById(`story-heart-${story}`);
+        const storyAction = storyHeart?.closest('.story-action');
+        
+        if (userLiked && storyAction) {
+            storyAction.classList.add('liked');
+            storyHeart.setAttribute('fill', 'var(--like-active)');
+            storyHeart.style.color = 'var(--like-active)';
+        }
+    });
+}
+
+// Toggle Story Like
+function toggleStoryLike(story, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    if (!auth.currentUser) {
+        alert('Faça login para curtir');
+        return;
+    }
+    
+    const userId = auth.currentUser.uid;
+    const storyHeart = document.getElementById(`story-heart-${story}`);
+    const storyAction = storyHeart?.closest('.story-action');
+    const storyLikesElement = document.getElementById(`story-likes-${story}`);
+    
+    if (!storyHeart || !storyAction || !storyLikesElement) return;
+    
+    const userLikedKey = `story_liked_${story}_${userId}`;
+    const userLiked = localStorage.getItem(userLikedKey) === 'true';
+    let currentLikes = parseInt(storyLikesElement.innerText) || 0;
+    
+    if (!userLiked) {
+        // Curtir
+        storyAction.classList.add('liked');
+        storyHeart.setAttribute('fill', 'var(--like-active)');
+        storyHeart.style.color = 'var(--like-active)';
+        storyLikesElement.innerText = currentLikes + 1;
+        localStorage.setItem(userLikedKey, 'true');
+        localStorage.setItem(`story_likes_${story}`, (currentLikes + 1).toString());
+        
+        // Efeito visual
+        storyHeart.style.transform = 'scale(1.3)';
+        setTimeout(() => {
+            storyHeart.style.transform = 'scale(1)';
+        }, 200);
+        
+    } else {
+        // Descurtir
+        storyAction.classList.remove('liked');
+        storyHeart.setAttribute('fill', 'none');
+        storyHeart.style.color = '';
+        storyLikesElement.innerText = currentLikes - 1;
+        localStorage.removeItem(userLikedKey);
+        localStorage.setItem(`story_likes_${story}`, (currentLikes - 1).toString());
+    }
+}
+
+// Story comment function
+function commentStory(story) {
+    alert(`Funcionalidade de comentários para ${story} em breve!`);
+}
+
+// Story share function
+function shareStory(story) {
+    alert(`Funcionalidade de compartilhamento para ${story} em breve!`);
 }
 
 // Load Chat List
