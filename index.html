@@ -1285,9 +1285,10 @@ header {
     text-decoration: underline;
 }
 
+/* Botões em linha - todos na mesma linha */
 .profile-buttons-row {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 30px;
     flex-wrap: wrap;
 }
@@ -1296,20 +1297,23 @@ header {
     background: var(--bg-primary);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 8px 16px;
+    padding: 8px 12px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-primary);
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
 }
 
 .profile-action-btn i {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .profile-action-btn:hover {
@@ -2301,12 +2305,25 @@ header {
                     </a>
                 </div>
 
+                <!-- Botões em linha - todos na mesma linha -->
                 <div class="profile-buttons-row" id="profileButtons">
                     <!-- Botões serão inseridos dinamicamente -->
                 </div>
             </div>
 
-            <!-- Configurações/Engrenagem -->
+            <!-- Formulário de Edição de Perfil (Card) -->
+            <div id="editProfileForm" class="edit-section hidden">
+                <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
+                <input type="text" id="editName" placeholder="Nome (ex: Tiago | Vida Fitness)">
+                <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
+                <input type="text" id="editLink" placeholder="Link">
+                <div class="edit-section-actions">
+                    <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
+                    <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
+                </div>
+            </div>
+
+            <!-- Formulário de Configurações (Card) -->
             <div id="settingsPanel" class="edit-section hidden">
                 <h4>
                     <i data-lucide="settings"></i>
@@ -2384,19 +2401,7 @@ header {
                 </div>
             </div>
 
-            <!-- Formulário de Edição de Perfil -->
-            <div id="editProfileForm" class="edit-section hidden">
-                <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
-                <input type="text" id="editName" placeholder="Nome (ex: Tiago | Vida Fitness)">
-                <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
-                <input type="text" id="editLink" placeholder="Link">
-                <div class="edit-section-actions">
-                    <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
-                    <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
-                </div>
-            </div>
-
-            <!-- Formulário da Ficha do Usuário -->
+            <!-- Formulário da Ficha do Usuário (Card) -->
             <div id="userCardForm" class="edit-section hidden">
                 <h4>
                     <i data-lucide="edit-3"></i>
@@ -2562,7 +2567,7 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 const userStatusListeners = new Map();
 let commentsVisible = new Map();
-let viewingProfileId = null; // ID do perfil que está sendo visualizado
+let viewingProfileId = null;
 
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE
@@ -2673,7 +2678,6 @@ function updateAllUsersOnlineStatus() {
 function viewProfile(userId) {
     if (!userId) return;
     
-    // Se for o próprio usuário, mostra o perfil normal
     if (userId === auth.currentUser?.uid) {
         viewingProfileId = null;
         showTab('profile');
@@ -2698,7 +2702,6 @@ function loadUserProfile(userId) {
         const userData = doc.data();
         userCache.set(userId, userData);
         
-        // Atualizar UI com dados do usuário
         document.getElementById('profileUsername').innerText = userData.username || '@usuario';
         document.getElementById('profileDisplayName').innerText = userData.displayName || '';
         document.getElementById('profileBio').innerText = userData.bio || 'Sem bio';
@@ -2711,17 +2714,15 @@ function loadUserProfile(userId) {
         }
         document.getElementById('profileAvatar').innerText = userData.username ? userData.username.charAt(1).toUpperCase() : 'U';
         
-        // Carregar estatísticas
         loadUserProfileStats(userId);
         loadUserProfilePosts(userId);
         
-        // Botões diferentes para perfil de outro usuário
         const profileButtons = document.getElementById('profileButtons');
         if (userId === auth.currentUser?.uid) {
             profileButtons.innerHTML = `
                 <button class="profile-action-btn" onclick="toggleEditProfile()">
                     <i data-lucide="edit-2"></i>
-                    Editar perfil
+                    Editar
                 </button>
                 <button class="profile-action-btn" onclick="showFichaModal()">
                     <i data-lucide="clipboard-list"></i>
@@ -2731,8 +2732,9 @@ function loadUserProfile(userId) {
                     <i data-lucide="trending-up"></i>
                     Progresso
                 </button>
-                <button class="profile-action-btn" onclick="toggleSettings()" id="settingsBtn">
+                <button class="profile-action-btn" onclick="toggleSettings()">
                     <i data-lucide="settings"></i>
+                    Config
                 </button>
             `;
         } else {
@@ -2766,7 +2768,6 @@ function loadUserProfileStats(userId) {
         document.getElementById('profilePosts').innerText = snapshot.size;
     }).catch(console.error);
     
-    // Estatísticas fictícias para demonstração
     document.getElementById('profileFollowers').innerText = '128';
     document.getElementById('profileFollowing').innerText = '56';
 }
@@ -2813,7 +2814,7 @@ function startChat(userId) {
     db.collection('users').doc(userId).get().then(doc => {
         if (doc.exists) {
             const userData = doc.data();
-            selectChat('private_' + userId, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+            selectChat('private_' + userId, userData.displayName || userData.username, userData.username.charAt(1).toUpperCase(), userId);
         }
     });
 }
@@ -3418,7 +3419,7 @@ function loadForumPosts() {
                     <div class="forum-post-header">
                         <div class="post-avatar" onclick="viewProfile('${post.user}')">${post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div>
-                            <div class="forum-post-author" onclick="viewProfile('${post.user}')">${post.userData?.username || '@usuario'}</div>
+                            <div class="forum-post-author" onclick="viewProfile('${post.user}')">${post.userData?.displayName || post.userData?.username || '@usuario'}</div>
                             <div class="forum-post-date">${formatDate(post.created)}</div>
                         </div>
                     </div>
@@ -3597,7 +3598,7 @@ function loadFeed() {
                 <div class="post-header">
                     <div class="post-avatar" onclick="viewProfile('${post.user}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                     <div class="post-info">
-                        <h4><span class="username-link" onclick="viewProfile('${post.user}')">${userData?.username || '@usuario'}</span></h4>
+                        <h4><span class="username-link" onclick="viewProfile('${post.user}')">${userData?.displayName || userData?.username || '@usuario'}</span></h4>
                         <span>${formatDate(post.created)}</span>
                     </div>
                 </div>
@@ -3785,12 +3786,11 @@ function loadProfile() {
         const editGender = document.getElementById('editGender');
         if (editGender) editGender.value = data.gender || '';
         
-        // Botões do próprio perfil
         const profileButtons = document.getElementById('profileButtons');
         profileButtons.innerHTML = `
             <button class="profile-action-btn" onclick="toggleEditProfile()">
                 <i data-lucide="edit-2"></i>
-                Editar perfil
+                Editar
             </button>
             <button class="profile-action-btn" onclick="showFichaModal()">
                 <i data-lucide="clipboard-list"></i>
@@ -3800,8 +3800,9 @@ function loadProfile() {
                 <i data-lucide="trending-up"></i>
                 Progresso
             </button>
-            <button class="profile-action-btn" onclick="toggleSettings()" id="settingsBtn">
+            <button class="profile-action-btn" onclick="toggleSettings()">
                 <i data-lucide="settings"></i>
+                Config
             </button>
         `;
         
@@ -4207,9 +4208,9 @@ function loadChatList() {
                         chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
                         chatItem.setAttribute('data-chat-id', `private_${userId}`);
                         chatItem.setAttribute('data-user-id', userId);
-                        chatItem.setAttribute('data-user-name', userData.username);
+                        chatItem.setAttribute('data-user-name', userData.displayName || userData.username);
                         chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
-                        chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+                        chatItem.onclick = () => selectChat(`private_${userId}`, userData.displayName || userData.username, userData.username.charAt(1).toUpperCase(), userId);
                         
                         const isOnline = isUserOnline(userData.lastSeen);
                         const onlineClass = isOnline ? 'online' : '';
@@ -4221,7 +4222,7 @@ function loadChatList() {
                                 ${unreadCount > 0 ? '<span class="unread-badge">' + unreadCount + '</span>' : ''}
                             </div>
                             <div class="chat-user-info">
-                                <strong onclick="viewProfile('${userId}')">${userData.username}</strong>
+                                <strong onclick="viewProfile('${userId}')">${userData.displayName || userData.username}</strong>
                                 <span>${lastSeenText}</span>
                             </div>
                         `;
@@ -4487,8 +4488,8 @@ function searchUsers() {
         li.innerHTML = `
             <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
             <div class="user-search-info">
-                <strong>${user.username}</strong>
-                <span>${user.displayName || 'Membro'}</span>
+                <strong>${user.displayName || user.username}</strong>
+                <span>${user.username}</span>
             </div>
         `;
         searchList.appendChild(li);
