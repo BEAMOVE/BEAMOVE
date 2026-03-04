@@ -944,6 +944,19 @@ header {
     text-align: right;
 }
 
+.message.unread-indicator {
+    position: relative;
+}
+
+.message.unread-indicator::after {
+    content: '●';
+    color: var(--accent);
+    font-size: 10px;
+    position: absolute;
+    bottom: -12px;
+    right: 10px;
+}
+
 .chat-input {
     padding: 20px;
     border-top: 1px solid var(--border);
@@ -1108,188 +1121,266 @@ header {
     color: var(--text-secondary);
 }
 
+/* PERFIL REDESENHADO - ESTILO INSTAGRAM */
 .profile-container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 0 20px;
+    max-width: 935px;
+    margin: 0 auto;
+    padding: 30px 20px 80px 20px;
 }
 
 .profile-header {
-    background: var(--bg-secondary);
-    border-radius: 30px;
-    padding: 30px;
-    box-shadow: var(--card-shadow);
-    margin-bottom: 30px;
-    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 44px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
 }
 
-.profile-top {
+.profile-avatar-section {
+    flex: 0 0 150px;
+    margin-right: 30px;
     display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .profile-avatar-large {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 48px;
+    font-size: 60px;
     font-weight: 700;
-    border: 4px solid var(--bg-secondary);
-    box-shadow: var(--card-shadow);
+    border: none;
+    box-shadow: 0 0 0 2px var(--border);
 }
 
-.profile-info-main {
+.profile-info-section {
     flex: 1;
+}
+
+.profile-username-row {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .profile-username {
     font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.profile-name {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-}
-
-.profile-bio {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 15px;
-    max-width: 500px;
-}
-
-.profile-link {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 20px;
-}
-
-.profile-link:hover {
-    text-decoration: underline;
-}
-
-.profile-stats {
-    display: flex;
-    gap: 40px;
-    margin-bottom: 20px;
-    justify-content: center;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.stat-label {
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-.profile-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-    justify-content: center;
+    font-weight: 400;
+    margin: 0;
 }
 
 .profile-edit-btn {
-    padding: 10px 24px;
-    background: var(--accent-gradient);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
-
-.profile-edit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--hover-shadow);
-}
-
-.profile-settings-btn {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
     background: var(--bg-primary);
-    border: 2px solid var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 14px;
     color: var(--text-primary);
     cursor: pointer;
     transition: var(--transition);
+}
+
+.profile-edit-btn:hover {
+    background: var(--border);
+    transform: none;
+    box-shadow: none;
+}
+
+.profile-settings-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .profile-settings-btn:hover {
-    border-color: var(--accent);
+    border-color: transparent;
     color: var(--accent);
     transform: rotate(90deg);
 }
 
-.user-card {
-    background: var(--bg-secondary);
-    border-radius: 25px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--border);
+.profile-stats {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 20px;
 }
 
-.user-card h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 20px;
+.stat-item {
     display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.stat-value {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.profile-bio {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 5px;
+    white-space: pre-line;
+}
+
+.profile-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.profile-link:hover {
+    text-decoration: underline;
+}
+
+/* CARDS DE FICHA E HISTÓRICO */
+.profile-highlights {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 15px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.highlight-card {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.highlight-card:hover {
+    transform: translateY(-3px);
+}
+
+.highlight-circle {
+    width: 87px;
+    height: 87px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border);
+    transition: var(--transition);
+}
+
+.highlight-card:hover .highlight-circle {
+    border-color: var(--accent);
+}
+
+.highlight-circle i {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+.highlight-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* MODAL POPUP */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--card-shadow);
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--danger);
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 25px;
     color: var(--accent);
 }
 
-.user-card-grid {
+.modal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    margin-bottom: 20px;
 }
 
-.user-card-item {
+.modal-item {
     background: var(--bg-primary);
     padding: 15px;
-    border-radius: 15px;
+    border-radius: 12px;
     border: 1px solid var(--border);
 }
 
-.user-card-label {
+.modal-item-label {
     font-size: 12px;
     color: var(--text-secondary);
     margin-bottom: 5px;
@@ -1298,115 +1389,141 @@ header {
     gap: 5px;
 }
 
-.user-card-value {
+.modal-item-value {
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
-.user-card-value small {
+.modal-item-value small {
     font-size: 12px;
     font-weight: 400;
     color: var(--text-secondary);
     margin-left: 5px;
 }
 
-.user-card-edit {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
+.modal-timeline {
+    max-height: 400px;
+    overflow-y: auto;
 }
 
-.user-card-edit-btn {
-    background: none;
-    border: 2px solid var(--border);
-    padding: 12px;
-    border-radius: 15px;
-    width: 100%;
-    color: var(--text-primary);
-    font-weight: 500;
+.modal-timeline-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+}
+
+.modal-timeline-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 80px;
+}
+
+.modal-timeline-data {
+    flex: 1;
+}
+
+.modal-timeline-data p {
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+/* GRADE DE POSTS - 3 COLUNAS */
+.profile-posts {
+    margin-top: 30px;
+}
+
+.profile-posts h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.post-thumb {
+    aspect-ratio: 1 / 1;
+    background: var(--bg-primary);
+    border-radius: 0;
+    padding: 0;
+    border: none;
     cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-thumb:hover {
+    transform: scale(1.02);
+    border-color: transparent;
+}
+
+.post-thumb::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    color: white;
+    font-size: 24px;
 }
 
-.user-card-edit-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-.progress-history {
-    background: var(--bg-secondary);
-    border-radius: 25px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: var(--card-shadow);
-}
-
-.progress-history h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 20px;
+.post-thumb:hover::after {
+    opacity: 1;
+    content: '👁️';
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--accent);
+    justify-content: center;
 }
 
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
+.post-thumb-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     background: var(--accent-gradient);
+    color: white;
+    text-align: center;
 }
 
-.timeline-item {
-    position: relative;
-    padding-bottom: 25px;
+.post-thumb-content i {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 10px;
 }
 
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -34px;
-    top: 0;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--bg-secondary);
+.post-thumb-content p {
+    font-size: 14px;
+    padding: 0 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.timeline-date {
-    font-size: 12px;
+.post-thumb-date {
+    font-size: 10px;
     color: var(--text-secondary);
-    margin-bottom: 5px;
-}
-
-.timeline-content {
-    background: var(--bg-primary);
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid var(--border);
-}
-
-.timeline-content p {
-    margin-bottom: 5px;
-}
-
-.timeline-content strong {
-    color: var(--accent);
 }
 
 .edit-section {
@@ -1496,57 +1613,6 @@ header {
 
 .ddi-select input {
     flex: 1;
-}
-
-.profile-posts {
-    background: var(--bg-secondary);
-    border-radius: 25px;
-    padding: 25px;
-    box-shadow: var(--card-shadow);
-}
-
-.profile-posts h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--accent);
-}
-
-.posts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.post-thumb {
-    background: var(--bg-primary);
-    border-radius: 15px;
-    padding: 15px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.post-thumb:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent);
-}
-
-.post-thumb p {
-    font-size: 14px;
-    margin-bottom: 10px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.post-thumb-date {
-    font-size: 10px;
-    color: var(--text-secondary);
 }
 
 .bottom-nav {
@@ -1836,18 +1902,23 @@ header {
         width: 100%;
     }
     
-    .profile-top {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
+    .profile-avatar-section {
+        flex: 0 0 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .profile-username-row {
+        flex-wrap: wrap;
     }
     
     .profile-stats {
-        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
     }
     
-    .profile-actions {
-        justify-content: center;
+    .posts-grid {
+        gap: 5px;
     }
     
     .edit-section-row {
@@ -1890,6 +1961,20 @@ header {
     .create-post .btn {
         padding: 12px;
     }
+    
+    .profile-highlights {
+        gap: 15px;
+    }
+    
+    .highlight-circle {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .highlight-circle i {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -1917,6 +2002,10 @@ header {
     
     .chat-user-info span {
         font-size: 11px;
+    }
+    
+    .posts-grid {
+        gap: 15px;
     }
 }
 </style>
@@ -2145,54 +2234,59 @@ header {
         </div>
     </div>
 
-    <!-- Profile Section -->
+    <!-- Profile Section - REDESENHADO -->
     <div id="profile" class="hidden">
         <div class="profile-container">
             <div class="profile-header">
-                <div class="profile-top">
+                <div class="profile-avatar-section">
                     <div class="profile-avatar-large" id="profileAvatar">U</div>
+                </div>
+                
+                <div class="profile-info-section">
+                    <div class="profile-username-row">
+                        <span class="profile-username" id="profileUsername">@usuario</span>
+                        <button class="profile-edit-btn" onclick="toggleEditProfile()">Editar perfil</button>
+                        <button class="profile-settings-btn" onclick="toggleSettings()" id="settingsBtn">
+                            <i data-lucide="settings"></i>
+                        </button>
+                    </div>
                     
-                    <div class="profile-info-main">
-                        <div class="profile-username">
-                            <span id="profileUsername">@usuario</span>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="profilePosts">0</span>
+                            <span class="stat-label">posts</span>
                         </div>
-                        
-                        <div class="profile-name" id="profileDisplayName"></div>
-                        
-                        <div class="profile-bio" id="profileBio">
-                            Olá, estou usando BEAMOVE! 💪
+                        <div class="stat-item">
+                            <span class="stat-value" id="profileFollowers">0</span>
+                            <span class="stat-label">seguidores</span>
                         </div>
-                        
-                        <a id="profileLink" class="profile-link" href="#" target="_blank">
-                            <i data-lucide="link"></i>
-                            <span id="profileLinkText">Adicione seu link</span>
-                        </a>
-                        
-                        <div class="profile-stats">
-                            <div class="stat-item">
-                                <div class="stat-value" id="profilePosts">0</div>
-                                <div class="stat-label">posts</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="profileFollowers">0</div>
-                                <div class="stat-label">seguidores</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="profileFollowing">0</div>
-                                <div class="stat-label">seguindo</div>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-actions">
-                            <button class="profile-edit-btn" onclick="toggleEditProfile()">
-                                <i data-lucide="edit-2" size="16"></i>
-                                Editar perfil
-                            </button>
-                            <button class="profile-settings-btn" onclick="toggleSettings()" id="settingsBtn">
-                                <i data-lucide="settings"></i>
-                            </button>
+                        <div class="stat-item">
+                            <span class="stat-value" id="profileFollowing">0</span>
+                            <span class="stat-label">seguindo</span>
                         </div>
                     </div>
+                    
+                    <div class="profile-name" id="profileDisplayName"></div>
+                    <div class="profile-bio" id="profileBio">Olá, estou usando BEAMOVE! 💪</div>
+                    <a id="profileLink" class="profile-link" href="#" target="_blank">
+                        <span id="profileLinkText">Adicione seu link</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cards de Destaque - Ficha e Histórico -->
+            <div class="profile-highlights">
+                <div class="highlight-card" onclick="showFichaModal()">
+                    <div class="highlight-circle">
+                        <i data-lucide="clipboard-list"></i>
+                    </div>
+                    <span class="highlight-label">Ficha</span>
+                </div>
+                <div class="highlight-card" onclick="showHistoricoModal()">
+                    <div class="highlight-circle">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <span class="highlight-label">Progresso</span>
                 </div>
             </div>
 
@@ -2274,94 +2368,63 @@ header {
                 </div>
             </div>
 
-            <!-- Ficha do Usuário -->
-            <div class="user-card">
-                <h3>
-                    <i data-lucide="clipboard-list"></i>
-                    Minha Ficha Fitness
-                </h3>
-                
-                <div class="user-card-grid" id="userCardGrid"></div>
-                
-                <div class="user-card-edit">
-                    <button class="user-card-edit-btn" onclick="toggleUserCardForm()">
-                        <i data-lucide="plus-circle"></i>
-                        Adicionar/Atualizar dados
-                    </button>
-                </div>
-            </div>
-
-            <!-- Formulário da Ficha do Usuário -->
-            <div id="userCardForm" class="edit-section hidden">
-                <h4>
-                    <i data-lucide="edit-3"></i>
-                    Atualizar Ficha
-                </h4>
-                
-                <div class="edit-section-row">
-                    <div>
-                        <label>Peso (kg)</label>
-                        <input type="number" id="editWeight" step="0.1" placeholder="Ex: 75.5" oninput="calculateIMC()">
-                    </div>
-                    <div>
-                        <label>Altura (cm)</label>
-                        <input type="number" id="editHeight" placeholder="Ex: 175" oninput="calculateIMC()">
-                    </div>
-                </div>
-                
-                <div class="edit-section-row">
-                    <div>
-                        <label>Idade</label>
-                        <input type="number" id="editAge" placeholder="Ex: 30">
-                    </div>
-                    <div>
-                        <label>IMC</label>
-                        <input type="text" id="editImc" readonly placeholder="Calculado automaticamente">
-                    </div>
-                </div>
-                
-                <div>
-                    <label>Objetivo</label>
-                    <select id="editGoal">
-                        <option value="">Selecione seu objetivo</option>
-                        <option value="emagrecimento">Emagrecimento</option>
-                        <option value="hipertrofia">Hipertrofia</option>
-                        <option value="definicao">Definição muscular</option>
-                        <option value="saude">Saúde e bem-estar</option>
-                        <option value="resistencia">Resistência</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label>Observações</label>
-                    <textarea id="editNotes" placeholder="Lesões, restrições, etc..."></textarea>
-                </div>
-                
+            <!-- Formulário de Edição de Perfil -->
+            <div id="editProfileForm" class="edit-section hidden">
+                <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
+                <input type="text" id="editName" placeholder="Nome">
+                <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
+                <input type="text" id="editLink" placeholder="Link">
                 <div class="edit-section-actions">
-                    <button class="btn btn-primary" onclick="saveUserCard()">Salvar ficha</button>
-                    <button class="btn btn-secondary" onclick="toggleUserCardForm()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
+                    <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
                 </div>
             </div>
 
-            <!-- Histórico de Progresso -->
-            <div class="progress-history">
-                <h3>
-                    <i data-lucide="trending-up"></i>
-                    Histórico de Progresso
-                </h3>
-                
-                <div class="timeline" id="progressTimeline"></div>
-            </div>
-
-            <!-- Posts do Perfil -->
+            <!-- Posts do Perfil - 3 COLUNAS -->
             <div class="profile-posts">
-                <h3>
-                    <i data-lucide="image"></i>
-                    Meus Posts
-                </h3>
-                
+                <h3>PUBLICAÇÕES</h3>
                 <div class="posts-grid" id="profilePostsGrid"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Ficha -->
+    <div id="fichaModal" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <h3 class="modal-title">Minha Ficha Fitness</h3>
+            <div class="modal-grid" id="fichaModalContent">
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="scale" size="14"></i> Peso</div>
+                    <div class="modal-item-value">-- <small>kg</small></div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="ruler" size="14"></i> Altura</div>
+                    <div class="modal-item-value">-- <small>cm</small></div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="calendar" size="14"></i> Idade</div>
+                    <div class="modal-item-value">-- <small>anos</small></div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="activity" size="14"></i> IMC</div>
+                    <div class="modal-item-value" id="fichaImc">--</div>
+                </div>
+                <div class="modal-item" style="grid-column: span 2;">
+                    <div class="modal-item-label"><i data-lucide="target" size="14"></i> Objetivo</div>
+                    <div class="modal-item-value" id="fichaGoal">Não definido</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="toggleUserCardForm()">Atualizar Ficha</button>
+        </div>
+    </div>
+
+    <!-- Modal Histórico -->
+    <div id="historicoModal" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <h3 class="modal-title">Histórico de Progresso</h3>
+            <div class="modal-timeline" id="historicoModalContent"></div>
         </div>
     </div>
 
@@ -2757,7 +2820,7 @@ function backToHome() {
 }
 
 // ============================================================
-// FUNÇÕES DE COMENTÁRIOS - CORRIGIDAS
+// FUNÇÕES DE COMENTÁRIOS
 // ============================================================
 
 function toggleComments(postId, type) {
@@ -3455,6 +3518,379 @@ function sharePost(postId) {
 }
 
 // ============================================================
+// FUNÇÕES DO PERFIL - REDESENHADAS
+// ============================================================
+
+function loadProfile() {
+    const user = auth.currentUser;
+    db.collection('users').doc(user.uid).get().then(doc => {
+        const data = doc.data();
+        userCache.set(user.uid, data);
+        document.getElementById('profileUsername').innerText = data.username || '@usuario';
+        document.getElementById('profileDisplayName').innerText = data.displayName || '';
+        document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
+        document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
+        document.getElementById('profileLink').href = data.link || '#';
+        document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
+        
+        const whatsappDDI = document.getElementById('whatsappDDI');
+        if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
+        const editWhatsApp = document.getElementById('editWhatsApp');
+        if (editWhatsApp) editWhatsApp.value = data.whatsapp || '';
+        const phoneDDI = document.getElementById('phoneDDI');
+        if (phoneDDI) phoneDDI.value = data.phoneDDI || '+351';
+        const editPhone = document.getElementById('editPhone');
+        if (editPhone) editPhone.value = data.phone || '';
+        const editBirthDate = document.getElementById('editBirthDate');
+        if (editBirthDate) editBirthDate.value = data.birthDate || '';
+        const editGender = document.getElementById('editGender');
+        if (editGender) editGender.value = data.gender || '';
+        
+        loadProfileStats();
+    }).catch(console.error);
+}
+
+function loadProfileStats() {
+    const user = auth.currentUser;
+    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
+        document.getElementById('profilePosts').innerText = snapshot.size;
+    }).catch(console.error);
+    document.getElementById('profileFollowers').innerText = '128';
+    document.getElementById('profileFollowing').innerText = '56';
+}
+
+function loadProfilePosts() {
+    const user = auth.currentUser;
+    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
+        const grid = document.getElementById('profilePostsGrid');
+        grid.innerHTML = '';
+        if (snapshot.empty) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Você ainda não tem posts</div>';
+            return;
+        }
+        const posts = [];
+        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
+        posts.sort((a, b) => {
+            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+            return dateB - dateA;
+        });
+        posts.forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.className = 'post-thumb';
+            postElement.onclick = () => goToPostInFeed(post.id);
+            postElement.innerHTML = `
+                <div class="post-thumb-content">
+                    <i data-lucide="image"></i>
+                    <p>${post.text.substring(0, 30)}${post.text.length > 30 ? '...' : ''}</p>
+                    <div class="post-thumb-date">${formatDate(post.created)}</div>
+                </div>
+            `;
+            grid.appendChild(postElement);
+        });
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
+    }).catch(console.error);
+}
+
+function goToPostInFeed(postId) {
+    showTab('feed');
+    setTimeout(() => {
+        const postElement = document.getElementById('post-' + postId);
+        if (postElement) {
+            postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            postElement.style.animation = 'pulse 1s';
+            setTimeout(() => {
+                postElement.style.animation = '';
+            }, 1000);
+        }
+    }, 500);
+}
+
+function toggleEditProfile() {
+    const form = document.getElementById('editProfileForm');
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+        db.collection('users').doc(auth.currentUser.uid).get().then(doc => {
+            const data = doc.data();
+            document.getElementById('editName').value = data.displayName || '';
+            document.getElementById('editBio').value = data.bio || '';
+            document.getElementById('editLink').value = data.link || '';
+        });
+    }
+}
+
+function saveProfile() {
+    const name = document.getElementById('editName').value;
+    const bio = document.getElementById('editBio').value;
+    const link = document.getElementById('editLink').value;
+    
+    db.collection('users').doc(auth.currentUser.uid).update({
+        displayName: name,
+        bio: bio,
+        link: link
+    }).then(() => {
+        loadProfile();
+        toggleEditProfile();
+        alert('Perfil atualizado!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    });
+}
+
+function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('hidden');
+}
+
+function saveSettings() {
+    const whatsappDDI = document.getElementById('whatsappDDI').value;
+    const whatsapp = document.getElementById('editWhatsApp').value;
+    const phoneDDI = document.getElementById('phoneDDI').value;
+    const phone = document.getElementById('editPhone').value;
+    const birthDate = document.getElementById('editBirthDate').value;
+    const gender = document.getElementById('editGender').value;
+    
+    db.collection('users').doc(auth.currentUser.uid).update({
+        whatsappDDI, whatsapp, phoneDDI, phone, birthDate, gender
+    }).then(() => {
+        toggleSettings();
+        alert('Configurações salvas!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    });
+}
+
+// ============================================================
+// FUNÇÕES DOS MODAIS
+// ============================================================
+
+function showFichaModal() {
+    const modal = document.getElementById('fichaModal');
+    modal.classList.remove('hidden');
+    
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (snapshot.empty) {
+            document.getElementById('fichaModalContent').innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 20px;">
+                    Nenhuma ficha cadastrada. Clique em "Atualizar Ficha" para começar.
+                </div>
+            `;
+            return;
+        }
+        
+        let latest = null;
+        let latestDate = null;
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+            if (!latestDate || date > latestDate) {
+                latestDate = date;
+                latest = data;
+            }
+        });
+        
+        if (latest) {
+            const imc = (latest.weight / Math.pow(latest.height / 100, 2)).toFixed(2);
+            let imcColor = '#10b981';
+            if (imc < 18.5) imcColor = '#f59e0b';
+            else if (imc < 25) imcColor = '#10b981';
+            else if (imc < 30) imcColor = '#f59e0b';
+            else imcColor = '#ef4444';
+            
+            document.getElementById('fichaModalContent').innerHTML = `
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="scale" size="14"></i> Peso</div>
+                    <div class="modal-item-value">${latest.weight} <small>kg</small></div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="ruler" size="14"></i> Altura</div>
+                    <div class="modal-item-value">${latest.height} <small>cm</small></div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="calendar" size="14"></i> Idade</div>
+                    <div class="modal-item-value">${latest.age} <small>anos</small></div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-label"><i data-lucide="activity" size="14"></i> IMC</div>
+                    <div class="modal-item-value" style="color: ${imcColor}">${imc}</div>
+                </div>
+                <div class="modal-item" style="grid-column: span 2;">
+                    <div class="modal-item-label"><i data-lucide="target" size="14"></i> Objetivo</div>
+                    <div class="modal-item-value">${getGoalName(latest.goal)}</div>
+                </div>
+            `;
+        }
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
+    }).catch(console.error);
+}
+
+function showHistoricoModal() {
+    const modal = document.getElementById('historicoModal');
+    modal.classList.remove('hidden');
+    
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (snapshot.size <= 1) {
+            document.getElementById('historicoModalContent').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    Atualize sua ficha pelo menos duas vezes para ver o histórico.
+                </div>
+            `;
+            return;
+        }
+        
+        const cards = [];
+        snapshot.forEach(doc => cards.push(doc.data()));
+        cards.sort((a, b) => {
+            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+            return dateB - dateA;
+        });
+        
+        let html = '';
+        cards.forEach(data => {
+            const imc = (data.weight / Math.pow(data.height / 100, 2)).toFixed(2);
+            let imcColor = '#10b981';
+            if (imc < 18.5) imcColor = '#f59e0b';
+            else if (imc < 25) imcColor = '#10b981';
+            else if (imc < 30) imcColor = '#f59e0b';
+            else imcColor = '#ef4444';
+            
+            html += `
+                <div class="modal-timeline-item">
+                    <div class="modal-timeline-date">${formatDate(data.created)}</div>
+                    <div class="modal-timeline-data">
+                        <p><strong>Peso:</strong> ${data.weight} kg</p>
+                        <p><strong>Altura:</strong> ${data.height} cm</p>
+                        <p><strong>Idade:</strong> ${data.age} anos</p>
+                        <p><strong>IMC:</strong> <span style="color: ${imcColor}">${imc}</span></p>
+                        ${data.goal ? `<p><strong>Objetivo:</strong> ${getGoalName(data.goal)}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        document.getElementById('historicoModalContent').innerHTML = html;
+    }).catch(console.error);
+}
+
+function closeModal(event) {
+    const modals = document.querySelectorAll('.modal-overlay');
+    modals.forEach(modal => {
+        if (!event || event.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+}
+
+// ============================================================
+// FUNÇÕES DA FICHA DO USUÁRIO
+// ============================================================
+
+function toggleUserCardForm() {
+    closeModal();
+    document.getElementById('userCardForm').classList.toggle('hidden');
+    if (!document.getElementById('userCardForm').classList.contains('hidden')) loadCurrentUserCard();
+}
+
+function loadCurrentUserCard() {
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (!snapshot.empty) {
+            let latest = null;
+            let latestDate = null;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+                if (!latestDate || date > latestDate) {
+                    latestDate = date;
+                    latest = data;
+                }
+            });
+            if (latest) {
+                document.getElementById('editWeight').value = latest.weight || '';
+                document.getElementById('editHeight').value = latest.height || '';
+                document.getElementById('editAge').value = latest.age || '';
+                document.getElementById('editGoal').value = latest.goal || '';
+                document.getElementById('editNotes').value = latest.notes || '';
+                calculateIMC();
+            }
+        }
+    }).catch(console.error);
+}
+
+function calculateIMC() {
+    const weight = parseFloat(document.getElementById('editWeight').value);
+    const height = parseFloat(document.getElementById('editHeight').value);
+    if (weight && height) {
+        const imc = weight / Math.pow(height / 100, 2);
+        document.getElementById('editImc').value = imc.toFixed(2);
+    } else {
+        document.getElementById('editImc').value = '';
+    }
+}
+
+function saveUserCard() {
+    const weight = parseFloat(document.getElementById('editWeight').value);
+    const height = parseFloat(document.getElementById('editHeight').value);
+    const age = parseInt(document.getElementById('editAge').value);
+    const goal = document.getElementById('editGoal').value;
+    const notes = document.getElementById('editNotes').value;
+    
+    if (isNaN(weight) || weight <= 0 || isNaN(height) || height <= 0 || isNaN(age) || age <= 0) {
+        alert('Preencha valores válidos');
+        return;
+    }
+    
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = 'Salvando...';
+    btn.disabled = true;
+    
+    db.collection('user_cards').add({
+        userId: auth.currentUser.uid,
+        weight, height, age, goal, notes,
+        created: new Date()
+    }).then(() => {
+        alert('Ficha salva!');
+        toggleUserCardForm();
+        loadUserCard();
+        loadProgressHistory();
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    }).finally(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
+}
+
+function loadUserCard() {
+    // Função mantida mas não usada diretamente nos novos cards
+}
+
+function loadProgressHistory() {
+    // Função mantida mas não usada diretamente nos novos cards
+}
+
+function getGoalName(goal) {
+    const goals = {
+        'emagrecimento': 'Emagrecimento',
+        'hipertrofia': 'Hipertrofia',
+        'definicao': 'Definição muscular',
+        'saude': 'Saúde e bem-estar',
+        'resistencia': 'Resistência'
+    };
+    return goals[goal] || goal || 'Não definido';
+}
+
+// ============================================================
 // FUNÇÕES DO CHAT (COMPLETAS)
 // ============================================================
 
@@ -3786,343 +4222,6 @@ function searchUsers() {
         `;
         searchList.appendChild(li);
     });
-}
-
-// ============================================================
-// FUNÇÕES DO PERFIL
-// ============================================================
-
-function loadProfile() {
-    const user = auth.currentUser;
-    db.collection('users').doc(user.uid).get().then(doc => {
-        const data = doc.data();
-        userCache.set(user.uid, data);
-        document.getElementById('profileUsername').innerText = data.username || '@usuario';
-        document.getElementById('profileDisplayName').innerText = data.displayName || '';
-        document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
-        document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
-        document.getElementById('profileLink').href = data.link || '#';
-        document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
-        
-        const whatsappDDI = document.getElementById('whatsappDDI');
-        if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
-        const editWhatsApp = document.getElementById('editWhatsApp');
-        if (editWhatsApp) editWhatsApp.value = data.whatsapp || '';
-        const phoneDDI = document.getElementById('phoneDDI');
-        if (phoneDDI) phoneDDI.value = data.phoneDDI || '+351';
-        const editPhone = document.getElementById('editPhone');
-        if (editPhone) editPhone.value = data.phone || '';
-        const editBirthDate = document.getElementById('editBirthDate');
-        if (editBirthDate) editBirthDate.value = data.birthDate || '';
-        const editGender = document.getElementById('editGender');
-        if (editGender) editGender.value = data.gender || '';
-        
-        loadProfileStats();
-    }).catch(console.error);
-}
-
-function loadProfileStats() {
-    const user = auth.currentUser;
-    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
-        document.getElementById('profilePosts').innerText = snapshot.size;
-    }).catch(console.error);
-    document.getElementById('profileFollowers').innerText = '128';
-    document.getElementById('profileFollowing').innerText = '56';
-}
-
-function loadProfilePosts() {
-    const user = auth.currentUser;
-    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
-        const grid = document.getElementById('profilePostsGrid');
-        grid.innerHTML = '';
-        if (snapshot.empty) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Você ainda não tem posts</div>';
-            return;
-        }
-        const posts = [];
-        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
-        posts.sort((a, b) => {
-            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-            return dateB - dateA;
-        });
-        posts.slice(0, 6).forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.className = 'post-thumb';
-            postElement.innerHTML = `
-                <p>${post.text.substring(0, 60)}${post.text.length > 60 ? '...' : ''}</p>
-                <div class="post-thumb-date">${formatDate(post.created)}</div>
-            `;
-            grid.appendChild(postElement);
-        });
-    }).catch(console.error);
-}
-
-function toggleEditProfile() {
-    const form = document.getElementById('editProfileForm');
-    if (!form) {
-        const editForm = document.createElement('div');
-        editForm.id = 'editProfileForm';
-        editForm.className = 'edit-section';
-        editForm.innerHTML = `
-            <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
-            <input type="text" id="editName" placeholder="Seu nome">
-            <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
-            <input type="text" id="editLink" placeholder="Link do seu site">
-            <div class="edit-section-actions">
-                <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
-                <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
-            </div>
-        `;
-        document.querySelector('.profile-container').insertBefore(editForm, document.querySelector('.user-card'));
-        lucide.createIcons({
-            attrs: {
-                fill: 'currentColor',
-                stroke: 'currentColor'
-            }
-        });
-        
-        db.collection('users').doc(auth.currentUser.uid).get().then(doc => {
-            const data = doc.data();
-            document.getElementById('editName').value = data.displayName || '';
-            document.getElementById('editBio').value = data.bio || '';
-            document.getElementById('editLink').value = data.link || '';
-        });
-    } else {
-        form.classList.toggle('hidden');
-    }
-}
-
-function saveProfile() {
-    const name = document.getElementById('editName').value;
-    const bio = document.getElementById('editBio').value;
-    const link = document.getElementById('editLink').value;
-    
-    db.collection('users').doc(auth.currentUser.uid).update({
-        displayName: name,
-        bio: bio,
-        link: link
-    }).then(() => {
-        loadProfile();
-        toggleEditProfile();
-        alert('Perfil atualizado!');
-    }).catch(error => {
-        alert('Erro: ' + error.message);
-    });
-}
-
-function toggleSettings() {
-    document.getElementById('settingsPanel').classList.toggle('hidden');
-}
-
-function saveSettings() {
-    const whatsappDDI = document.getElementById('whatsappDDI').value;
-    const whatsapp = document.getElementById('editWhatsApp').value;
-    const phoneDDI = document.getElementById('phoneDDI').value;
-    const phone = document.getElementById('editPhone').value;
-    const birthDate = document.getElementById('editBirthDate').value;
-    const gender = document.getElementById('editGender').value;
-    
-    db.collection('users').doc(auth.currentUser.uid).update({
-        whatsappDDI, whatsapp, phoneDDI, phone, birthDate, gender
-    }).then(() => {
-        toggleSettings();
-        alert('Configurações salvas!');
-    }).catch(error => {
-        alert('Erro: ' + error.message);
-    });
-}
-
-// ============================================================
-// FUNÇÕES DA FICHA DO USUÁRIO
-// ============================================================
-
-function toggleUserCardForm() {
-    const form = document.getElementById('userCardForm');
-    form.classList.toggle('hidden');
-    if (!form.classList.contains('hidden')) loadCurrentUserCard();
-}
-
-function loadCurrentUserCard() {
-    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
-        if (!snapshot.empty) {
-            let latest = null;
-            let latestDate = null;
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
-                if (!latestDate || date > latestDate) {
-                    latestDate = date;
-                    latest = data;
-                }
-            });
-            if (latest) {
-                document.getElementById('editWeight').value = latest.weight || '';
-                document.getElementById('editHeight').value = latest.height || '';
-                document.getElementById('editAge').value = latest.age || '';
-                document.getElementById('editGoal').value = latest.goal || '';
-                document.getElementById('editNotes').value = latest.notes || '';
-                calculateIMC();
-            }
-        }
-    }).catch(console.error);
-}
-
-function calculateIMC() {
-    const weight = parseFloat(document.getElementById('editWeight').value);
-    const height = parseFloat(document.getElementById('editHeight').value);
-    if (weight && height) {
-        const imc = weight / Math.pow(height / 100, 2);
-        document.getElementById('editImc').value = imc.toFixed(2);
-    } else {
-        document.getElementById('editImc').value = '';
-    }
-}
-
-function saveUserCard() {
-    const weight = parseFloat(document.getElementById('editWeight').value);
-    const height = parseFloat(document.getElementById('editHeight').value);
-    const age = parseInt(document.getElementById('editAge').value);
-    const goal = document.getElementById('editGoal').value;
-    const notes = document.getElementById('editNotes').value;
-    
-    if (isNaN(weight) || weight <= 0 || isNaN(height) || height <= 0 || isNaN(age) || age <= 0) {
-        alert('Preencha valores válidos');
-        return;
-    }
-    
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.innerText = 'Salvando...';
-    btn.disabled = true;
-    
-    db.collection('user_cards').add({
-        userId: auth.currentUser.uid,
-        weight, height, age, goal, notes,
-        created: new Date()
-    }).then(() => {
-        alert('Ficha salva!');
-        toggleUserCardForm();
-        loadUserCard();
-        loadProgressHistory();
-    }).catch(error => {
-        alert('Erro: ' + error.message);
-    }).finally(() => {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    });
-}
-
-function loadUserCard() {
-    const grid = document.getElementById('userCardGrid');
-    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
-        if (snapshot.empty) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Nenhum dado cadastrado.</div>';
-            return;
-        }
-        
-        let latest = null;
-        let latestDate = null;
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
-            if (!latestDate || date > latestDate) {
-                latestDate = date;
-                latest = data;
-            }
-        });
-        
-        if (!latest) return;
-        
-        const imc = (latest.weight / Math.pow(latest.height / 100, 2)).toFixed(2);
-        let imcClass = '';
-        if (imc < 18.5) imcClass = 'warning';
-        else if (imc < 25) imcClass = 'success';
-        else if (imc < 30) imcClass = 'warning';
-        else imcClass = 'danger';
-        
-        grid.innerHTML = `
-            <div class="user-card-item">
-                <div class="user-card-label"><i data-lucide="scale" size="14"></i> Peso</div>
-                <div class="user-card-value">${latest.weight} <small>kg</small></div>
-            </div>
-            <div class="user-card-item">
-                <div class="user-card-label"><i data-lucide="ruler" size="14"></i> Altura</div>
-                <div class="user-card-value">${latest.height} <small>cm</small></div>
-            </div>
-            <div class="user-card-item">
-                <div class="user-card-label"><i data-lucide="calendar" size="14"></i> Idade</div>
-                <div class="user-card-value">${latest.age} <small>anos</small></div>
-            </div>
-            <div class="user-card-item">
-                <div class="user-card-label"><i data-lucide="activity" size="14"></i> IMC</div>
-                <div class="user-card-value" style="color: var(--${imcClass})">${imc}</div>
-            </div>
-            <div class="user-card-item" style="grid-column: span 2;">
-                <div class="user-card-label"><i data-lucide="target" size="14"></i> Objetivo</div>
-                <div class="user-card-value">${getGoalName(latest.goal)}</div>
-            </div>
-        `;
-        lucide.createIcons({
-            attrs: {
-                fill: 'currentColor',
-                stroke: 'currentColor'
-            }
-        });
-    }).catch(console.error);
-}
-
-function loadProgressHistory() {
-    const timeline = document.getElementById('progressTimeline');
-    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
-        if (snapshot.size <= 1) {
-            timeline.innerHTML = '<div style="text-align: center; padding: 20px;">Atualize sua ficha para ver histórico</div>';
-            return;
-        }
-        
-        const cards = [];
-        snapshot.forEach(doc => cards.push(doc.data()));
-        cards.sort((a, b) => {
-            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-            return dateB - dateA;
-        });
-        
-        timeline.innerHTML = '';
-        cards.forEach(data => {
-            const imc = (data.weight / Math.pow(data.height / 100, 2)).toFixed(2);
-            let imcClass = '';
-            if (imc < 18.5) imcClass = 'warning';
-            else if (imc < 25) imcClass = 'success';
-            else if (imc < 30) imcClass = 'warning';
-            else imcClass = 'danger';
-            
-            const item = document.createElement('div');
-            item.className = 'timeline-item';
-            item.innerHTML = `
-                <div class="timeline-date">${formatDate(data.created)}</div>
-                <div class="timeline-content">
-                    <p><strong>Peso:</strong> ${data.weight} kg</p>
-                    <p><strong>Altura:</strong> ${data.height} cm</p>
-                    <p><strong>Idade:</strong> ${data.age} anos</p>
-                    <p><strong>IMC:</strong> <span style="color: var(--${imcClass})">${imc}</span></p>
-                    ${data.goal ? `<p><strong>Objetivo:</strong> ${getGoalName(data.goal)}</p>` : ''}
-                </div>
-            `;
-            timeline.appendChild(item);
-        });
-    }).catch(console.error);
-}
-
-function getGoalName(goal) {
-    const goals = {
-        'emagrecimento': 'Emagrecimento',
-        'hipertrofia': 'Hipertrofia',
-        'definicao': 'Definição muscular',
-        'saude': 'Saúde e bem-estar',
-        'resistencia': 'Resistência'
-    };
-    return goals[goal] || goal || 'Não definido';
 }
 
 // ============================================================
