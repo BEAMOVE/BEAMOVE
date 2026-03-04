@@ -449,12 +449,32 @@ header {
     color: white;
     font-weight: 600;
     font-size: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.post-avatar:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .post-info h4 {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 4px;
+}
+
+.username-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.username-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
 
 .post-info span {
@@ -545,6 +565,13 @@ header {
     font-weight: 600;
     font-size: 14px;
     flex-shrink: 0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.comment-avatar:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .comment-content {
@@ -561,6 +588,15 @@ header {
 .comment-author {
     font-weight: 600;
     font-size: 13px;
+    cursor: pointer;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.comment-author:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
 
 .comment-time {
@@ -738,6 +774,13 @@ header {
     font-size: 18px;
     flex-shrink: 0;
     position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.chat-user-avatar:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .chat-user-avatar.online::after {
@@ -767,6 +810,12 @@ header {
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.chat-user-info strong:hover {
+    color: var(--accent);
 }
 
 .chat-user-info span {
@@ -843,6 +892,13 @@ header {
     font-weight: 600;
     font-size: 18px;
     position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.chat-header-avatar:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .chat-header-avatar.online::after {
@@ -865,6 +921,12 @@ header {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 2px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.chat-header-info h4:hover {
+    color: var(--accent);
 }
 
 .chat-header-info p {
@@ -906,6 +968,13 @@ header {
     font-weight: 600;
     flex-shrink: 0;
     position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.message-avatar:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .message-avatar.online::after {
@@ -1108,14 +1177,17 @@ header {
     color: var(--text-secondary);
 }
 
-/* PERFIL REDESENHADO - ESTILO INSTAGRAM */
+/* PERFIL - ESTILO INSTAGRAM */
 .profile-container {
     max-width: 935px;
     margin: 0 auto;
     padding: 30px 20px 80px 20px;
 }
 
-/* Username centralizado */
+.profile-header {
+    margin-bottom: 44px;
+}
+
 .profile-username-centered {
     text-align: center;
     font-size: 28px;
@@ -1123,7 +1195,6 @@ header {
     margin-bottom: 30px;
 }
 
-/* Linha da foto e informações */
 .profile-row {
     display: flex;
     align-items: flex-start;
@@ -1131,7 +1202,6 @@ header {
     margin-bottom: 20px;
 }
 
-/* Foto de perfil - reduzida */
 .profile-avatar-wrapper {
     flex-shrink: 0;
     width: 120px;
@@ -1154,7 +1224,6 @@ header {
     box-shadow: 0 0 0 2px var(--border);
 }
 
-/* Informações do perfil - duas linhas */
 .profile-info-wrapper {
     flex: 1;
     display: flex;
@@ -1191,7 +1260,6 @@ header {
     color: var(--text-secondary);
 }
 
-/* Bio e link - alinhados à esquerda */
 .profile-bio-section {
     margin-bottom: 25px;
     padding-left: 0;
@@ -1217,7 +1285,6 @@ header {
     text-decoration: underline;
 }
 
-/* Botões em linha - editar perfil, ficha, progresso */
 .profile-buttons-row {
     display: flex;
     gap: 12px;
@@ -1249,6 +1316,25 @@ header {
     background: var(--border);
     transform: none;
     box-shadow: none;
+}
+
+.view-profile-btn {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-block;
+    text-decoration: none;
+}
+
+.view-profile-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
 }
 
 /* MODAL POPUP */
@@ -1666,6 +1752,15 @@ header {
 
 .forum-post-author {
     font-weight: 600;
+    cursor: pointer;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.forum-post-author:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
 
 .forum-post-date {
@@ -2168,67 +2263,47 @@ header {
         </div>
     </div>
 
-    <!-- Profile Section - REDESENHADO CONFORME SOLICITADO -->
+    <!-- Profile Section -->
     <div id="profile" class="hidden">
         <div class="profile-container">
-            <!-- Username centralizado -->
-            <div class="profile-username-centered" id="profileUsername">@usuario</div>
-            
-            <!-- Linha da foto e informações -->
-            <div class="profile-row">
-                <!-- Foto de perfil - reduzida à esquerda -->
-                <div class="profile-avatar-wrapper">
-                    <div class="profile-avatar-medium" id="profileAvatar">U</div>
-                </div>
+            <div class="profile-header">
+                <div class="profile-username-centered" id="profileUsername">@usuario</div>
                 
-                <!-- Informações em duas linhas -->
-                <div class="profile-info-wrapper">
-                    <!-- Primeira linha: nome do perfil -->
-                    <div class="profile-name-row" id="profileDisplayName"></div>
+                <div class="profile-row">
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar-medium" id="profileAvatar">U</div>
+                    </div>
                     
-                    <!-- Segunda linha: estatísticas -->
-                    <div class="profile-stats-row">
-                        <div class="stat-item">
-                            <span class="stat-value" id="profilePosts">0</span>
-                            <span class="stat-label">posts</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="profileFollowers">0</span>
-                            <span class="stat-label">seguidores</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="profileFollowing">0</span>
-                            <span class="stat-label">seguindo</span>
+                    <div class="profile-info-wrapper">
+                        <div class="profile-name-row" id="profileDisplayName"></div>
+                        
+                        <div class="profile-stats-row">
+                            <div class="stat-item">
+                                <span class="stat-value" id="profilePosts">0</span>
+                                <span class="stat-label">posts</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="profileFollowers">0</span>
+                                <span class="stat-label">seguidores</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="profileFollowing">0</span>
+                                <span class="stat-label">seguindo</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Bio e link - alinhados à esquerda -->
-            <div class="profile-bio-section">
-                <div class="profile-bio-text" id="profileBio">Olá, estou usando BEAMOVE! 💪</div>
-                <a id="profileLink" class="profile-link" href="#" target="_blank">
-                    <span id="profileLinkText">Adicione seu link</span>
-                </a>
-            </div>
+                <div class="profile-bio-section">
+                    <div class="profile-bio-text" id="profileBio">Olá, estou usando BEAMOVE! 💪</div>
+                    <a id="profileLink" class="profile-link" href="#" target="_blank">
+                        <span id="profileLinkText">Adicione seu link</span>
+                    </a>
+                </div>
 
-            <!-- Botões em linha - editar perfil, ficha, progresso -->
-            <div class="profile-buttons-row">
-                <button class="profile-action-btn" onclick="toggleEditProfile()">
-                    <i data-lucide="edit-2"></i>
-                    Editar perfil
-                </button>
-                <button class="profile-action-btn" onclick="showFichaModal()">
-                    <i data-lucide="clipboard-list"></i>
-                    Ficha
-                </button>
-                <button class="profile-action-btn" onclick="showHistoricoModal()">
-                    <i data-lucide="trending-up"></i>
-                    Progresso
-                </button>
-                <button class="profile-action-btn" onclick="toggleSettings()" id="settingsBtn">
-                    <i data-lucide="settings"></i>
-                </button>
+                <div class="profile-buttons-row" id="profileButtons">
+                    <!-- Botões serão inseridos dinamicamente -->
+                </div>
             </div>
 
             <!-- Configurações/Engrenagem -->
@@ -2487,6 +2562,7 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 const userStatusListeners = new Map();
 let commentsVisible = new Map();
+let viewingProfileId = null; // ID do perfil que está sendo visualizado
 
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE
@@ -2588,6 +2664,162 @@ function updateAllUsersOnlineStatus() {
         const userId = item.getAttribute('data-user-id');
         if (userId && userId !== 'geral') updateUserOnlineStatusUI(userId);
     });
+}
+
+// ============================================================
+// FUNÇÕES DE NAVEGAÇÃO DE PERFIL
+// ============================================================
+
+function viewProfile(userId) {
+    if (!userId) return;
+    
+    // Se for o próprio usuário, mostra o perfil normal
+    if (userId === auth.currentUser?.uid) {
+        viewingProfileId = null;
+        showTab('profile');
+        loadProfile();
+        return;
+    }
+    
+    viewingProfileId = userId;
+    showTab('profile');
+    loadUserProfile(userId);
+}
+
+function loadUserProfile(userId) {
+    db.collection('users').doc(userId).get().then(doc => {
+        if (!doc.exists) {
+            alert('Usuário não encontrado');
+            viewingProfileId = null;
+            showTab('home');
+            return;
+        }
+        
+        const userData = doc.data();
+        userCache.set(userId, userData);
+        
+        // Atualizar UI com dados do usuário
+        document.getElementById('profileUsername').innerText = userData.username || '@usuario';
+        document.getElementById('profileDisplayName').innerText = userData.displayName || '';
+        document.getElementById('profileBio').innerText = userData.bio || 'Sem bio';
+        document.getElementById('profileLinkText').innerText = userData.link || '';
+        document.getElementById('profileLink').href = userData.link || '#';
+        if (userData.link) {
+            document.getElementById('profileLink').style.display = 'inline-block';
+        } else {
+            document.getElementById('profileLink').style.display = 'none';
+        }
+        document.getElementById('profileAvatar').innerText = userData.username ? userData.username.charAt(1).toUpperCase() : 'U';
+        
+        // Carregar estatísticas
+        loadUserProfileStats(userId);
+        loadUserProfilePosts(userId);
+        
+        // Botões diferentes para perfil de outro usuário
+        const profileButtons = document.getElementById('profileButtons');
+        if (userId === auth.currentUser?.uid) {
+            profileButtons.innerHTML = `
+                <button class="profile-action-btn" onclick="toggleEditProfile()">
+                    <i data-lucide="edit-2"></i>
+                    Editar perfil
+                </button>
+                <button class="profile-action-btn" onclick="showFichaModal()">
+                    <i data-lucide="clipboard-list"></i>
+                    Ficha
+                </button>
+                <button class="profile-action-btn" onclick="showHistoricoModal()">
+                    <i data-lucide="trending-up"></i>
+                    Progresso
+                </button>
+                <button class="profile-action-btn" onclick="toggleSettings()" id="settingsBtn">
+                    <i data-lucide="settings"></i>
+                </button>
+            `;
+        } else {
+            profileButtons.innerHTML = `
+                <button class="profile-action-btn" onclick="startChat('${userId}')">
+                    <i data-lucide="message-circle"></i>
+                    Mensagem
+                </button>
+                <button class="profile-action-btn" onclick="followUser('${userId}')">
+                    <i data-lucide="user-plus"></i>
+                    Seguir
+                </button>
+            `;
+        }
+        
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
+    }).catch(error => {
+        console.error('Erro ao carregar perfil:', error);
+        alert('Erro ao carregar perfil');
+        viewingProfileId = null;
+    });
+}
+
+function loadUserProfileStats(userId) {
+    db.collection('posts').where('user', '==', userId).get().then(snapshot => {
+        document.getElementById('profilePosts').innerText = snapshot.size;
+    }).catch(console.error);
+    
+    // Estatísticas fictícias para demonstração
+    document.getElementById('profileFollowers').innerText = '128';
+    document.getElementById('profileFollowing').innerText = '56';
+}
+
+function loadUserProfilePosts(userId) {
+    db.collection('posts').where('user', '==', userId).get().then(snapshot => {
+        const grid = document.getElementById('profilePostsGrid');
+        grid.innerHTML = '';
+        if (snapshot.empty) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Este usuário ainda não tem posts</div>';
+            return;
+        }
+        const posts = [];
+        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
+        posts.sort((a, b) => {
+            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+            return dateB - dateA;
+        });
+        posts.forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.className = 'post-thumb';
+            postElement.onclick = () => goToPostInFeed(post.id);
+            postElement.innerHTML = `
+                <div class="post-thumb-content">
+                    <i data-lucide="image"></i>
+                    <p>${post.text.substring(0, 30)}${post.text.length > 30 ? '...' : ''}</p>
+                    <div class="post-thumb-date">${formatDate(post.created)}</div>
+                </div>
+            `;
+            grid.appendChild(postElement);
+        });
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
+    }).catch(console.error);
+}
+
+function startChat(userId) {
+    showTab('chat');
+    db.collection('users').doc(userId).get().then(doc => {
+        if (doc.exists) {
+            const userData = doc.data();
+            selectChat('private_' + userId, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+        }
+    });
+}
+
+function followUser(userId) {
+    alert('Função de seguir será implementada em breve!');
 }
 
 // ============================================================
@@ -2744,10 +2976,15 @@ function showTab(tabName) {
     document.getElementById('bottomNav').classList.remove('hidden-nav');
     
     if (tabName === 'profile') {
-        loadProfile();
-        loadProfilePosts();
-        loadUserCard();
-        loadProgressHistory();
+        if (viewingProfileId && viewingProfileId !== auth.currentUser?.uid) {
+            loadUserProfile(viewingProfileId);
+        } else {
+            viewingProfileId = null;
+            loadProfile();
+            loadProfilePosts();
+            loadUserCard();
+            loadProgressHistory();
+        }
     }
     
     if (tabName === 'chat') {
@@ -2883,10 +3120,10 @@ function loadFeedComments(postId) {
                 
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <span class="comment-author">${userData?.username || '@usuario'}</span>
+                                <span class="comment-author" onclick="viewProfile('${comment.userId}')">${userData?.username || '@usuario'}</span>
                                 <span class="comment-time">${formatTime(comment.created)}</span>
                             </div>
                             <div class="comment-text">${comment.text}</div>
@@ -2946,10 +3183,10 @@ function loadForumComments(postId) {
                 
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <span class="comment-author">${userData?.username || '@usuario'}</span>
+                                <span class="comment-author" onclick="viewProfile('${comment.userId}')">${userData?.username || '@usuario'}</span>
                                 <span class="comment-time">${formatTime(comment.created)}</span>
                             </div>
                             <div class="comment-text">${comment.text}</div>
@@ -3179,9 +3416,9 @@ function loadForumPosts() {
                 postElement.id = 'forum-post-' + post.id;
                 postElement.innerHTML = `
                     <div class="forum-post-header">
-                        <div class="post-avatar">${post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="post-avatar" onclick="viewProfile('${post.user}')">${post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div>
-                            <div class="forum-post-author">${post.userData?.username || '@usuario'}</div>
+                            <div class="forum-post-author" onclick="viewProfile('${post.user}')">${post.userData?.username || '@usuario'}</div>
                             <div class="forum-post-date">${formatDate(post.created)}</div>
                         </div>
                     </div>
@@ -3358,9 +3595,9 @@ function loadFeed() {
             postElement.id = 'post-' + postId;
             postElement.innerHTML = `
                 <div class="post-header">
-                    <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                    <div class="post-avatar" onclick="viewProfile('${post.user}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                     <div class="post-info">
-                        <h4>${userData?.username || '@usuario'}</h4>
+                        <h4><span class="username-link" onclick="viewProfile('${post.user}')">${userData?.username || '@usuario'}</span></h4>
                         <span>${formatDate(post.created)}</span>
                     </div>
                 </div>
@@ -3511,11 +3748,15 @@ function sharePost(postId) {
 }
 
 // ============================================================
-// FUNÇÕES DO PERFIL - REDESENHADAS
+// FUNÇÕES DO PERFIL
 // ============================================================
 
 function loadProfile() {
     const user = auth.currentUser;
+    if (!user) return;
+    
+    viewingProfileId = null;
+    
     db.collection('users').doc(user.uid).get().then(doc => {
         const data = doc.data();
         userCache.set(user.uid, data);
@@ -3524,6 +3765,11 @@ function loadProfile() {
         document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
         document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
         document.getElementById('profileLink').href = data.link || '#';
+        if (data.link) {
+            document.getElementById('profileLink').style.display = 'inline-block';
+        } else {
+            document.getElementById('profileLink').style.display = 'none';
+        }
         document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
         
         const whatsappDDI = document.getElementById('whatsappDDI');
@@ -3538,6 +3784,33 @@ function loadProfile() {
         if (editBirthDate) editBirthDate.value = data.birthDate || '';
         const editGender = document.getElementById('editGender');
         if (editGender) editGender.value = data.gender || '';
+        
+        // Botões do próprio perfil
+        const profileButtons = document.getElementById('profileButtons');
+        profileButtons.innerHTML = `
+            <button class="profile-action-btn" onclick="toggleEditProfile()">
+                <i data-lucide="edit-2"></i>
+                Editar perfil
+            </button>
+            <button class="profile-action-btn" onclick="showFichaModal()">
+                <i data-lucide="clipboard-list"></i>
+                Ficha
+            </button>
+            <button class="profile-action-btn" onclick="showHistoricoModal()">
+                <i data-lucide="trending-up"></i>
+                Progresso
+            </button>
+            <button class="profile-action-btn" onclick="toggleSettings()" id="settingsBtn">
+                <i data-lucide="settings"></i>
+            </button>
+        `;
+        
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
         
         loadProfileStats();
     }).catch(console.error);
@@ -3865,11 +4138,11 @@ function saveUserCard() {
 }
 
 function loadUserCard() {
-    // Função mantida mas não usada diretamente nos novos cards
+    // Função mantida
 }
 
 function loadProgressHistory() {
-    // Função mantida mas não usada diretamente nos novos cards
+    // Função mantida
 }
 
 function getGoalName(goal) {
@@ -3884,7 +4157,7 @@ function getGoalName(goal) {
 }
 
 // ============================================================
-// FUNÇÕES DO CHAT (COMPLETAS)
+// FUNÇÕES DO CHAT
 // ============================================================
 
 function loadChatList() {
@@ -3943,12 +4216,12 @@ function loadChatList() {
                         const lastSeenText = getLastSeenText(userData.lastSeen);
                         
                         chatItem.innerHTML = `
-                            <div class="chat-user-avatar ${onlineClass}">
+                            <div class="chat-user-avatar ${onlineClass}" onclick="viewProfile('${userId}')">
                                 ${userData.username.charAt(1).toUpperCase()}
                                 ${unreadCount > 0 ? '<span class="unread-badge">' + unreadCount + '</span>' : ''}
                             </div>
                             <div class="chat-user-info">
-                                <strong>${userData.username}</strong>
+                                <strong onclick="viewProfile('${userId}')">${userData.username}</strong>
                                 <span>${lastSeenText}</span>
                             </div>
                         `;
@@ -4021,7 +4294,7 @@ async function displayMessage(message) {
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         messageElement.innerHTML = `
-            <div class="message-avatar ${onlineClass}">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+            <div class="message-avatar ${onlineClass}" onclick="viewProfile('${message.user}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
             <div class="message-content">
                 <p>${message.text}</p>
                 <span class="message-time">${formatTime(message.created)}</span>
@@ -4045,10 +4318,15 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     document.getElementById('chatHeaderName').innerText = userName;
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
     
-    if (userId) updateChatHeaderStatus(userId);
-    else {
+    if (userId) {
+        updateChatHeaderStatus(userId);
+        document.getElementById('chatHeaderName').onclick = () => viewProfile(userId);
+        document.getElementById('chatHeaderAvatar').onclick = () => viewProfile(userId);
+    } else {
         document.getElementById('chatHeaderStatus').innerText = 'Online';
         document.getElementById('chatHeaderAvatar').classList.remove('online');
+        document.getElementById('chatHeaderName').onclick = null;
+        document.getElementById('chatHeaderAvatar').onclick = null;
     }
     
     if (window.innerWidth <= 768) {
@@ -4204,7 +4482,7 @@ function searchUsers() {
         li.className = 'user-search-item';
         li.onclick = () => {
             hideUserSearchModal();
-            selectChat(`private_${user.id}`, user.username, user.username.charAt(1).toUpperCase(), user.id);
+            viewProfile(user.id);
         };
         li.innerHTML = `
             <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
