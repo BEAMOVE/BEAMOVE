@@ -450,30 +450,16 @@ header {
     font-weight: 600;
     font-size: 20px;
     cursor: pointer;
-    transition: var(--transition);
-}
-
-.post-avatar:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
 }
 
 .post-info h4 {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 4px;
-}
-
-.username-link {
-    color: var(--text-primary);
-    text-decoration: none;
-    font-weight: 600;
     cursor: pointer;
-    transition: var(--transition);
 }
 
-.username-link:hover {
-    color: var(--accent);
+.post-info h4:hover {
     text-decoration: underline;
 }
 
@@ -485,6 +471,16 @@ header {
 .post-content {
     margin-bottom: 15px;
     line-height: 1.6;
+}
+
+.post-content a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.post-content a:hover {
+    text-decoration: underline;
 }
 
 .post-actions {
@@ -566,12 +562,6 @@ header {
     font-size: 14px;
     flex-shrink: 0;
     cursor: pointer;
-    transition: var(--transition);
-}
-
-.comment-avatar:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
 }
 
 .comment-content {
@@ -589,13 +579,9 @@ header {
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: var(--transition);
 }
 
 .comment-author:hover {
-    color: var(--accent);
     text-decoration: underline;
 }
 
@@ -608,6 +594,16 @@ header {
     font-size: 13px;
     line-height: 1.4;
     word-break: break-word;
+}
+
+.comment-text a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.comment-text a:hover {
+    text-decoration: underline;
 }
 
 .comment-input-area {
@@ -775,12 +771,6 @@ header {
     flex-shrink: 0;
     position: relative;
     cursor: pointer;
-    transition: var(--transition);
-}
-
-.chat-user-avatar:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
 }
 
 .chat-user-avatar.online::after {
@@ -811,11 +801,10 @@ header {
     text-overflow: ellipsis;
     font-size: 14px;
     cursor: pointer;
-    transition: var(--transition);
 }
 
 .chat-user-info strong:hover {
-    color: var(--accent);
+    text-decoration: underline;
 }
 
 .chat-user-info span {
@@ -893,12 +882,6 @@ header {
     font-size: 18px;
     position: relative;
     cursor: pointer;
-    transition: var(--transition);
-}
-
-.chat-header-avatar:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
 }
 
 .chat-header-avatar.online::after {
@@ -922,11 +905,10 @@ header {
     font-weight: 600;
     margin-bottom: 2px;
     cursor: pointer;
-    transition: var(--transition);
 }
 
 .chat-header-info h4:hover {
-    color: var(--accent);
+    text-decoration: underline;
 }
 
 .chat-header-info p {
@@ -969,12 +951,6 @@ header {
     flex-shrink: 0;
     position: relative;
     cursor: pointer;
-    transition: var(--transition);
-}
-
-.message-avatar:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
 }
 
 .message-avatar.online::after {
@@ -1004,6 +980,17 @@ header {
 
 .message-content p {
     margin-bottom: 5px;
+}
+
+.message-content a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.message.sent .message-content a {
+    color: white;
+    text-decoration: underline;
 }
 
 .message-time {
@@ -1155,6 +1142,7 @@ header {
     color: white;
     font-weight: 600;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .user-search-info {
@@ -1164,6 +1152,11 @@ header {
 .user-search-info strong {
     display: block;
     font-size: 14px;
+    cursor: pointer;
+}
+
+.user-search-info strong:hover {
+    text-decoration: underline;
 }
 
 .user-search-info span {
@@ -1177,171 +1170,428 @@ header {
     color: var(--text-secondary);
 }
 
-/* PERFIL - ESTILO INSTAGRAM */
+/* PERFIL ESTILO INSTAGRAM */
 .profile-container {
     max-width: 935px;
     margin: 0 auto;
-    padding: 30px 20px 80px 20px;
+    padding: 0 20px 80px 20px;
 }
 
-.profile-header {
-    margin-bottom: 44px;
-}
-
-.profile-username-centered {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 400;
-    margin-bottom: 30px;
-}
-
-.profile-row {
+/* Barra Superior */
+.profile-top-bar {
     display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    margin-bottom: 20px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    position: sticky;
+    top: 70px;
+    background: var(--bg-primary);
+    z-index: 99;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
 }
 
-.profile-avatar-wrapper {
-    flex-shrink: 0;
-    width: 120px;
+.profile-top-username {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-top-username span {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-top-username i {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+}
+
+.profile-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-top-actions button {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.profile-top-actions button i {
+    width: 22px;
+    height: 22px;
+}
+
+/* Cabeçalho do Perfil */
+.profile-header {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.profile-avatar-section {
+    flex: 0 0 90px;
+    margin-right: 28px;
     display: flex;
     justify-content: center;
 }
 
-.profile-avatar-medium {
-    width: 100px;
-    height: 100px;
+.profile-avatar-large {
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     background: var(--accent-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 40px;
+    font-size: 36px;
     font-weight: 700;
-    border: none;
-    box-shadow: 0 0 0 2px var(--border);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    cursor: pointer;
 }
 
-.profile-info-wrapper {
+.profile-avatar-large.has-story {
+    border: 3px solid var(--accent);
+}
+
+.profile-info-section {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.profile-name-row {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
 .profile-stats-row {
     display: flex;
-    gap: 40px;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 4px;
 }
 
 .stat-item {
     display: flex;
-    gap: 5px;
+    gap: 6px;
     align-items: center;
 }
 
 .stat-value {
-    font-weight: 600;
-    font-size: 16px;
+    font-weight: 700;
+    font-size: 17px;
     color: var(--text-primary);
 }
 
 .stat-label {
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     color: var(--text-secondary);
 }
 
-.profile-bio-section {
-    margin-bottom: 25px;
-    padding-left: 0;
-    width: 100%;
+.profile-username-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 8px;
 }
 
-.profile-bio-text {
+.profile-username-display {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.profile-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-edit-btn {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.profile-edit-btn:hover {
+    background: var(--border);
+    transform: none;
+    box-shadow: none;
+}
+
+.profile-settings-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-settings-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: rotate(90deg);
+}
+
+/* Nome e Bio */
+.profile-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.profile-bio {
     font-size: 14px;
     line-height: 1.5;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     white-space: pre-line;
+    color: var(--text-primary);
+}
+
+.profile-bio a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.profile-bio a:hover {
+    text-decoration: underline;
 }
 
 .profile-link {
-    color: var(--accent);
+    color: #00376b;
     text-decoration: none;
     font-weight: 500;
     font-size: 14px;
     display: inline-block;
 }
 
+.dark .profile-link {
+    color: #85d0ff;
+}
+
 .profile-link:hover {
     text-decoration: underline;
 }
 
-/* Botões em linha - todos na mesma linha */
-.profile-buttons-row {
+/* Highlights */
+.profile-highlights {
     display: flex;
-    gap: 8px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: flex-start;
+    margin: 24px 0 20px 0;
+    padding: 8px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
 }
 
-.profile-action-btn {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--text-primary);
+.profile-highlights::-webkit-scrollbar {
+    display: none;
+}
+
+.highlight-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
     cursor: pointer;
+    transition: var(--transition);
+    min-width: 70px;
+}
+
+.highlight-card:hover {
+    transform: translateY(-2px);
+}
+
+.highlight-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border);
+    transition: var(--transition);
+}
+
+.highlight-card:hover .highlight-circle {
+    border-color: var(--accent);
+}
+
+.highlight-circle i {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.highlight-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Abas de Navegação */
+.profile-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    height: 44px;
+}
+
+.profile-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    height: 100%;
+    position: relative;
+}
+
+.profile-tab.active {
+    color: var(--text-primary);
+}
+
+.profile-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--text-primary);
+}
+
+.profile-tab i {
+    width: 20px;
+    height: 20px;
+}
+
+.profile-tab span {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Grade de Posts */
+.profile-posts {
+    margin-top: 4px;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+}
+
+.post-thumb {
+    aspect-ratio: 1 / 1;
+    background: var(--bg-primary);
+    border-radius: 0;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-thumb:hover {
+    transform: scale(1.02);
+    z-index: 2;
+}
+
+.post-thumb::after {
+    content: '👁️';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 100px;
     justify-content: center;
-}
-
-.profile-action-btn i {
-    width: 16px;
-    height: 16px;
-}
-
-.profile-action-btn:hover {
-    background: var(--border);
-    transform: none;
-    box-shadow: none;
-}
-
-.view-profile-btn {
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-weight: 600;
-    font-size: 14px;
     color: white;
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-block;
-    text-decoration: none;
+    font-size: 24px;
 }
 
-.view-profile-btn:hover {
-    background: var(--accent-light);
-    border-color: var(--accent-light);
+.post-thumb:hover::after {
+    opacity: 1;
 }
 
-/* MODAL POPUP */
+.post-thumb-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-gradient);
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+
+.post-thumb-content i {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 6px;
+}
+
+.post-thumb-content p {
+    font-size: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+/* Modal Popup */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -1458,98 +1708,10 @@ header {
     margin-bottom: 3px;
 }
 
-/* GRADE DE POSTS - 3 COLUNAS */
-.profile-posts {
-    margin-top: 30px;
-}
-
-.profile-posts h3 {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-}
-
-.posts-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-}
-
-.post-thumb {
-    aspect-ratio: 1 / 1;
-    background: var(--bg-primary);
-    border-radius: 0;
-    padding: 0;
-    border: none;
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-}
-
-.post-thumb:hover {
-    transform: scale(1.02);
-    border-color: transparent;
-}
-
-.post-thumb::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-}
-
-.post-thumb:hover::after {
-    opacity: 1;
-    content: '👁️';
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.post-thumb-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--accent-gradient);
-    color: white;
-    text-align: center;
-}
-
-.post-thumb-content i {
-    width: 30px;
-    height: 30px;
-    margin-bottom: 10px;
-}
-
-.post-thumb-content p {
-    font-size: 14px;
-    padding: 0 10px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.post-thumb-date {
-    font-size: 10px;
-    color: var(--text-secondary);
+.modal-timeline-data a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
 }
 
 .edit-section {
@@ -1757,13 +1919,9 @@ header {
 .forum-post-author {
     font-weight: 600;
     cursor: pointer;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: var(--transition);
 }
 
 .forum-post-author:hover {
-    color: var(--accent);
     text-decoration: underline;
 }
 
@@ -1775,6 +1933,12 @@ header {
 .forum-post-content {
     margin-bottom: 15px;
     line-height: 1.6;
+}
+
+.forum-post-content a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
 }
 
 .forum-post-footer {
@@ -1937,35 +2101,36 @@ header {
         width: 100%;
     }
     
-    .profile-row {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
+    .profile-avatar-section {
+        flex: 0 0 80px;
+        margin-right: 16px;
     }
     
-    .profile-avatar-wrapper {
-        width: auto;
-    }
-    
-    .profile-info-wrapper {
-        width: 100%;
-        text-align: center;
+    .profile-avatar-large {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
     }
     
     .profile-stats-row {
-        justify-content: center;
+        gap: 16px;
     }
     
-    .profile-bio-section {
-        text-align: center;
+    .profile-username-row {
+        flex-wrap: wrap;
+        gap: 12px;
     }
     
-    .profile-buttons-row {
-        justify-content: center;
+    .profile-username-display {
+        font-size: 18px;
+    }
+    
+    .profile-tab span {
+        display: none;
     }
     
     .posts-grid {
-        gap: 5px;
+        gap: 2px;
     }
     
     .edit-section-row {
@@ -2008,6 +2173,24 @@ header {
     .create-post .btn {
         padding: 12px;
     }
+    
+    .profile-highlights {
+        gap: 16px;
+    }
+    
+    .highlight-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .highlight-circle i {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .profile-top-bar {
+        top: 60px;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -2038,7 +2221,7 @@ header {
     }
     
     .posts-grid {
-        gap: 15px;
+        gap: 4px;
     }
 }
 </style>
@@ -2222,10 +2405,10 @@ header {
                     </button>
                 </div>
                 <ul class="chat-users" id="chatUsersList">
-                    <li class="chat-user" data-chat-id="geral" data-user-id="geral" data-user-name="Geral" data-user-avatar="G" onclick="selectChat('geral', 'Geral', 'G', null)">
+                    <li class="chat-user" data-chat-id="geral" data-user-id="geral" data-user-name="Geral" data-user-avatar="G" data-display-name="Geral" onclick="selectChat('geral', 'Geral', 'G', null)">
                         <div class="chat-user-avatar">G</div>
                         <div class="chat-user-info">
-                            <strong>Geral</strong>
+                            <strong onclick="viewProfile('geral', 'Geral', 'G')">Geral</strong>
                             <span>Conversa com todos</span>
                         </div>
                     </li>
@@ -2238,9 +2421,9 @@ header {
                     <button class="back-to-users" onclick="backToUsersList()">
                         <i data-lucide="arrow-left"></i>
                     </button>
-                    <div class="chat-header-avatar" id="chatHeaderAvatar">G</div>
+                    <div class="chat-header-avatar" id="chatHeaderAvatar" onclick="viewProfile('geral', 'Geral', 'G')">G</div>
                     <div class="chat-header-info">
-                        <h4 id="chatHeaderName">Geral</h4>
+                        <h4 onclick="viewProfile('geral', 'Geral', 'G')" id="chatHeaderName">Geral</h4>
                         <p id="chatHeaderStatus">Online</p>
                     </div>
                 </div>
@@ -2262,68 +2445,103 @@ header {
                 Nova mensagem
                 <button class="close-modal-btn" onclick="hideUserSearchModal()">✕</button>
             </h3>
-            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar @usuario..." onkeyup="searchUsers()">
+            <input type="text" id="userSearchInput" class="user-search-input" placeholder="Buscar..." onkeyup="searchUsers()">
             <ul class="user-search-list" id="userSearchList"></ul>
         </div>
     </div>
 
-    <!-- Profile Section -->
+    <!-- Profile Section - ESTILO INSTAGRAM -->
     <div id="profile" class="hidden">
         <div class="profile-container">
+            <!-- Barra Superior -->
+            <div class="profile-top-bar">
+                <div class="profile-top-username">
+                    <span id="profileTopUsername">@usuario</span>
+                    <i data-lucide="check-circle" class="verified-badge hidden"></i>
+                </div>
+                <div class="profile-top-actions">
+                    <button onclick="showNotifications()">
+                        <i data-lucide="bell"></i>
+                    </button>
+                    <button onclick="toggleMenu()">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cabeçalho do Perfil -->
             <div class="profile-header">
-                <div class="profile-username-centered" id="profileUsername">@usuario</div>
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-large" id="profileAvatar" onclick="viewStory()">U</div>
+                </div>
                 
-                <div class="profile-row">
-                    <div class="profile-avatar-wrapper">
-                        <div class="profile-avatar-medium" id="profileAvatar">U</div>
-                    </div>
-                    
-                    <div class="profile-info-wrapper">
-                        <div class="profile-name-row" id="profileDisplayName"></div>
-                        
-                        <div class="profile-stats-row">
-                            <div class="stat-item">
-                                <span class="stat-value" id="profilePosts">0</span>
-                                <span class="stat-label">posts</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value" id="profileFollowers">0</span>
-                                <span class="stat-label">seguidores</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value" id="profileFollowing">0</span>
-                                <span class="stat-label">seguindo</span>
-                            </div>
+                <div class="profile-info-section">
+                    <div class="profile-stats-row">
+                        <div class="stat-item">
+                            <span class="stat-value" id="profilePosts">0</span>
+                            <span class="stat-label">publicações</span>
+                        </div>
+                        <div class="stat-item" onclick="showFollowers()">
+                            <span class="stat-value" id="profileFollowers">0</span>
+                            <span class="stat-label">seguidores</span>
+                        </div>
+                        <div class="stat-item" onclick="showFollowing()">
+                            <span class="stat-value" id="profileFollowing">0</span>
+                            <span class="stat-label">seguindo</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="profile-bio-section">
-                    <div class="profile-bio-text" id="profileBio">Olá, estou usando BEAMOVE! 💪</div>
+                    
+                    <div class="profile-username-row">
+                        <span class="profile-username-display" id="profileUsername">@usuario</span>
+                        <div class="profile-actions-row">
+                            <button class="profile-edit-btn" onclick="toggleEditProfile()">Editar perfil</button>
+                            <button class="profile-settings-btn" onclick="toggleSettings()" id="settingsBtn">
+                                <i data-lucide="settings"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-name" id="profileDisplayName"></div>
+                    <div class="profile-bio" id="profileBio">Olá, estou usando BEAMOVE! 💪</div>
                     <a id="profileLink" class="profile-link" href="#" target="_blank">
                         <span id="profileLinkText">Adicione seu link</span>
                     </a>
                 </div>
+            </div>
 
-                <!-- Botões em linha - todos na mesma linha -->
-                <div class="profile-buttons-row" id="profileButtons">
-                    <!-- Botões serão inseridos dinamicamente -->
+            <!-- Highlights -->
+            <div class="profile-highlights">
+                <div class="highlight-card" onclick="showFichaModal()">
+                    <div class="highlight-circle">
+                        <i data-lucide="clipboard-list"></i>
+                    </div>
+                    <span class="highlight-label">Ficha</span>
+                </div>
+                <div class="highlight-card" onclick="showHistoricoModal()">
+                    <div class="highlight-circle">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <span class="highlight-label">Progresso</span>
                 </div>
             </div>
 
-            <!-- Formulário de Edição de Perfil (Card) -->
-            <div id="editProfileForm" class="edit-section hidden">
-                <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
-                <input type="text" id="editName" placeholder="Nome (ex: Tiago | Vida Fitness)">
-                <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
-                <input type="text" id="editLink" placeholder="Link">
-                <div class="edit-section-actions">
-                    <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
-                    <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
-                </div>
+            <!-- Abas de Navegação -->
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="showProfileTab('posts')">
+                    <i data-lucide="grid"></i>
+                    <span>PUBLICAÇÕES</span>
+                </button>
+                <button class="profile-tab" onclick="showProfileTab('reels')">
+                    <i data-lucide="video"></i>
+                    <span>REELS</span>
+                </button>
+                <button class="profile-tab" onclick="showProfileTab('tagged')">
+                    <i data-lucide="tag"></i>
+                    <span>MARCADOS</span>
+                </button>
             </div>
 
-            <!-- Formulário de Configurações (Card) -->
+            <!-- Configurações/Engrenagem -->
             <div id="settingsPanel" class="edit-section hidden">
                 <h4>
                     <i data-lucide="settings"></i>
@@ -2401,61 +2619,20 @@ header {
                 </div>
             </div>
 
-            <!-- Formulário da Ficha do Usuário (Card) -->
-            <div id="userCardForm" class="edit-section hidden">
-                <h4>
-                    <i data-lucide="edit-3"></i>
-                    Atualizar Ficha
-                </h4>
-                
-                <div class="edit-section-row">
-                    <div>
-                        <label>Peso (kg)</label>
-                        <input type="number" id="editWeight" step="0.1" placeholder="Ex: 75.5" oninput="calculateIMC()">
-                    </div>
-                    <div>
-                        <label>Altura (cm)</label>
-                        <input type="number" id="editHeight" placeholder="Ex: 175" oninput="calculateIMC()">
-                    </div>
-                </div>
-                
-                <div class="edit-section-row">
-                    <div>
-                        <label>Idade</label>
-                        <input type="number" id="editAge" placeholder="Ex: 30">
-                    </div>
-                    <div>
-                        <label>IMC</label>
-                        <input type="text" id="editImc" readonly placeholder="Calculado automaticamente">
-                    </div>
-                </div>
-                
-                <div>
-                    <label>Objetivo</label>
-                    <select id="editGoal">
-                        <option value="">Selecione seu objetivo</option>
-                        <option value="emagrecimento">Emagrecimento</option>
-                        <option value="hipertrofia">Hipertrofia</option>
-                        <option value="definicao">Definição muscular</option>
-                        <option value="saude">Saúde e bem-estar</option>
-                        <option value="resistencia">Resistência</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label>Observações</label>
-                    <textarea id="editNotes" placeholder="Lesões, restrições, etc..."></textarea>
-                </div>
-                
+            <!-- Formulário de Edição de Perfil -->
+            <div id="editProfileForm" class="edit-section hidden">
+                <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
+                <input type="text" id="editName" placeholder="Nome">
+                <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
+                <input type="text" id="editLink" placeholder="Link">
                 <div class="edit-section-actions">
-                    <button class="btn btn-primary" onclick="saveUserCard()">Salvar ficha</button>
-                    <button class="btn btn-secondary" onclick="toggleUserCardForm()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
+                    <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
                 </div>
             </div>
 
             <!-- Posts do Perfil - 3 COLUNAS -->
             <div class="profile-posts">
-                <h3>PUBLICAÇÕES</h3>
                 <div class="posts-grid" id="profilePostsGrid"></div>
             </div>
         </div>
@@ -2567,7 +2744,6 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 const userStatusListeners = new Map();
 let commentsVisible = new Map();
-let viewingProfileId = null;
 
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE
@@ -2669,158 +2845,6 @@ function updateAllUsersOnlineStatus() {
         const userId = item.getAttribute('data-user-id');
         if (userId && userId !== 'geral') updateUserOnlineStatusUI(userId);
     });
-}
-
-// ============================================================
-// FUNÇÕES DE NAVEGAÇÃO DE PERFIL
-// ============================================================
-
-function viewProfile(userId) {
-    if (!userId) return;
-    
-    if (userId === auth.currentUser?.uid) {
-        viewingProfileId = null;
-        showTab('profile');
-        loadProfile();
-        return;
-    }
-    
-    viewingProfileId = userId;
-    showTab('profile');
-    loadUserProfile(userId);
-}
-
-function loadUserProfile(userId) {
-    db.collection('users').doc(userId).get().then(doc => {
-        if (!doc.exists) {
-            alert('Usuário não encontrado');
-            viewingProfileId = null;
-            showTab('home');
-            return;
-        }
-        
-        const userData = doc.data();
-        userCache.set(userId, userData);
-        
-        document.getElementById('profileUsername').innerText = userData.username || '@usuario';
-        document.getElementById('profileDisplayName').innerText = userData.displayName || '';
-        document.getElementById('profileBio').innerText = userData.bio || 'Sem bio';
-        document.getElementById('profileLinkText').innerText = userData.link || '';
-        document.getElementById('profileLink').href = userData.link || '#';
-        if (userData.link) {
-            document.getElementById('profileLink').style.display = 'inline-block';
-        } else {
-            document.getElementById('profileLink').style.display = 'none';
-        }
-        document.getElementById('profileAvatar').innerText = userData.username ? userData.username.charAt(1).toUpperCase() : 'U';
-        
-        loadUserProfileStats(userId);
-        loadUserProfilePosts(userId);
-        
-        const profileButtons = document.getElementById('profileButtons');
-        if (userId === auth.currentUser?.uid) {
-            profileButtons.innerHTML = `
-                <button class="profile-action-btn" onclick="toggleEditProfile()">
-                    <i data-lucide="edit-2"></i>
-                    Editar
-                </button>
-                <button class="profile-action-btn" onclick="showFichaModal()">
-                    <i data-lucide="clipboard-list"></i>
-                    Ficha
-                </button>
-                <button class="profile-action-btn" onclick="showHistoricoModal()">
-                    <i data-lucide="trending-up"></i>
-                    Progresso
-                </button>
-                <button class="profile-action-btn" onclick="toggleSettings()">
-                    <i data-lucide="settings"></i>
-                    Config
-                </button>
-            `;
-        } else {
-            profileButtons.innerHTML = `
-                <button class="profile-action-btn" onclick="startChat('${userId}')">
-                    <i data-lucide="message-circle"></i>
-                    Mensagem
-                </button>
-                <button class="profile-action-btn" onclick="followUser('${userId}')">
-                    <i data-lucide="user-plus"></i>
-                    Seguir
-                </button>
-            `;
-        }
-        
-        lucide.createIcons({
-            attrs: {
-                fill: 'currentColor',
-                stroke: 'currentColor'
-            }
-        });
-    }).catch(error => {
-        console.error('Erro ao carregar perfil:', error);
-        alert('Erro ao carregar perfil');
-        viewingProfileId = null;
-    });
-}
-
-function loadUserProfileStats(userId) {
-    db.collection('posts').where('user', '==', userId).get().then(snapshot => {
-        document.getElementById('profilePosts').innerText = snapshot.size;
-    }).catch(console.error);
-    
-    document.getElementById('profileFollowers').innerText = '128';
-    document.getElementById('profileFollowing').innerText = '56';
-}
-
-function loadUserProfilePosts(userId) {
-    db.collection('posts').where('user', '==', userId).get().then(snapshot => {
-        const grid = document.getElementById('profilePostsGrid');
-        grid.innerHTML = '';
-        if (snapshot.empty) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Este usuário ainda não tem posts</div>';
-            return;
-        }
-        const posts = [];
-        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
-        posts.sort((a, b) => {
-            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
-            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
-            return dateB - dateA;
-        });
-        posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.className = 'post-thumb';
-            postElement.onclick = () => goToPostInFeed(post.id);
-            postElement.innerHTML = `
-                <div class="post-thumb-content">
-                    <i data-lucide="image"></i>
-                    <p>${post.text.substring(0, 30)}${post.text.length > 30 ? '...' : ''}</p>
-                    <div class="post-thumb-date">${formatDate(post.created)}</div>
-                </div>
-            `;
-            grid.appendChild(postElement);
-        });
-        lucide.createIcons({
-            attrs: {
-                fill: 'currentColor',
-                stroke: 'currentColor'
-            }
-        });
-    }).catch(console.error);
-}
-
-function startChat(userId) {
-    showTab('chat');
-    db.collection('users').doc(userId).get().then(doc => {
-        if (doc.exists) {
-            const userData = doc.data();
-            selectChat('private_' + userId, userData.displayName || userData.username, userData.username.charAt(1).toUpperCase(), userId);
-        }
-    });
-}
-
-function followUser(userId) {
-    alert('Função de seguir será implementada em breve!');
 }
 
 // ============================================================
@@ -2959,95 +2983,46 @@ function toggleDark() {
 }
 
 // ============================================================
-// NAVEGAÇÃO
+// FUNÇÕES DE PERFIL E MENÇÕES
 // ============================================================
 
-function showTab(tabName) {
-    document.getElementById('home').classList.add('hidden');
-    document.getElementById('feed').classList.add('hidden');
-    document.getElementById('chat').classList.add('hidden');
-    document.getElementById('profile').classList.add('hidden');
-    document.getElementById('forum').classList.add('hidden');
-    
-    document.getElementById(tabName).classList.remove('hidden');
-    
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+function viewProfile(userId, username, avatar) {
+    // Função para visualizar perfil de outro usuário
+    // Por enquanto apenas mostra alert, mas pode ser expandida
+    alert(`Visualizar perfil de ${username}`);
+}
+
+function viewStory() {
+    alert('Story em breve!');
+}
+
+function showFollowers() {
+    alert('Lista de seguidores em breve!');
+}
+
+function showFollowing() {
+    alert('Lista de seguindo em breve!');
+}
+
+function showNotifications() {
+    alert('Notificações em breve!');
+}
+
+function toggleMenu() {
+    alert('Menu em breve!');
+}
+
+function showProfileTab(tab) {
+    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
     event.currentTarget.classList.add('active');
-    
-    document.getElementById('bottomNav').classList.remove('hidden-nav');
-    
-    if (tabName === 'profile') {
-        if (viewingProfileId && viewingProfileId !== auth.currentUser?.uid) {
-            loadUserProfile(viewingProfileId);
-        } else {
-            viewingProfileId = null;
-            loadProfile();
-            loadProfilePosts();
-            loadUserCard();
-            loadProgressHistory();
-        }
-    }
-    
-    if (tabName === 'chat') {
-        document.getElementById('chatSidebar').classList.remove('hidden-mobile');
-        document.getElementById('chatMain').classList.remove('active');
-        currentChat = null;
-        currentChatUser = null;
-        currentChatId = null;
-        document.querySelectorAll('.chat-user').forEach(item => item.classList.remove('active'));
-        if (unsubscribeChat) {
-            unsubscribeChat();
-            unsubscribeChat = null;
-        }
-        document.getElementById('chatBox').innerHTML = '';
-        document.getElementById('chatHeaderName').innerText = 'Selecione uma conversa';
-        document.getElementById('chatHeaderAvatar').innerText = '👥';
-        document.getElementById('chatHeaderStatus').innerText = '';
-        document.getElementById('chatHeaderAvatar').classList.remove('online');
-        setTimeout(updateAllUsersOnlineStatus, 500);
-    }
-    
-    lucide.createIcons({
-        attrs: {
-            fill: 'currentColor',
-            stroke: 'currentColor'
-        }
-    });
+    alert(`Mostrar ${tab}`);
 }
 
-function openForum(category) {
-    currentForum = category;
-    const titles = {
-        'treino': { name: 'Treino', icon: 'dumbbell' },
-        'receitas': { name: 'Receitas', icon: 'utensils' },
-        'yoga': { name: 'Yoga', icon: 'activity' },
-        'dicas': { name: 'Dicas', icon: 'book-open' }
-    };
-    document.getElementById('forumName').innerText = titles[category].name;
-    document.getElementById('forumIcon').setAttribute('data-lucide', titles[category].icon);
-    document.getElementById('home').classList.add('hidden');
-    document.getElementById('forum').classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    loadForumPosts();
-    lucide.createIcons({
-        attrs: {
-            fill: 'currentColor',
-            stroke: 'currentColor'
-        }
-    });
-}
-
-function backToHome() {
-    document.getElementById('forum').classList.add('hidden');
-    document.getElementById('home').classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    document.querySelector('.nav-item:first-child').classList.add('active');
-    lucide.createIcons({
-        attrs: {
-            fill: 'currentColor',
-            stroke: 'currentColor'
-        }
-    });
+function linkifyText(text) {
+    if (!text) return text;
+    
+    // Substituir @usuario por links clicáveis
+    return text.replace(/@(\w+)/g, '<a href="#" onclick="viewProfile(\'$1\', \'@$1\', \'U\'); return false;">@$1</a>');
 }
 
 // ============================================================
@@ -3115,19 +3090,23 @@ function loadFeedComments(postId) {
                         userData = userDoc.data();
                         userCache.set(comment.userId, userData);
                     } catch (e) {
-                        userData = { username: '@usuario' };
+                        userData = { username: '@usuario', displayName: 'Usuário' };
                     }
                 }
                 
+                const displayName = userData?.displayName || userData?.username || '@usuario';
+                const username = userData?.username || '@usuario';
+                const commentText = linkifyText(comment.text);
+                
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}', '${username}', '${userData?.username?.charAt(1).toUpperCase() || 'U'}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <span class="comment-author" onclick="viewProfile('${comment.userId}')">${userData?.username || '@usuario'}</span>
+                                <span class="comment-author" onclick="viewProfile('${comment.userId}', '${username}', '${userData?.username?.charAt(1).toUpperCase() || 'U'}')">${displayName}</span>
                                 <span class="comment-time">${formatTime(comment.created)}</span>
                             </div>
-                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-text">${commentText}</div>
                         </div>
                     </div>
                 `;
@@ -3178,19 +3157,23 @@ function loadForumComments(postId) {
                         userData = userDoc.data();
                         userCache.set(comment.userId, userData);
                     } catch (e) {
-                        userData = { username: '@usuario' };
+                        userData = { username: '@usuario', displayName: 'Usuário' };
                     }
                 }
                 
+                const displayName = userData?.displayName || userData?.username || '@usuario';
+                const username = userData?.username || '@usuario';
+                const commentText = linkifyText(comment.text);
+                
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}', '${username}', '${userData?.username?.charAt(1).toUpperCase() || 'U'}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <span class="comment-author" onclick="viewProfile('${comment.userId}')">${userData?.username || '@usuario'}</span>
+                                <span class="comment-author" onclick="viewProfile('${comment.userId}', '${username}', '${userData?.username?.charAt(1).toUpperCase() || 'U'}')">${displayName}</span>
                                 <span class="comment-time">${formatTime(comment.created)}</span>
                             </div>
-                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-text">${commentText}</div>
                         </div>
                     </div>
                 `;
@@ -3377,7 +3360,7 @@ function loadForumPosts() {
                         userData = userDoc.data();
                         userCache.set(post.user, userData);
                     } catch (e) {
-                        userData = { username: '@usuario' };
+                        userData = { username: '@usuario', displayName: 'Usuário' };
                     }
                 }
                 
@@ -3395,10 +3378,17 @@ function loadForumPosts() {
                     }
                 }
                 
+                const displayName = userData?.displayName || userData?.username || '@usuario';
+                const username = userData?.username || '@usuario';
+                const postText = linkifyText(post.text);
+                
                 posts.push({
                     id: postId,
                     ...post,
                     userData: userData,
+                    displayName: displayName,
+                    username: username,
+                    postText: postText,
                     userLiked: userLiked,
                     createdDate: post.created ? new Date(post.created.seconds * 1000) : new Date(0)
                 });
@@ -3417,13 +3407,13 @@ function loadForumPosts() {
                 postElement.id = 'forum-post-' + post.id;
                 postElement.innerHTML = `
                     <div class="forum-post-header">
-                        <div class="post-avatar" onclick="viewProfile('${post.user}')">${post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="post-avatar" onclick="viewProfile('${post.user}', '${post.username}', '${post.username.charAt(1).toUpperCase()}')">${post.username.charAt(1).toUpperCase()}</div>
                         <div>
-                            <div class="forum-post-author" onclick="viewProfile('${post.user}')">${post.userData?.displayName || post.userData?.username || '@usuario'}</div>
+                            <div class="forum-post-author" onclick="viewProfile('${post.user}', '${post.username}', '${post.username.charAt(1).toUpperCase()}')">${post.displayName}</div>
                             <div class="forum-post-date">${formatDate(post.created)}</div>
                         </div>
                     </div>
-                    <div class="forum-post-content">${post.text}</div>
+                    <div class="forum-post-content">${post.postText}</div>
                     <div class="forum-post-footer">
                         <button class="post-action ${likedClass}" onclick="toggleForumLike('${post.id}')" id="forum-like-${post.id}">
                             <i data-lucide="heart"></i>
@@ -3570,7 +3560,7 @@ function loadFeed() {
                     userData = userDoc.data();
                     userCache.set(post.user, userData);
                 } catch (e) {
-                    userData = { username: '@usuario' };
+                    userData = { username: '@usuario', displayName: 'Usuário' };
                 }
             }
             
@@ -3590,19 +3580,22 @@ function loadFeed() {
             
             const likedClass = userLiked ? 'liked' : '';
             const commentsVisibleClass = commentsVisible.get('feed-' + postId) ? '' : 'hidden';
+            const displayName = userData?.displayName || userData?.username || '@usuario';
+            const username = userData?.username || '@usuario';
+            const postText = linkifyText(post.text);
             
             const postElement = document.createElement('div');
             postElement.className = 'post-card';
             postElement.id = 'post-' + postId;
             postElement.innerHTML = `
                 <div class="post-header">
-                    <div class="post-avatar" onclick="viewProfile('${post.user}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                    <div class="post-avatar" onclick="viewProfile('${post.user}', '${username}', '${username.charAt(1).toUpperCase()}')">${username.charAt(1).toUpperCase()}</div>
                     <div class="post-info">
-                        <h4><span class="username-link" onclick="viewProfile('${post.user}')">${userData?.displayName || userData?.username || '@usuario'}</span></h4>
+                        <h4 onclick="viewProfile('${post.user}', '${username}', '${username.charAt(1).toUpperCase()}')">${displayName}</h4>
                         <span>${formatDate(post.created)}</span>
                     </div>
                 </div>
-                <div class="post-content">${post.text}</div>
+                <div class="post-content">${postText}</div>
                 <div class="post-actions">
                     <button class="post-action ${likedClass}" onclick="toggleLike('${postId}')" id="like-${postId}">
                         <i data-lucide="heart"></i>
@@ -3754,24 +3747,29 @@ function sharePost(postId) {
 
 function loadProfile() {
     const user = auth.currentUser;
-    if (!user) return;
-    
-    viewingProfileId = null;
-    
     db.collection('users').doc(user.uid).get().then(doc => {
         const data = doc.data();
         userCache.set(user.uid, data);
+        document.getElementById('profileTopUsername').innerText = data.username || '@usuario';
         document.getElementById('profileUsername').innerText = data.username || '@usuario';
         document.getElementById('profileDisplayName').innerText = data.displayName || '';
-        document.getElementById('profileBio').innerText = data.bio || 'Olá, estou usando BEAMOVE! 💪';
+        
+        // Aplicar linkify na bio
+        const bioElement = document.getElementById('profileBio');
+        if (data.bio) {
+            bioElement.innerHTML = linkifyText(data.bio);
+        } else {
+            bioElement.innerHTML = 'Olá, estou usando BEAMOVE! 💪';
+        }
+        
         document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
         document.getElementById('profileLink').href = data.link || '#';
-        if (data.link) {
-            document.getElementById('profileLink').style.display = 'inline-block';
-        } else {
-            document.getElementById('profileLink').style.display = 'none';
-        }
         document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
+        
+        // Verificar se tem story ativo (placeholder)
+        if (Math.random() > 0.5) {
+            document.getElementById('profileAvatar').classList.add('has-story');
+        }
         
         const whatsappDDI = document.getElementById('whatsappDDI');
         if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
@@ -3785,33 +3783,6 @@ function loadProfile() {
         if (editBirthDate) editBirthDate.value = data.birthDate || '';
         const editGender = document.getElementById('editGender');
         if (editGender) editGender.value = data.gender || '';
-        
-        const profileButtons = document.getElementById('profileButtons');
-        profileButtons.innerHTML = `
-            <button class="profile-action-btn" onclick="toggleEditProfile()">
-                <i data-lucide="edit-2"></i>
-                Editar
-            </button>
-            <button class="profile-action-btn" onclick="showFichaModal()">
-                <i data-lucide="clipboard-list"></i>
-                Ficha
-            </button>
-            <button class="profile-action-btn" onclick="showHistoricoModal()">
-                <i data-lucide="trending-up"></i>
-                Progresso
-            </button>
-            <button class="profile-action-btn" onclick="toggleSettings()">
-                <i data-lucide="settings"></i>
-                Config
-            </button>
-        `;
-        
-        lucide.createIcons({
-            attrs: {
-                fill: 'currentColor',
-                stroke: 'currentColor'
-            }
-        });
         
         loadProfileStats();
     }).catch(console.error);
@@ -3832,7 +3803,7 @@ function loadProfilePosts() {
         const grid = document.getElementById('profilePostsGrid');
         grid.innerHTML = '';
         if (snapshot.empty) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Você ainda não tem posts</div>';
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Compartilhe fotos e vídeos</div>';
             return;
         }
         const posts = [];
@@ -3850,7 +3821,6 @@ function loadProfilePosts() {
                 <div class="post-thumb-content">
                     <i data-lucide="image"></i>
                     <p>${post.text.substring(0, 30)}${post.text.length > 30 ? '...' : ''}</p>
-                    <div class="post-thumb-date">${formatDate(post.created)}</div>
                 </div>
             `;
             grid.appendChild(postElement);
@@ -4139,11 +4109,11 @@ function saveUserCard() {
 }
 
 function loadUserCard() {
-    // Função mantida
+    // Função mantida mas não usada diretamente nos novos cards
 }
 
 function loadProgressHistory() {
-    // Função mantida
+    // Função mantida mas não usada diretamente nos novos cards
 }
 
 function getGoalName(goal) {
@@ -4158,7 +4128,7 @@ function getGoalName(goal) {
 }
 
 // ============================================================
-// FUNÇÕES DO CHAT
+// FUNÇÕES DO CHAT - MODIFICADO PARA USAR DISPLAY NAME
 // ============================================================
 
 function loadChatList() {
@@ -4173,12 +4143,13 @@ function loadChatList() {
     geralItem.setAttribute('data-chat-id', 'geral');
     geralItem.setAttribute('data-user-id', 'geral');
     geralItem.setAttribute('data-user-name', 'Geral');
+    geralItem.setAttribute('data-display-name', 'Geral');
     geralItem.setAttribute('data-user-avatar', 'G');
     geralItem.onclick = () => selectChat('geral', 'Geral', 'G', null);
     geralItem.innerHTML = `
-        <div class="chat-user-avatar">G</div>
+        <div class="chat-user-avatar" onclick="viewProfile('geral', 'Geral', 'G')">G</div>
         <div class="chat-user-info">
-            <strong>Geral</strong>
+            <strong onclick="viewProfile('geral', 'Geral', 'G')">Geral</strong>
             <span>Conversa com todos</span>
         </div>
     `;
@@ -4204,25 +4175,31 @@ function loadChatList() {
                         userCache.set(userId, userData);
                         const unreadCount = unreadMessages.get(userId) || 0;
                         
+                        // Usar displayName se disponível, senão usar username
+                        const displayName = userData.displayName || userData.username || 'Usuário';
+                        const username = userData.username || '@usuario';
+                        const avatar = username.charAt(1).toUpperCase();
+                        
                         const chatItem = document.createElement('li');
                         chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
                         chatItem.setAttribute('data-chat-id', `private_${userId}`);
                         chatItem.setAttribute('data-user-id', userId);
-                        chatItem.setAttribute('data-user-name', userData.displayName || userData.username);
-                        chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
-                        chatItem.onclick = () => selectChat(`private_${userId}`, userData.displayName || userData.username, userData.username.charAt(1).toUpperCase(), userId);
+                        chatItem.setAttribute('data-user-name', username);
+                        chatItem.setAttribute('data-display-name', displayName);
+                        chatItem.setAttribute('data-user-avatar', avatar);
+                        chatItem.onclick = () => selectChat(`private_${userId}`, displayName, avatar, userId);
                         
                         const isOnline = isUserOnline(userData.lastSeen);
                         const onlineClass = isOnline ? 'online' : '';
                         const lastSeenText = getLastSeenText(userData.lastSeen);
                         
                         chatItem.innerHTML = `
-                            <div class="chat-user-avatar ${onlineClass}" onclick="viewProfile('${userId}')">
-                                ${userData.username.charAt(1).toUpperCase()}
+                            <div class="chat-user-avatar ${onlineClass}" onclick="viewProfile('${userId}', '${username}', '${avatar}')">
+                                ${avatar}
                                 ${unreadCount > 0 ? '<span class="unread-badge">' + unreadCount + '</span>' : ''}
                             </div>
                             <div class="chat-user-info">
-                                <strong onclick="viewProfile('${userId}')">${userData.displayName || userData.username}</strong>
+                                <strong onclick="viewProfile('${userId}', '${username}', '${avatar}')">${displayName}</strong>
                                 <span>${lastSeenText}</span>
                             </div>
                         `;
@@ -4291,13 +4268,17 @@ async function displayMessage(message) {
         
         const isOnline = isUserOnline(userData?.lastSeen);
         const onlineClass = isOnline ? 'online' : '';
+        const displayName = userData?.displayName || userData?.username || 'Usuário';
+        const username = userData?.username || '@usuario';
+        const avatar = username.charAt(1).toUpperCase();
+        const messageText = linkifyText(message.text);
         
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         messageElement.innerHTML = `
-            <div class="message-avatar ${onlineClass}" onclick="viewProfile('${message.user}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+            <div class="message-avatar ${onlineClass}" onclick="viewProfile('${message.user}', '${username}', '${avatar}')">${avatar}</div>
             <div class="message-content">
-                <p>${message.text}</p>
+                <p>${messageText}</p>
                 <span class="message-time">${formatTime(message.created)}</span>
             </div>
         `;
@@ -4307,27 +4288,35 @@ async function displayMessage(message) {
     }
 }
 
-function selectChat(chatId, userName, userAvatar, userId = null) {
+function selectChat(chatId, displayName, userAvatar, userId = null) {
     currentChat = chatId;
     currentChatUser = userId;
-    currentChatUserName = userName;
+    currentChatUserName = displayName;
     currentChatUserAvatar = userAvatar;
     currentChatId = chatId;
     
     if (userId) markAsRead(userId);
     
-    document.getElementById('chatHeaderName').innerText = userName;
+    document.getElementById('chatHeaderName').innerText = displayName;
     document.getElementById('chatHeaderAvatar').innerText = userAvatar;
     
     if (userId) {
+        document.getElementById('chatHeaderAvatar').onclick = () => {
+            const userData = userCache.get(userId);
+            const username = userData?.username || '@usuario';
+            viewProfile(userId, username, userAvatar);
+        };
+        document.getElementById('chatHeaderName').onclick = () => {
+            const userData = userCache.get(userId);
+            const username = userData?.username || '@usuario';
+            viewProfile(userId, username, userAvatar);
+        };
         updateChatHeaderStatus(userId);
-        document.getElementById('chatHeaderName').onclick = () => viewProfile(userId);
-        document.getElementById('chatHeaderAvatar').onclick = () => viewProfile(userId);
     } else {
         document.getElementById('chatHeaderStatus').innerText = 'Online';
         document.getElementById('chatHeaderAvatar').classList.remove('online');
-        document.getElementById('chatHeaderName').onclick = null;
-        document.getElementById('chatHeaderAvatar').onclick = null;
+        document.getElementById('chatHeaderAvatar').onclick = () => viewProfile('geral', 'Geral', 'G');
+        document.getElementById('chatHeaderName').onclick = () => viewProfile('geral', 'Geral', 'G');
     }
     
     if (window.innerWidth <= 768) {
@@ -4470,7 +4459,10 @@ function searchUsers() {
     const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
     const searchList = document.getElementById('userSearchList');
     
-    const filteredUsers = allUsers.filter(user => user.username.toLowerCase().includes(searchTerm));
+    const filteredUsers = allUsers.filter(user => 
+        (user.displayName && user.displayName.toLowerCase().includes(searchTerm)) || 
+        (user.username && user.username.toLowerCase().includes(searchTerm))
+    );
     
     if (filteredUsers.length === 0) {
         searchList.innerHTML = '<li class="no-users-found">Nenhum usuário encontrado</li>';
@@ -4479,17 +4471,21 @@ function searchUsers() {
     
     searchList.innerHTML = '';
     filteredUsers.forEach(user => {
+        const displayName = user.displayName || user.username || 'Usuário';
+        const username = user.username || '@usuario';
+        const avatar = username.charAt(1).toUpperCase();
+        
         const li = document.createElement('li');
         li.className = 'user-search-item';
         li.onclick = () => {
             hideUserSearchModal();
-            viewProfile(user.id);
+            selectChat(`private_${user.id}`, displayName, avatar, user.id);
         };
         li.innerHTML = `
-            <div class="user-search-avatar">${user.username.charAt(1).toUpperCase()}</div>
+            <div class="user-search-avatar" onclick="viewProfile('${user.id}', '${username}', '${avatar}')">${avatar}</div>
             <div class="user-search-info">
-                <strong>${user.displayName || user.username}</strong>
-                <span>${user.username}</span>
+                <strong onclick="viewProfile('${user.id}', '${username}', '${avatar}')">${displayName}</strong>
+                <span>${username}</span>
             </div>
         `;
         searchList.appendChild(li);
