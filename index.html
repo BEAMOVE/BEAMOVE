@@ -944,19 +944,6 @@ header {
     text-align: right;
 }
 
-.message.unread-indicator {
-    position: relative;
-}
-
-.message.unread-indicator::after {
-    content: '●';
-    color: var(--accent);
-    font-size: 10px;
-    position: absolute;
-    bottom: -12px;
-    right: 10px;
-}
-
 .chat-input {
     padding: 20px;
     border-top: 1px solid var(--border);
@@ -2803,7 +2790,6 @@ function loadFeedComments(postId) {
     
     commentsList.innerHTML = '<div style="text-align: center; padding: 10px;">Carregando comentários...</div>';
     
-    // Usar apenas where, sem orderBy para evitar índice
     db.collection('post_comments')
         .where('postId', '==', postId)
         .get()
@@ -2813,7 +2799,6 @@ function loadFeedComments(postId) {
                 return;
             }
             
-            // Ordenar manualmente no JavaScript (do mais novo para o mais velho)
             const comments = [];
             for (const doc of snapshot.docs) {
                 const comment = doc.data();
@@ -2821,7 +2806,6 @@ function loadFeedComments(postId) {
                 comments.push(comment);
             }
             
-            // Ordenar por data (mais recente primeiro)
             comments.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -2859,7 +2843,7 @@ function loadFeedComments(postId) {
         })
         .catch(error => {
             console.error('Erro ao carregar comentários:', error);
-            commentsList.innerHTML = '<div style="text-align: center; padding: 10px; color: var(--danger);">Erro ao carregar comentários. Tente novamente.</div>';
+            commentsList.innerHTML = '<div style="text-align: center; padding: 10px; color: var(--danger);">Erro ao carregar comentários</div>';
         });
 }
 
@@ -2869,7 +2853,6 @@ function loadForumComments(postId) {
     
     commentsList.innerHTML = '<div style="text-align: center; padding: 10px;">Carregando comentários...</div>';
     
-    // Usar apenas where, sem orderBy para evitar índice
     db.collection('forum_comments')
         .where('postId', '==', postId)
         .get()
@@ -2879,7 +2862,6 @@ function loadForumComments(postId) {
                 return;
             }
             
-            // Ordenar manualmente no JavaScript (do mais novo para o mais velho)
             const comments = [];
             for (const doc of snapshot.docs) {
                 const comment = doc.data();
@@ -2887,7 +2869,6 @@ function loadForumComments(postId) {
                 comments.push(comment);
             }
             
-            // Ordenar por data (mais recente primeiro)
             comments.sort((a, b) => {
                 const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
                 const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
@@ -2925,7 +2906,7 @@ function loadForumComments(postId) {
         })
         .catch(error => {
             console.error('Erro ao carregar comentários:', error);
-            commentsList.innerHTML = '<div style="text-align: center; padding: 10px; color: var(--danger);">Erro ao carregar comentários. Tente novamente.</div>';
+            commentsList.innerHTML = '<div style="text-align: center; padding: 10px; color: var(--danger);">Erro ao carregar comentários</div>';
         });
 }
 
@@ -2956,16 +2937,13 @@ function addComment(postId) {
     db.collection('post_comments').add(commentData)
         .then(() => {
             input.value = '';
-            // Recarregar comentários
             loadFeedComments(postId);
             
-            // Incrementar contador de comentários no post
             return db.collection('posts').doc(postId).update({
                 comments: firebase.firestore.FieldValue.increment(1)
             });
         })
         .then(() => {
-            // Atualizar contador na UI
             const countSpan = document.getElementById('comment-count-' + postId);
             if (countSpan) {
                 const current = parseInt(countSpan.innerText) || 0;
@@ -3008,16 +2986,13 @@ function addForumComment(postId) {
     db.collection('forum_comments').add(commentData)
         .then(() => {
             input.value = '';
-            // Recarregar comentários
             loadForumComments(postId);
             
-            // Incrementar contador de comentários no post do fórum
             return db.collection('forum_posts').doc(postId).update({
                 comments: firebase.firestore.FieldValue.increment(1)
             });
         })
         .then(() => {
-            // Atualizar contador na UI
             const countSpan = document.getElementById('forum-comment-count-' + postId);
             if (countSpan) {
                 const current = parseInt(countSpan.innerText) || 0;
@@ -3135,7 +3110,6 @@ function loadForumPosts() {
                 });
             }
             
-            // Ordenar por data (mais novo primeiro)
             posts.sort((a, b) => b.createdDate - a.createdDate);
             
             container.innerHTML = '';
@@ -3223,7 +3197,6 @@ async function toggleForumLike(postId) {
         const currentLikes = parseInt(countSpan.innerText) || 0;
         
         if (snapshot.empty) {
-            // Curtir
             button.classList.add('liked');
             countSpan.innerText = currentLikes + 1;
             forumLikesCache.set(postId, true);
@@ -3238,7 +3211,6 @@ async function toggleForumLike(postId) {
                 likes: firebase.firestore.FieldValue.increment(1)
             });
         } else {
-            // Descurtir
             button.classList.remove('liked');
             countSpan.innerText = Math.max(0, currentLikes - 1);
             forumLikesCache.set(postId, false);
@@ -3431,7 +3403,6 @@ async function toggleLike(postId) {
         const currentLikes = parseInt(countSpan.innerText) || 0;
         
         if (snapshot.empty) {
-            // Curtir
             button.classList.add('liked');
             countSpan.innerText = currentLikes + 1;
             likesCache.set(postId, true);
@@ -3446,7 +3417,6 @@ async function toggleLike(postId) {
                 likes: firebase.firestore.FieldValue.increment(1)
             });
         } else {
-            // Descurtir
             button.classList.remove('liked');
             countSpan.innerText = Math.max(0, currentLikes - 1);
             likesCache.set(postId, false);
@@ -3485,7 +3455,7 @@ function sharePost(postId) {
 }
 
 // ============================================================
-// FUNÇÕES DO CHAT (resumidas para economizar espaço)
+// FUNÇÕES DO CHAT (COMPLETAS)
 // ============================================================
 
 function loadChatList() {
@@ -3511,18 +3481,247 @@ function loadChatList() {
     `;
     usersList.appendChild(geralItem);
     
-    // ... (resto do código do chat igual ao anterior)
-    // Por questão de espaço, mantive apenas o essencial
+    db.collection('private_chats').where('participants', 'array-contains', user.uid).get()
+        .then(snapshot => {
+            const chatUsers = new Map();
+            snapshot.forEach(doc => {
+                const chat = doc.data();
+                const otherUserId = chat.participants.find(id => id !== user.uid);
+                if (otherUserId) {
+                    chatUsers.set(otherUserId, {
+                        lastMessageTime: chat.created
+                    });
+                }
+            });
+            
+            chatUsers.forEach((chatInfo, userId) => {
+                db.collection('users').doc(userId).get().then(userDoc => {
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        userCache.set(userId, userData);
+                        const unreadCount = unreadMessages.get(userId) || 0;
+                        
+                        const chatItem = document.createElement('li');
+                        chatItem.className = `chat-user ${unreadCount > 0 ? 'unread' : ''}`;
+                        chatItem.setAttribute('data-chat-id', `private_${userId}`);
+                        chatItem.setAttribute('data-user-id', userId);
+                        chatItem.setAttribute('data-user-name', userData.username);
+                        chatItem.setAttribute('data-user-avatar', userData.username.charAt(1).toUpperCase());
+                        chatItem.onclick = () => selectChat(`private_${userId}`, userData.username, userData.username.charAt(1).toUpperCase(), userId);
+                        
+                        const isOnline = isUserOnline(userData.lastSeen);
+                        const onlineClass = isOnline ? 'online' : '';
+                        const lastSeenText = getLastSeenText(userData.lastSeen);
+                        
+                        chatItem.innerHTML = `
+                            <div class="chat-user-avatar ${onlineClass}">
+                                ${userData.username.charAt(1).toUpperCase()}
+                                ${unreadCount > 0 ? '<span class="unread-badge">' + unreadCount + '</span>' : ''}
+                            </div>
+                            <div class="chat-user-info">
+                                <strong>${userData.username}</strong>
+                                <span>${lastSeenText}</span>
+                            </div>
+                        `;
+                        usersList.appendChild(chatItem);
+                        setupUserStatusListener(userId);
+                    }
+                });
+            });
+        })
+        .catch(console.error);
+}
+
+function loadChat(chatId, otherUserId = null) {
+    if (unsubscribeChat) unsubscribeChat();
+    
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Carregando...</div>';
+    
+    const user = auth.currentUser;
+    
+    if (chatId === 'geral') {
+        unsubscribeChat = db.collection('chat').orderBy('created').onSnapshot(snapshot => {
+            chatBox.innerHTML = '';
+            if (snapshot.empty) {
+                chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhuma mensagem ainda.</div>';
+                return;
+            }
+            snapshot.forEach(doc => displayMessage(doc.data()));
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, console.error);
+    } else {
+        unsubscribeChat = db.collection('private_chats').where('participants', 'array-contains', user.uid)
+            .onSnapshot(snapshot => {
+                const messages = [];
+                snapshot.forEach(doc => {
+                    const message = doc.data();
+                    if (message.participants && message.participants.includes(otherUserId)) {
+                        messages.push(message);
+                    }
+                });
+                messages.sort((a, b) => {
+                    const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+                    const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+                    return dateA - dateB;
+                });
+                
+                chatBox.innerHTML = '';
+                if (messages.length === 0) {
+                    chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhuma mensagem ainda.</div>';
+                } else {
+                    messages.forEach(message => displayMessage(message));
+                }
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, console.error);
+    }
+}
+
+async function displayMessage(message) {
+    try {
+        let userData = userCache.get(message.user);
+        if (!userData) {
+            const userDoc = await db.collection('users').doc(message.user).get();
+            userData = userDoc.data();
+            userCache.set(message.user, userData);
+        }
+        
+        const isOnline = isUserOnline(userData?.lastSeen);
+        const onlineClass = isOnline ? 'online' : '';
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
+        messageElement.innerHTML = `
+            <div class="message-avatar ${onlineClass}">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+            <div class="message-content">
+                <p>${message.text}</p>
+                <span class="message-time">${formatTime(message.created)}</span>
+            </div>
+        `;
+        document.getElementById('chatBox').appendChild(messageElement);
+    } catch (error) {
+        console.error('Erro ao exibir mensagem:', error);
+    }
 }
 
 function selectChat(chatId, userName, userAvatar, userId = null) {
-    // Função simplificada
-    console.log('Chat selecionado:', chatId, userName);
+    currentChat = chatId;
+    currentChatUser = userId;
+    currentChatUserName = userName;
+    currentChatUserAvatar = userAvatar;
+    currentChatId = chatId;
+    
+    if (userId) markAsRead(userId);
+    
+    document.getElementById('chatHeaderName').innerText = userName;
+    document.getElementById('chatHeaderAvatar').innerText = userAvatar;
+    
+    if (userId) updateChatHeaderStatus(userId);
+    else {
+        document.getElementById('chatHeaderStatus').innerText = 'Online';
+        document.getElementById('chatHeaderAvatar').classList.remove('online');
+    }
+    
+    if (window.innerWidth <= 768) {
+        document.getElementById('chatSidebar').classList.add('hidden-mobile');
+        document.getElementById('chatMain').classList.add('active');
+        document.getElementById('bottomNav').classList.add('hidden-nav');
+    }
+    
+    document.querySelectorAll('.chat-user').forEach(item => {
+        item.classList.remove('active');
+        if (chatId === 'geral' && item.getAttribute('data-chat-id') === 'geral') {
+            item.classList.add('active');
+        } else if (item.getAttribute('data-user-id') === userId) {
+            item.classList.add('active');
+            item.classList.remove('unread');
+            const badge = item.querySelector('.unread-badge');
+            if (badge) badge.remove();
+        }
+    });
+    
+    loadChat(chatId, userId);
+}
+
+function markAsRead(userId) {
+    if (!userId) return;
+    const now = Date.now();
+    lastReadTimestamps.set(userId, now);
+    unreadMessages.set(userId, 0);
+    const readData = JSON.parse(localStorage.getItem('readTimestamps') || '{}');
+    readData[userId] = now;
+    localStorage.setItem('readTimestamps', JSON.stringify(readData));
+    updateUnreadBadges();
+}
+
+function updateUnreadBadges() {
+    const usersList = document.getElementById('chatUsersList');
+    const unreadTotal = document.getElementById('unreadTotal');
+    let totalUnread = 0;
+    
+    unreadMessages.forEach((count, userId) => {
+        totalUnread += count;
+        const userItem = usersList?.querySelector(`[data-user-id="${userId}"]`);
+        if (userItem) {
+            if (count > 0) {
+                userItem.classList.add('unread');
+                let badge = userItem.querySelector('.unread-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'unread-badge';
+                    userItem.querySelector('.chat-user-avatar').appendChild(badge);
+                }
+                badge.textContent = count;
+            } else {
+                userItem.classList.remove('unread');
+                const badge = userItem.querySelector('.unread-badge');
+                if (badge) badge.remove();
+            }
+        }
+    });
+    
+    if (unreadTotal) {
+        unreadTotal.textContent = totalUnread;
+        unreadTotal.style.display = totalUnread > 0 ? 'inline' : 'none';
+    }
+}
+
+function backToUsersList() {
+    document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+    document.getElementById('chatMain').classList.remove('active');
+    document.getElementById('bottomNav').classList.remove('hidden-nav');
+    setTimeout(updateAllUsersOnlineStatus, 100);
 }
 
 function sendMessage() {
-    // Função simplificada
-    console.log('Mensagem enviada');
+    const chatInput = document.getElementById('chatInput');
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+    
+    const user = auth.currentUser;
+    
+    if (currentChat === 'geral') {
+        db.collection('chat').add({
+            text: messageText,
+            user: user.uid,
+            created: new Date()
+        }).then(() => {
+            chatInput.value = '';
+        }).catch(error => {
+            alert('Erro: ' + error.message);
+        });
+    } else {
+        db.collection('private_chats').add({
+            text: messageText,
+            user: user.uid,
+            participants: [user.uid, currentChatUser].sort(),
+            created: new Date()
+        }).then(() => {
+            chatInput.value = '';
+        }).catch(error => {
+            alert('Erro: ' + error.message);
+        });
+    }
 }
 
 function handleChatKeyPress(e) {
@@ -3590,7 +3789,7 @@ function searchUsers() {
 }
 
 // ============================================================
-// FUNÇÕES DO PERFIL (resumidas)
+// FUNÇÕES DO PERFIL
 // ============================================================
 
 function loadProfile() {
@@ -3604,6 +3803,19 @@ function loadProfile() {
         document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
         document.getElementById('profileLink').href = data.link || '#';
         document.getElementById('profileAvatar').innerText = data.username ? data.username.charAt(1).toUpperCase() : 'U';
+        
+        const whatsappDDI = document.getElementById('whatsappDDI');
+        if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
+        const editWhatsApp = document.getElementById('editWhatsApp');
+        if (editWhatsApp) editWhatsApp.value = data.whatsapp || '';
+        const phoneDDI = document.getElementById('phoneDDI');
+        if (phoneDDI) phoneDDI.value = data.phoneDDI || '+351';
+        const editPhone = document.getElementById('editPhone');
+        if (editPhone) editPhone.value = data.phone || '';
+        const editBirthDate = document.getElementById('editBirthDate');
+        if (editBirthDate) editBirthDate.value = data.birthDate || '';
+        const editGender = document.getElementById('editGender');
+        if (editGender) editGender.value = data.gender || '';
         
         loadProfileStats();
     }).catch(console.error);
@@ -3647,13 +3859,56 @@ function loadProfilePosts() {
 }
 
 function toggleEditProfile() {
-    // Função simplificada
-    alert('Editar perfil em breve!');
+    const form = document.getElementById('editProfileForm');
+    if (!form) {
+        const editForm = document.createElement('div');
+        editForm.id = 'editProfileForm';
+        editForm.className = 'edit-section';
+        editForm.innerHTML = `
+            <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
+            <input type="text" id="editName" placeholder="Seu nome">
+            <textarea id="editBio" maxlength="200" placeholder="Bio (200 caracteres)"></textarea>
+            <input type="text" id="editLink" placeholder="Link do seu site">
+            <div class="edit-section-actions">
+                <button class="btn btn-primary" onclick="saveProfile()">Salvar</button>
+                <button class="btn btn-secondary" onclick="toggleEditProfile()">Cancelar</button>
+            </div>
+        `;
+        document.querySelector('.profile-container').insertBefore(editForm, document.querySelector('.user-card'));
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
+        
+        db.collection('users').doc(auth.currentUser.uid).get().then(doc => {
+            const data = doc.data();
+            document.getElementById('editName').value = data.displayName || '';
+            document.getElementById('editBio').value = data.bio || '';
+            document.getElementById('editLink').value = data.link || '';
+        });
+    } else {
+        form.classList.toggle('hidden');
+    }
 }
 
 function saveProfile() {
-    // Função simplificada
-    alert('Perfil salvo!');
+    const name = document.getElementById('editName').value;
+    const bio = document.getElementById('editBio').value;
+    const link = document.getElementById('editLink').value;
+    
+    db.collection('users').doc(auth.currentUser.uid).update({
+        displayName: name,
+        bio: bio,
+        link: link
+    }).then(() => {
+        loadProfile();
+        toggleEditProfile();
+        alert('Perfil atualizado!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    });
 }
 
 function toggleSettings() {
@@ -3661,37 +3916,202 @@ function toggleSettings() {
 }
 
 function saveSettings() {
-    alert('Configurações salvas!');
-    toggleSettings();
+    const whatsappDDI = document.getElementById('whatsappDDI').value;
+    const whatsapp = document.getElementById('editWhatsApp').value;
+    const phoneDDI = document.getElementById('phoneDDI').value;
+    const phone = document.getElementById('editPhone').value;
+    const birthDate = document.getElementById('editBirthDate').value;
+    const gender = document.getElementById('editGender').value;
+    
+    db.collection('users').doc(auth.currentUser.uid).update({
+        whatsappDDI, whatsapp, phoneDDI, phone, birthDate, gender
+    }).then(() => {
+        toggleSettings();
+        alert('Configurações salvas!');
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    });
 }
 
+// ============================================================
+// FUNÇÕES DA FICHA DO USUÁRIO
+// ============================================================
+
 function toggleUserCardForm() {
-    document.getElementById('userCardForm').classList.toggle('hidden');
+    const form = document.getElementById('userCardForm');
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) loadCurrentUserCard();
+}
+
+function loadCurrentUserCard() {
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (!snapshot.empty) {
+            let latest = null;
+            let latestDate = null;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+                if (!latestDate || date > latestDate) {
+                    latestDate = date;
+                    latest = data;
+                }
+            });
+            if (latest) {
+                document.getElementById('editWeight').value = latest.weight || '';
+                document.getElementById('editHeight').value = latest.height || '';
+                document.getElementById('editAge').value = latest.age || '';
+                document.getElementById('editGoal').value = latest.goal || '';
+                document.getElementById('editNotes').value = latest.notes || '';
+                calculateIMC();
+            }
+        }
+    }).catch(console.error);
 }
 
 function calculateIMC() {
-    // Função mantida
     const weight = parseFloat(document.getElementById('editWeight').value);
     const height = parseFloat(document.getElementById('editHeight').value);
     if (weight && height) {
         const imc = weight / Math.pow(height / 100, 2);
         document.getElementById('editImc').value = imc.toFixed(2);
+    } else {
+        document.getElementById('editImc').value = '';
     }
 }
 
 function saveUserCard() {
-    alert('Ficha salva!');
-    toggleUserCardForm();
+    const weight = parseFloat(document.getElementById('editWeight').value);
+    const height = parseFloat(document.getElementById('editHeight').value);
+    const age = parseInt(document.getElementById('editAge').value);
+    const goal = document.getElementById('editGoal').value;
+    const notes = document.getElementById('editNotes').value;
+    
+    if (isNaN(weight) || weight <= 0 || isNaN(height) || height <= 0 || isNaN(age) || age <= 0) {
+        alert('Preencha valores válidos');
+        return;
+    }
+    
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = 'Salvando...';
+    btn.disabled = true;
+    
+    db.collection('user_cards').add({
+        userId: auth.currentUser.uid,
+        weight, height, age, goal, notes,
+        created: new Date()
+    }).then(() => {
+        alert('Ficha salva!');
+        toggleUserCardForm();
+        loadUserCard();
+        loadProgressHistory();
+    }).catch(error => {
+        alert('Erro: ' + error.message);
+    }).finally(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
 }
 
 function loadUserCard() {
-    // Função simplificada
-    document.getElementById('userCardGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Nenhum dado cadastrado.</div>';
+    const grid = document.getElementById('userCardGrid');
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (snapshot.empty) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Nenhum dado cadastrado.</div>';
+            return;
+        }
+        
+        let latest = null;
+        let latestDate = null;
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const date = data.created ? new Date(data.created.seconds * 1000) : new Date(0);
+            if (!latestDate || date > latestDate) {
+                latestDate = date;
+                latest = data;
+            }
+        });
+        
+        if (!latest) return;
+        
+        const imc = (latest.weight / Math.pow(latest.height / 100, 2)).toFixed(2);
+        let imcClass = '';
+        if (imc < 18.5) imcClass = 'warning';
+        else if (imc < 25) imcClass = 'success';
+        else if (imc < 30) imcClass = 'warning';
+        else imcClass = 'danger';
+        
+        grid.innerHTML = `
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="scale" size="14"></i> Peso</div>
+                <div class="user-card-value">${latest.weight} <small>kg</small></div>
+            </div>
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="ruler" size="14"></i> Altura</div>
+                <div class="user-card-value">${latest.height} <small>cm</small></div>
+            </div>
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="calendar" size="14"></i> Idade</div>
+                <div class="user-card-value">${latest.age} <small>anos</small></div>
+            </div>
+            <div class="user-card-item">
+                <div class="user-card-label"><i data-lucide="activity" size="14"></i> IMC</div>
+                <div class="user-card-value" style="color: var(--${imcClass})">${imc}</div>
+            </div>
+            <div class="user-card-item" style="grid-column: span 2;">
+                <div class="user-card-label"><i data-lucide="target" size="14"></i> Objetivo</div>
+                <div class="user-card-value">${getGoalName(latest.goal)}</div>
+            </div>
+        `;
+        lucide.createIcons({
+            attrs: {
+                fill: 'currentColor',
+                stroke: 'currentColor'
+            }
+        });
+    }).catch(console.error);
 }
 
 function loadProgressHistory() {
-    // Função simplificada
-    document.getElementById('progressTimeline').innerHTML = '<div style="text-align: center; padding: 20px;">Atualize sua ficha para ver histórico</div>';
+    const timeline = document.getElementById('progressTimeline');
+    db.collection('user_cards').where('userId', '==', auth.currentUser.uid).get().then(snapshot => {
+        if (snapshot.size <= 1) {
+            timeline.innerHTML = '<div style="text-align: center; padding: 20px;">Atualize sua ficha para ver histórico</div>';
+            return;
+        }
+        
+        const cards = [];
+        snapshot.forEach(doc => cards.push(doc.data()));
+        cards.sort((a, b) => {
+            const dateA = a.created ? new Date(a.created.seconds * 1000) : new Date(0);
+            const dateB = b.created ? new Date(b.created.seconds * 1000) : new Date(0);
+            return dateB - dateA;
+        });
+        
+        timeline.innerHTML = '';
+        cards.forEach(data => {
+            const imc = (data.weight / Math.pow(data.height / 100, 2)).toFixed(2);
+            let imcClass = '';
+            if (imc < 18.5) imcClass = 'warning';
+            else if (imc < 25) imcClass = 'success';
+            else if (imc < 30) imcClass = 'warning';
+            else imcClass = 'danger';
+            
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+            item.innerHTML = `
+                <div class="timeline-date">${formatDate(data.created)}</div>
+                <div class="timeline-content">
+                    <p><strong>Peso:</strong> ${data.weight} kg</p>
+                    <p><strong>Altura:</strong> ${data.height} cm</p>
+                    <p><strong>Idade:</strong> ${data.age} anos</p>
+                    <p><strong>IMC:</strong> <span style="color: var(--${imcClass})">${imc}</span></p>
+                    ${data.goal ? `<p><strong>Objetivo:</strong> ${getGoalName(data.goal)}</p>` : ''}
+                </div>
+            `;
+            timeline.appendChild(item);
+        });
+    }).catch(console.error);
 }
 
 function getGoalName(goal) {
