@@ -458,6 +458,10 @@ header {
     cursor: pointer;
 }
 
+.post-avatar:hover {
+    opacity: 0.8;
+}
+
 .post-info h4 {
     font-size: 16px;
     font-weight: 600;
@@ -570,6 +574,10 @@ header {
     font-size: 14px;
     flex-shrink: 0;
     cursor: pointer;
+}
+
+.comment-avatar:hover {
+    opacity: 0.8;
 }
 
 .comment-content {
@@ -779,6 +787,7 @@ header {
     font-size: 18px;
     flex-shrink: 0;
     position: relative;
+    cursor: pointer;
 }
 
 .chat-user-avatar.online::after {
@@ -1164,6 +1173,7 @@ header {
 .user-search-info strong {
     display: block;
     font-size: 14px;
+    cursor: pointer;
 }
 
 .user-search-info span {
@@ -1265,7 +1275,15 @@ header {
     font-weight: 700;
     border: none;
     box-shadow: 0 0 0 2px var(--border);
+    cursor: default;
+}
+
+.profile-avatar-large.clickable {
     cursor: pointer;
+}
+
+.profile-avatar-large.clickable:hover {
+    opacity: 0.9;
 }
 
 .profile-info-compact {
@@ -2523,7 +2541,7 @@ header {
             <!-- Header Section com foto e estatísticas -->
             <div class="profile-header">
                 <div class="profile-avatar-section">
-                    <div class="profile-avatar-large" id="profileAvatar" onclick="viewOwnProfile()">U</div>
+                    <div class="profile-avatar-large clickable" id="profileAvatar" onclick="viewOwnProfile()">U</div>
                 </div>
                 
                 <div class="profile-info-compact">
@@ -2560,7 +2578,7 @@ header {
 
             <!-- Botões de Ação -->
             <div class="profile-action-buttons">
-                <button class="profile-action-btn" onclick="toggleEditProfile()">Editar perfil</button>
+                <button class="profile-action-btn" onclick="toggleEditProfile()" id="profileEditBtn">Editar perfil</button>
                 <button class="profile-action-btn secondary" onclick="shareProfile()">Compartilhar</button>
             </div>
 
@@ -2871,6 +2889,7 @@ let unreadMessages = new Map();
 let lastReadTimestamps = new Map();
 const userStatusListeners = new Map();
 let commentsVisible = new Map();
+let viewingProfileId = null; // ID do perfil que está sendo visualizado
 
 // ============================================================
 // FUNÇÕES DE STATUS ONLINE
@@ -2990,7 +3009,7 @@ auth.onAuthStateChanged(user => {
         });
         
         loadFeed();
-        loadProfile();
+        loadProfile(); // Carrega o próprio perfil
         loadProfilePosts();
         loadUserCard();
         loadProgressHistory();
@@ -3128,8 +3147,14 @@ function showTab(tabName) {
     document.getElementById('bottomNav').classList.remove('hidden-nav');
     
     if (tabName === 'profile') {
-        loadProfile();
-        loadProfilePosts();
+        // Se estiver visualizando outro perfil, mantém, senão carrega o próprio
+        if (!viewingProfileId) {
+            loadProfile();
+            loadProfilePosts();
+        } else {
+            loadProfile(viewingProfileId);
+            loadProfilePosts(viewingProfileId);
+        }
         loadUserCard();
         loadProgressHistory();
     }
@@ -3197,6 +3222,82 @@ function backToHome() {
 }
 
 // ============================================================
+// FUNÇÃO DE VISUALIZAR PERFIL - IMPLEMENTADA
+// ============================================================
+
+function viewProfile(userId) {
+    if (!userId) return;
+    
+    // Se for o próprio usuário, carrega o perfil normal
+    if (userId === auth.currentUser?.uid) {
+        viewingProfileId = null;
+        loadProfile();
+        loadProfilePosts();
+        showTab('profile');
+        return;
+    }
+    
+    // Buscar dados do usuário
+    db.collection('users').doc(userId).get()
+        .then(doc => {
+            if (doc.exists) {
+                viewingProfileId = userId;
+                const userData = doc.data();
+                
+                // Atualizar a interface do perfil com os dados do usuário visitado
+                document.getElementById('profileUsernameTop').innerText = userData.username || '@usuario';
+                document.getElementById('profileDisplayName').innerText = userData.displayName || userData.username?.replace('@', '') || 'Usuário';
+                document.getElementById('profileFullName').innerText = userData.displayName || '';
+                
+                const bioText = userData.bio || 'Olá, estou usando BEAMOVE! 💪';
+                document.getElementById('profileBio').innerHTML = makeMentionsClickable(bioText);
+                
+                document.getElementById('profileLinkText').innerText = userData.link || 'Adicione seu link';
+                document.getElementById('profileLink').href = userData.link || '#';
+                
+                document.getElementById('profileAvatar').innerText = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : (userData.username ? userData.username.charAt(1).toUpperCase() : 'U');
+                
+                // Esconder botão de editar perfil e mostrar botão de seguir/mensagem
+                document.getElementById('profileEditBtn').innerText = 'Seguir';
+                document.getElementById('profileEditBtn').onclick = () => followUser(userId);
+                
+                // Carregar posts do usuário visitado
+                loadProfilePosts(userId);
+                
+                // Contar posts do usuário
+                db.collection('posts').where('user', '==', userId).get().then(snapshot => {
+                    document.getElementById('profilePosts').innerText = snapshot.size;
+                });
+                
+                // Estatísticas (mock por enquanto)
+                document.getElementById('profileFollowers').innerText = '128';
+                document.getElementById('profileFollowing').innerText = '56';
+                
+                // Mostrar a aba de perfil
+                showTab('profile');
+            } else {
+                alert('Usuário não encontrado');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar perfil:', error);
+            alert('Erro ao carregar perfil');
+        });
+}
+
+function viewOwnProfile() {
+    viewingProfileId = null;
+    loadProfile();
+    loadProfilePosts();
+    showTab('profile');
+}
+
+function followUser(userId) {
+    // Implementar lógica de seguir (mock por enquanto)
+    alert(`Seguindo usuário ${userId} (funcionalidade em desenvolvimento)`);
+}
+
+// ============================================================
 // FUNÇÕES DE MENÇÕES CLICÁVEIS
 // ============================================================
 
@@ -3212,7 +3313,7 @@ function makeMentionsClickable(text) {
 }
 
 function goToUserProfile(username) {
-    // Buscar usuário pelo username e mostrar perfil
+    // Buscar usuário pelo username
     db.collection('users').where('username', '==', username).get()
         .then(snapshot => {
             if (!snapshot.empty) {
@@ -3227,17 +3328,6 @@ function goToUserProfile(username) {
             console.error('Erro ao buscar usuário:', error);
             alert('Erro ao buscar usuário');
         });
-}
-
-function viewProfile(userId) {
-    // Implementar visualização de perfil de outro usuário
-    // Por enquanto, apenas mostra uma mensagem
-    alert('Visualizar perfil do usuário (em desenvolvimento)');
-}
-
-function viewOwnProfile() {
-    // Já está no próprio perfil
-    console.log('Visualizando próprio perfil');
 }
 
 // ============================================================
@@ -3954,11 +4044,13 @@ function sharePost(postId) {
 // FUNÇÕES DO PERFIL - INSTAGRAM STYLE
 // ============================================================
 
-function loadProfile() {
-    const user = auth.currentUser;
-    db.collection('users').doc(user.uid).get().then(doc => {
+function loadProfile(userId = null) {
+    const targetUserId = userId || auth.currentUser?.uid;
+    if (!targetUserId) return;
+    
+    db.collection('users').doc(targetUserId).get().then(doc => {
         const data = doc.data();
-        userCache.set(user.uid, data);
+        userCache.set(targetUserId, data);
         
         // Top bar username
         document.getElementById('profileUsernameTop').innerText = data.username || '@usuario';
@@ -3980,6 +4072,15 @@ function loadProfile() {
         // Avatar
         document.getElementById('profileAvatar').innerText = data.displayName ? data.displayName.charAt(0).toUpperCase() : (data.username ? data.username.charAt(1).toUpperCase() : 'U');
         
+        // Se for o próprio perfil, mostrar botão de editar, senão mostrar seguir
+        if (targetUserId === auth.currentUser?.uid) {
+            document.getElementById('profileEditBtn').innerText = 'Editar perfil';
+            document.getElementById('profileEditBtn').onclick = toggleEditProfile;
+        } else {
+            document.getElementById('profileEditBtn').innerText = 'Seguir';
+            document.getElementById('profileEditBtn').onclick = () => followUser(targetUserId);
+        }
+        
         // Configurações
         const whatsappDDI = document.getElementById('whatsappDDI');
         if (whatsappDDI) whatsappDDI.value = data.whatsappDDI || '+351';
@@ -3994,26 +4095,32 @@ function loadProfile() {
         const editGender = document.getElementById('editGender');
         if (editGender) editGender.value = data.gender || '';
         
-        loadProfileStats();
+        loadProfileStats(targetUserId);
     }).catch(console.error);
 }
 
-function loadProfileStats() {
-    const user = auth.currentUser;
-    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
+function loadProfileStats(userId = null) {
+    const targetUserId = userId || auth.currentUser?.uid;
+    if (!targetUserId) return;
+    
+    db.collection('posts').where('user', '==', targetUserId).get().then(snapshot => {
         document.getElementById('profilePosts').innerText = snapshot.size;
     }).catch(console.error);
+    
+    // Mock data for followers/following
     document.getElementById('profileFollowers').innerText = '128';
     document.getElementById('profileFollowing').innerText = '56';
 }
 
-function loadProfilePosts() {
-    const user = auth.currentUser;
-    db.collection('posts').where('user', '==', user.uid).get().then(snapshot => {
+function loadProfilePosts(userId = null) {
+    const targetUserId = userId || auth.currentUser?.uid;
+    if (!targetUserId) return;
+    
+    db.collection('posts').where('user', '==', targetUserId).get().then(snapshot => {
         const grid = document.getElementById('profilePostsGrid');
         grid.innerHTML = '';
         if (snapshot.empty) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);"><i data-lucide="camera" style="width: 48px; height: 48px; margin-bottom: 16px;"></i><p>Compartilhe seu primeiro post</p></div>';
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);"><i data-lucide="camera" style="width: 48px; height: 48px; margin-bottom: 16px;"></i><p>Nenhum post ainda</p></div>';
             lucide.createIcons({
                 attrs: {
                     fill: 'currentColor',
@@ -4384,7 +4491,7 @@ function getGoalName(goal) {
 }
 
 // ============================================================
-// FUNÇÕES DO CHAT (COMPLETAS)
+// FUNÇÕES DO CHAT
 // ============================================================
 
 function loadChatList() {
@@ -4446,7 +4553,7 @@ function loadChatList() {
                         const lastSeenText = getLastSeenText(userData.lastSeen);
                         
                         chatItem.innerHTML = `
-                            <div class="chat-user-avatar ${onlineClass}">
+                            <div class="chat-user-avatar ${onlineClass}" onclick="viewProfile('${userId}')">
                                 ${displayName.charAt(0).toUpperCase()}
                                 ${unreadCount > 0 ? '<span class="unread-badge">' + unreadCount + '</span>' : ''}
                             </div>
@@ -4723,9 +4830,9 @@ function searchUsers() {
             selectChat(`private_${user.id}`, displayName, displayName.charAt(0).toUpperCase(), user.id);
         };
         li.innerHTML = `
-            <div class="user-search-avatar">${displayName.charAt(0).toUpperCase()}</div>
+            <div class="user-search-avatar" onclick="viewProfile('${user.id}')">${displayName.charAt(0).toUpperCase()}</div>
             <div class="user-search-info">
-                <strong>${displayName}</strong>
+                <strong onclick="viewProfile('${user.id}')">${displayName}</strong>
                 <span>${user.username || ''}</span>
             </div>
         `;
