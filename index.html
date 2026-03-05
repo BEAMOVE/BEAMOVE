@@ -27,6 +27,7 @@
 :root {
     --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
+    --bg-input: #f0f2f5;
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --text-gray: #8E8E8E;
@@ -55,6 +56,7 @@
 .dark {
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
+    --bg-input: #2d3748;
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-gray: #a0a0a0;
@@ -429,6 +431,94 @@ header {
     color: var(--text-secondary);
 }
 
+/* Estilos para barra de mensagens */
+.message-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+    min-height: 56px;
+}
+
+.message-bar-left {
+    flex-shrink: 0;
+}
+
+.message-bar-center {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-bar-right {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.message-bar-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 24px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+    resize: none;
+    max-height: 100px;
+    font-family: inherit;
+}
+
+.message-bar-input:focus {
+    outline: none;
+    background: var(--bg-primary);
+    border: 1px solid var(--accent);
+}
+
+.message-bar-input::placeholder {
+    color: var(--text-gray);
+}
+
+.message-bar-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.message-bar-button:hover {
+    background: var(--bg-primary);
+    color: var(--accent);
+}
+
+.message-bar-button.primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+.message-bar-button.primary:hover {
+    transform: scale(1.05);
+}
+
+.message-bar-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Estilos para upload de imagens */
 .image-upload-btn {
     display: flex;
@@ -462,29 +552,23 @@ header {
     position: relative;
     display: inline-block;
     margin: 10px 0;
+    width: 100%;
 }
 
 .image-preview {
-    max-width: 200px;
+    width: 100%;
     max-height: 200px;
+    object-fit: cover;
     border-radius: 12px;
     border: 2px solid var(--border);
-    object-fit: cover;
-}
-
-.image-preview.profile-avatar-preview {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
 }
 
 .remove-image-btn {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: var(--danger);
     border: none;
@@ -864,53 +948,6 @@ header {
     text-decoration: underline;
 }
 
-.comment-input-area {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background: var(--bg-primary);
-    border-radius: 25px;
-    padding: 5px;
-    border: 1px solid var(--border);
-}
-
-.comment-input-area input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 10px 15px;
-    color: var(--text-primary);
-    font-size: 14px;
-}
-
-.comment-input-area input:focus {
-    outline: none;
-}
-
-.comment-input-area button {
-    background: var(--accent-gradient);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.comment-input-area button:hover {
-    transform: scale(1.1);
-}
-
-.comment-input-area button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
 .chat-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -1275,51 +1312,6 @@ header {
     opacity: 0.7;
     display: block;
     text-align: right;
-}
-
-.chat-input {
-    padding: 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    background: var(--bg-secondary);
-    position: relative;
-    bottom: 0;
-    width: 100%;
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 25px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 16px;
-    transition: var(--transition);
-}
-
-.chat-input input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-.chat-input button {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-}
-
-.chat-input button:hover {
-    transform: scale(1.1);
 }
 
 .user-search-modal {
@@ -2374,33 +2366,19 @@ header {
 
 .create-post {
     background: var(--bg-secondary);
-    border-radius: 20px 20px 0 0;
     padding: 20px;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
-    border-top: 1px solid var(--border);
-    margin-top: 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.create-post .message-bar {
     position: relative;
-    bottom: 0;
-    width: 100%;
+    bottom: auto;
+    border-top: none;
+    padding: 0;
 }
 
-.create-post textarea {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid var(--border);
-    border-radius: 15px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 16px;
-    resize: none;
-    margin-bottom: 15px;
-}
-
-.create-post .btn {
-    width: 100%;
-    padding: 15px;
-    border-radius: 15px;
-    margin: 0;
+.create-post .message-bar-input {
+    min-height: 40px;
 }
 
 .image-upload-btn {
@@ -2603,15 +2581,6 @@ header {
         padding: 15px;
     }
     
-    .create-post textarea {
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    
-    .create-post .btn {
-        padding: 12px;
-    }
-    
     .profile-highlights {
         gap: 15px;
         padding: 12px;
@@ -2634,6 +2603,20 @@ header {
     .profile-top-bar .profile-username-top {
         font-size: 16px;
         max-width: 150px;
+    }
+    
+    .message-bar {
+        padding: 6px 10px;
+    }
+    
+    .message-bar-button {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .message-bar-input {
+        padding: 10px 12px;
+        font-size: 14px;
     }
 }
 
@@ -2862,13 +2845,22 @@ header {
     <!-- Feed Section -->
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
-        <div class="create-post">
-            <div class="create-post-with-image">
-                <textarea id="postInput" placeholder="Compartilhe sua evolução..." rows="2"></textarea>
-                <button class="image-upload-btn" onclick="document.getElementById('postImageInput').click()">
-                    <i data-lucide="image"></i>
-                    Adicionar foto
+        
+        <!-- Barra de mensagem do feed -->
+        <div class="message-bar">
+            <div class="message-bar-left">
+                <button class="message-bar-button" onclick="document.getElementById('postImageInput').click()">
+                    <i data-lucide="camera"></i>
                 </button>
+            </div>
+            <div class="message-bar-center">
+                <textarea 
+                    id="postInput" 
+                    class="message-bar-input" 
+                    placeholder="Digite uma mensagem..." 
+                    rows="1"
+                    oninput="autoResize(this)"
+                ></textarea>
                 <input type="file" id="postImageInput" accept="image/*" style="display: none;" onchange="previewPostImage(this)">
                 <div id="postImagePreviewContainer" class="image-preview-container hidden">
                     <img id="postImagePreview" class="image-preview" src="" alt="Preview">
@@ -2877,7 +2869,14 @@ header {
                 <div id="postUploadProgress" class="image-upload-progress hidden">
                     <div id="postUploadProgressBar" class="image-upload-progress-bar" style="width: 0%"></div>
                 </div>
-                <button class="btn btn-primary" onclick="addPost()">Publicar</button>
+            </div>
+            <div class="message-bar-right" id="postActions">
+                <button class="message-bar-button" onclick="sendLike()" id="postLikeBtn">
+                    <i data-lucide="heart"></i>
+                </button>
+                <button class="message-bar-button primary" onclick="addPost()" id="postSendBtn">
+                    <i data-lucide="send"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -2902,23 +2901,36 @@ header {
 
         <!-- Add Forum Post Form -->
         <div id="addForumPostForm" class="create-post hidden">
-            <div class="create-post-with-image">
-                <textarea id="forumPostInput" placeholder="Compartilhe sua dica..."></textarea>
-                <button class="image-upload-btn" onclick="document.getElementById('forumImageInput').click()">
-                    <i data-lucide="image"></i>
-                    Adicionar foto
-                </button>
-                <input type="file" id="forumImageInput" accept="image/*" style="display: none;" onchange="previewForumImage(this)">
-                <div id="forumImagePreviewContainer" class="image-preview-container hidden">
-                    <img id="forumImagePreview" class="image-preview" src="" alt="Preview">
-                    <button class="remove-image-btn" onclick="removeForumImage()">✕</button>
+            <div class="message-bar">
+                <div class="message-bar-left">
+                    <button class="message-bar-button" onclick="document.getElementById('forumImageInput').click()">
+                        <i data-lucide="camera"></i>
+                    </button>
                 </div>
-                <div id="forumUploadProgress" class="image-upload-progress hidden">
-                    <div id="forumUploadProgressBar" class="image-upload-progress-bar" style="width: 0%"></div>
+                <div class="message-bar-center">
+                    <textarea 
+                        id="forumPostInput" 
+                        class="message-bar-input" 
+                        placeholder="Digite uma mensagem..." 
+                        rows="1"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <input type="file" id="forumImageInput" accept="image/*" style="display: none;" onchange="previewForumImage(this)">
+                    <div id="forumImagePreviewContainer" class="image-preview-container hidden">
+                        <img id="forumImagePreview" class="image-preview" src="" alt="Preview">
+                        <button class="remove-image-btn" onclick="removeForumImage()">✕</button>
+                    </div>
+                    <div id="forumUploadProgress" class="image-upload-progress hidden">
+                        <div id="forumUploadProgressBar" class="image-upload-progress-bar" style="width: 0%"></div>
+                    </div>
                 </div>
-                <button class="btn btn-primary" onclick="addForumPost()">Publicar</button>
-                <button class="btn btn-secondary" onclick="hideAddForumPost()">Cancelar</button>
+                <div class="message-bar-right">
+                    <button class="message-bar-button primary" onclick="addForumPost()">
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
             </div>
+            <button class="btn btn-secondary" onclick="hideAddForumPost()" style="margin-top: 10px;">Cancelar</button>
         </div>
 
         <!-- Forum Posts -->
@@ -2963,11 +2975,35 @@ header {
                     </div>
                 </div>
                 <div class="chat-messages" id="chatBox"></div>
-                <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="handleChatKeyPress(event)">
-                    <button onclick="sendMessage()">
-                        <i data-lucide="send"></i>
-                    </button>
+                
+                <!-- Barra de mensagem do chat -->
+                <div class="message-bar">
+                    <div class="message-bar-left">
+                        <button class="message-bar-button" onclick="openChatCamera()">
+                            <i data-lucide="camera"></i>
+                        </button>
+                    </div>
+                    <div class="message-bar-center">
+                        <textarea 
+                            id="chatInput" 
+                            class="message-bar-input" 
+                            placeholder="Digite uma mensagem..." 
+                            rows="1"
+                            oninput="autoResize(this); updateChatActions()"
+                            onkeypress="handleChatKeyPress(event)"
+                        ></textarea>
+                    </div>
+                    <div class="message-bar-right" id="chatActions">
+                        <button class="message-bar-button" onclick="sendAudioMessage()" id="chatAudioBtn">
+                            <i data-lucide="mic"></i>
+                        </button>
+                        <button class="message-bar-button" onclick="sendLike()" id="chatLikeBtn">
+                            <i data-lucide="heart"></i>
+                        </button>
+                        <button class="message-bar-button primary" onclick="sendMessage()" id="chatSendBtn" style="display: none;">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3347,7 +3383,7 @@ const storage = firebase.storage();
 
 // Cloudinary config (usado via proxy server)
 const CLOUDINARY_CLOUD_NAME = 'beamove';
-const CLOUDINARY_UPLOAD_PRESET = 'beamove_preset'; // Você precisa criar isso no Cloudinary
+const CLOUDINARY_UPLOAD_PRESET = 'beamove_preset';
 
 // Cache de usuários
 const userCache = new Map();
@@ -3377,10 +3413,83 @@ let currentPostImageFile = null;
 let currentForumImageFile = null;
 
 // ============================================================
+// FUNÇÕES UTILITÁRIAS DA BARRA DE MENSAGEM
+// ============================================================
+
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+}
+
+function updateChatActions() {
+    const input = document.getElementById('chatInput');
+    const chatActions = document.getElementById('chatActions');
+    const hasText = input.value.trim().length > 0;
+    
+    if (hasText) {
+        chatActions.innerHTML = `
+            <button class="message-bar-button" onclick="openAttachment()">
+                <i data-lucide="paperclip"></i>
+            </button>
+            <button class="message-bar-button" onclick="openEmojiPicker()">
+                <i data-lucide="smile"></i>
+            </button>
+            <button class="message-bar-button primary" onclick="sendMessage()">
+                <i data-lucide="send"></i>
+            </button>
+        `;
+    } else {
+        chatActions.innerHTML = `
+            <button class="message-bar-button" onclick="sendAudioMessage()">
+                <i data-lucide="mic"></i>
+            </button>
+            <button class="message-bar-button" onclick="sendLike()">
+                <i data-lucide="heart"></i>
+            </button>
+        `;
+    }
+    lucide.createIcons();
+}
+
+function sendLike() {
+    if (currentChat === 'geral') {
+        db.collection('chat').add({
+            text: '❤️',
+            user: auth.currentUser.uid,
+            created: new Date(),
+            isLike: true
+        }).catch(error => console.error('Erro ao enviar like:', error));
+    } else if (currentChatUser) {
+        db.collection('private_chats').add({
+            text: '❤️',
+            user: auth.currentUser.uid,
+            participants: [auth.currentUser.uid, currentChatUser].sort(),
+            created: new Date(),
+            isLike: true
+        }).catch(error => console.error('Erro ao enviar like:', error));
+    }
+}
+
+function sendAudioMessage() {
+    alert('Funcionalidade de áudio em desenvolvimento');
+}
+
+function openAttachment() {
+    alert('Anexar arquivo em desenvolvimento');
+}
+
+function openEmojiPicker() {
+    alert('Emojis em desenvolvimento');
+}
+
+function openChatCamera() {
+    alert('Câmera em desenvolvimento');
+}
+
+// ============================================================
 // FUNÇÕES DE UPLOAD DE IMAGENS
 // ============================================================
 
-// Função para fazer upload via proxy server (protege API Secret)
 async function uploadImageToCloudinary(file, onProgress) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
@@ -3411,7 +3520,6 @@ async function uploadImageToCloudinary(file, onProgress) {
     });
 }
 
-// Preview de imagem do post
 function previewPostImage(input) {
     if (input.files && input.files[0]) {
         currentPostImageFile = input.files[0];
@@ -3430,7 +3538,6 @@ function removePostImage() {
     document.getElementById('postImageInput').value = '';
 }
 
-// Preview de imagem do fórum
 function previewForumImage(input) {
     if (input.files && input.files[0]) {
         currentForumImageFile = input.files[0];
@@ -3449,7 +3556,6 @@ function removeForumImage() {
     document.getElementById('forumImageInput').value = '';
 }
 
-// Upload de avatar do perfil
 async function uploadProfileAvatar(input) {
     if (!input.files || !input.files[0]) return;
     
@@ -3465,12 +3571,10 @@ async function uploadProfileAvatar(input) {
             progressBar.style.width = percent + '%';
         });
         
-        // Salvar URL no Firebase
         await db.collection('users').doc(auth.currentUser.uid).update({
             avatarUrl: imageUrl
         });
         
-        // Atualizar UI
         document.getElementById('profileAvatarText').style.display = 'none';
         const avatarImg = document.getElementById('profileAvatarImage');
         avatarImg.src = imageUrl;
@@ -3483,7 +3587,6 @@ async function uploadProfileAvatar(input) {
             progressContainer.classList.add('hidden');
         }, 1000);
         
-        // Atualizar cache
         if (currentUserData) {
             currentUserData.avatarUrl = imageUrl;
         }
@@ -3496,7 +3599,6 @@ async function uploadProfileAvatar(input) {
     }
 }
 
-// Função para expandir imagem
 function expandImage(src) {
     document.getElementById('expandedImage').src = src;
     document.getElementById('imageModal').classList.remove('hidden');
@@ -3622,7 +3724,6 @@ auth.onAuthStateChanged(user => {
             currentUserData = doc.data();
             userCache.set(user.uid, currentUserData);
             
-            // Atualizar avatar se existir
             if (currentUserData.avatarUrl) {
                 document.getElementById('profileAvatarText').style.display = 'none';
                 const avatarImg = document.getElementById('profileAvatarImage');
@@ -3887,7 +3988,6 @@ function viewProfile(userId) {
                 document.getElementById('profileLinkText').innerText = userData.link || 'Adicione seu link';
                 document.getElementById('profileLink').href = userData.link || '#';
                 
-                // Avatar
                 if (userData.avatarUrl) {
                     document.getElementById('profileAvatarText').style.display = 'none';
                     const avatarImg = document.getElementById('profileAvatarImage');
@@ -4258,7 +4358,6 @@ async function addForumPost() {
     try {
         let imageUrl = '';
         
-        // Fazer upload da imagem se existir
         if (currentForumImageFile) {
             const progressBar = document.getElementById('forumUploadProgressBar');
             const progressContainer = document.getElementById('forumUploadProgress');
@@ -4611,9 +4710,9 @@ async function addPost() {
         return;
     }
     
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.innerText = 'Publicando...';
+    const btn = document.getElementById('postSendBtn');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader"></i>';
     btn.disabled = true;
     
     try {
@@ -4648,13 +4747,25 @@ async function addPost() {
         await db.collection('posts').add(postData);
         
         input.value = '';
+        input.style.height = 'auto';
         removePostImage();
-        alert('Post publicado!');
+        
+        // Resetar ações
+        const postActions = document.getElementById('postActions');
+        postActions.innerHTML = `
+            <button class="message-bar-button" onclick="sendLike()">
+                <i data-lucide="heart"></i>
+            </button>
+            <button class="message-bar-button primary" onclick="addPost()" id="postSendBtn">
+                <i data-lucide="send"></i>
+            </button>
+        `;
+        lucide.createIcons();
     } catch (error) {
         console.error('Erro ao publicar:', error);
         alert('Erro: ' + error.message);
     } finally {
-        btn.innerText = originalText;
+        btn.innerHTML = originalHtml;
         btn.disabled = false;
     }
 }
@@ -4756,7 +4867,6 @@ function loadProfile(userId = null) {
         document.getElementById('profileLinkText').innerText = data.link || 'Adicione seu link';
         document.getElementById('profileLink').href = data.link || '#';
         
-        // Avatar
         if (data.avatarUrl) {
             document.getElementById('profileAvatarText').style.display = 'none';
             const avatarImg = document.getElementById('profileAvatarImage');
@@ -5397,6 +5507,20 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     });
     
     loadChat(chatId, userId);
+    
+    // Reset chat input actions
+    const chatActions = document.getElementById('chatActions');
+    chatActions.innerHTML = `
+        <button class="message-bar-button" onclick="sendAudioMessage()">
+            <i data-lucide="mic"></i>
+        </button>
+        <button class="message-bar-button" onclick="sendLike()">
+            <i data-lucide="heart"></i>
+        </button>
+    `;
+    document.getElementById('chatInput').value = '';
+    document.getElementById('chatInput').style.height = 'auto';
+    lucide.createIcons();
 }
 
 function markAsRead(userId) {
@@ -5463,6 +5587,8 @@ function sendMessage() {
             created: new Date()
         }).then(() => {
             chatInput.value = '';
+            chatInput.style.height = 'auto';
+            updateChatActions();
         }).catch(error => {
             alert('Erro: ' + error.message);
         });
@@ -5474,6 +5600,8 @@ function sendMessage() {
             created: new Date()
         }).then(() => {
             chatInput.value = '';
+            chatInput.style.height = 'auto';
+            updateChatActions();
         }).catch(error => {
             alert('Erro: ' + error.message);
         });
@@ -5481,7 +5609,7 @@ function sendMessage() {
 }
 
 function handleChatKeyPress(e) {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
     }
