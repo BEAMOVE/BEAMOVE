@@ -51,6 +51,8 @@
     --like-active: #ef4444;
     --like-inactive: #475569;
     --link-blue: #00376B;
+    --follow-btn: #0095f6;
+    --following-btn: #efefef;
 }
 
 .dark {
@@ -69,6 +71,8 @@
     --nav-bg: rgba(30, 41, 59, 0.85);
     --like-inactive: #94a3b8;
     --link-blue: #6ab0ff;
+    --follow-btn: #0095f6;
+    --following-btn: #374151;
 }
 
 body {
@@ -763,6 +767,7 @@ header {
     font-weight: 600;
     font-size: 20px;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .post-avatar img {
@@ -897,6 +902,7 @@ header {
     font-size: 14px;
     flex-shrink: 0;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .comment-avatar img {
@@ -1677,18 +1683,45 @@ header {
     font-weight: 600;
     cursor: pointer;
     border: none;
-    background: var(--accent-gradient);
+    transition: var(--transition);
+}
+
+.profile-action-btn.primary {
+    background: var(--follow-btn);
     color: white;
 }
 
+.profile-action-btn.primary:hover {
+    opacity: 0.8;
+}
+
 .profile-action-btn.secondary {
-    background: transparent;
-    border: 1px solid var(--border);
+    background: var(--following-btn);
     color: var(--text-primary);
 }
 
-.profile-action-btn:hover {
-    opacity: 0.9;
+.profile-action-btn.secondary:hover {
+    background: var(--border);
+}
+
+.profile-action-btn.following {
+    background: var(--following-btn);
+    color: var(--text-primary);
+}
+
+.profile-action-btn.following:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.profile-action-btn.following:hover span {
+    display: none;
+}
+
+.profile-action-btn.following:hover::before {
+    content: 'Deixar de seguir';
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .profile-highlights {
@@ -3062,11 +3095,11 @@ header {
                             <span class="stat-label">publicações</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value" id="profileFollowers">128</span>
+                            <span class="stat-value" id="profileFollowers">0</span>
                             <span class="stat-label">seguidores</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value" id="profileFollowing">56</span>
+                            <span class="stat-value" id="profileFollowing">0</span>
                             <span class="stat-label">seguindo</span>
                         </div>
                     </div>
@@ -3084,7 +3117,7 @@ header {
 
             <!-- Botões de Ação -->
             <div class="profile-action-buttons">
-                <button class="profile-action-btn" onclick="toggleEditProfile()" id="profileEditBtn">Editar perfil</button>
+                <button class="profile-action-btn primary" onclick="handleProfileAction()" id="profileActionBtn">Editar perfil</button>
                 <button class="profile-action-btn secondary" onclick="shareProfile()">Compartilhar</button>
             </div>
 
@@ -3392,6 +3425,10 @@ const userCache = new Map();
 const likesCache = new Map();
 const forumLikesCache = new Map();
 
+// Cache de seguidores
+const followersCache = new Map();
+const followingCache = new Map();
+
 // Variáveis globais
 let currentForum = 'treino';
 let currentChat = 'geral';
@@ -3411,6 +3448,212 @@ let viewingProfileId = null;
 // Variáveis para upload de imagens
 let currentPostImageFile = null;
 let currentForumImageFile = null;
+
+// ============================================================
+// FUNÇÕES DE SEGUIR - NOVAS
+// ============================================================
+
+async function followUser(userId) {
+    if (!auth.currentUser) {
+        alert('Faça login para seguir usuários');
+        return;
+    }
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    if (userId === currentUserId) {
+        return; // Não pode seguir a si mesmo
+    }
+    
+    try {
+        // Verificar se já segue
+        const followDoc = await db.collection('follows')
+            .where('followerId', '==', currentUserId)
+            .where('followingId', '==', userId)
+            .get();
+        
+        if (followDoc.empty) {
+            // Seguir
+            await db.collection('follows').add({
+                followerId: currentUserId,
+                followingId: userId,
+                createdAt: new Date()
+            });
+            
+            // Atualizar contadores
+            await updateFollowersCount(userId);
+            await updateFollowingCount(currentUserId);
+            
+            // Atualizar botão
+            const actionBtn = document.getElementById('profileActionBtn');
+            if (actionBtn) {
+                actionBtn.innerText = 'Seguindo';
+                actionBtn.className = 'profile-action-btn following';
+                actionBtn.onclick = () => unfollowUser(userId);
+            }
+            
+            alert('Usuário seguido com sucesso!');
+        }
+    } catch (error) {
+        console.error('Erro ao seguir:', error);
+        alert('Erro ao seguir usuário. Tente novamente.');
+    }
+}
+
+async function unfollowUser(userId) {
+    if (!auth.currentUser) return;
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    try {
+        // Buscar e deletar o follow
+        const followDoc = await db.collection('follows')
+            .where('followerId', '==', currentUserId)
+            .where('followingId', '==', userId)
+            .get();
+        
+        if (!followDoc.empty) {
+            await db.collection('follows').doc(followDoc.docs[0].id).delete();
+            
+            // Atualizar contadores
+            await updateFollowersCount(userId);
+            await updateFollowingCount(currentUserId);
+            
+            // Atualizar botão
+            const actionBtn = document.getElementById('profileActionBtn');
+            if (actionBtn) {
+                actionBtn.innerText = 'Seguir';
+                actionBtn.className = 'profile-action-btn primary';
+                actionBtn.onclick = () => followUser(userId);
+            }
+            
+            alert('Você deixou de seguir este usuário');
+        }
+    } catch (error) {
+        console.error('Erro ao deixar de seguir:', error);
+        alert('Erro ao processar. Tente novamente.');
+    }
+}
+
+async function updateFollowersCount(userId) {
+    try {
+        const followersSnapshot = await db.collection('follows')
+            .where('followingId', '==', userId)
+            .get();
+        
+        const count = followersSnapshot.size;
+        
+        // Atualizar no documento do usuário
+        await db.collection('users').doc(userId).update({
+            followersCount: count
+        });
+        
+        // Atualizar UI se for o perfil sendo visualizado
+        if (viewingProfileId === userId || userId === auth.currentUser?.uid) {
+            document.getElementById('profileFollowers').innerText = count;
+        }
+        
+        followersCache.set(userId, count);
+    } catch (error) {
+        console.error('Erro ao atualizar contagem de seguidores:', error);
+    }
+}
+
+async function updateFollowingCount(userId) {
+    try {
+        const followingSnapshot = await db.collection('follows')
+            .where('followerId', '==', userId)
+            .get();
+        
+        const count = followingSnapshot.size;
+        
+        // Atualizar no documento do usuário
+        await db.collection('users').doc(userId).update({
+            followingCount: count
+        });
+        
+        // Atualizar UI se for o perfil sendo visualizado
+        if (viewingProfileId === userId || userId === auth.currentUser?.uid) {
+            document.getElementById('profileFollowing').innerText = count;
+        }
+        
+        followingCache.set(userId, count);
+    } catch (error) {
+        console.error('Erro ao atualizar contagem de seguindo:', error);
+    }
+}
+
+async function checkIfFollowing(targetUserId) {
+    if (!auth.currentUser) return false;
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    try {
+        const followDoc = await db.collection('follows')
+            .where('followerId', '==', currentUserId)
+            .where('followingId', '==', targetUserId)
+            .get();
+        
+        return !followDoc.empty;
+    } catch (error) {
+        console.error('Erro ao verificar follow:', error);
+        return false;
+    }
+}
+
+async function loadFollowersCount(userId) {
+    if (followersCache.has(userId)) {
+        return followersCache.get(userId);
+    }
+    
+    try {
+        const snapshot = await db.collection('follows')
+            .where('followingId', '==', userId)
+            .get();
+        
+        const count = snapshot.size;
+        followersCache.set(userId, count);
+        return count;
+    } catch (error) {
+        console.error('Erro ao carregar seguidores:', error);
+        return 0;
+    }
+}
+
+async function loadFollowingCount(userId) {
+    if (followingCache.has(userId)) {
+        return followingCache.get(userId);
+    }
+    
+    try {
+        const snapshot = await db.collection('follows')
+            .where('followerId', '==', userId)
+            .get();
+        
+        const count = snapshot.size;
+        followingCache.set(userId, count);
+        return count;
+    } catch (error) {
+        console.error('Erro ao carregar seguindo:', error);
+        return 0;
+    }
+}
+
+// Função para lidar com a ação do botão no perfil (editar/seguir)
+function handleProfileAction() {
+    if (viewingProfileId && viewingProfileId !== auth.currentUser?.uid) {
+        // É outro perfil - verificar se já segue
+        const actionBtn = document.getElementById('profileActionBtn');
+        if (actionBtn.innerText === 'Seguir') {
+            followUser(viewingProfileId);
+        } else {
+            unfollowUser(viewingProfileId);
+        }
+    } else {
+        // É o próprio perfil - abrir edição
+        toggleEditProfile();
+    }
+}
 
 // ============================================================
 // FUNÇÕES UTILITÁRIAS DA BARRA DE MENSAGEM
@@ -3733,6 +3976,14 @@ auth.onAuthStateChanged(user => {
                 avatarImg.style.height = '100%';
                 avatarImg.style.objectFit = 'cover';
             }
+            
+            // Carregar contagens de seguidores
+            loadFollowersCount(user.uid).then(count => {
+                document.getElementById('profileFollowers').innerText = count;
+            });
+            loadFollowingCount(user.uid).then(count => {
+                document.getElementById('profileFollowing').innerText = count;
+            });
         });
         
         loadFeed();
@@ -3808,6 +4059,8 @@ function register() {
                 birthDate: '',
                 gender: '',
                 avatarUrl: '',
+                followersCount: 0,
+                followingCount: 0,
                 createdAt: new Date(),
                 lastSeen: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => userCredential);
@@ -3958,7 +4211,7 @@ function backFromProfile() {
 }
 
 // ============================================================
-// FUNÇÃO DE VISUALIZAR PERFIL
+// FUNÇÃO DE VISUALIZAR PERFIL (ATUALIZADA)
 // ============================================================
 
 function viewProfile(userId) {
@@ -3973,7 +4226,7 @@ function viewProfile(userId) {
     }
     
     db.collection('users').doc(userId).get()
-        .then(doc => {
+        .then(async doc => {
             if (doc.exists) {
                 viewingProfileId = userId;
                 const userData = doc.data();
@@ -4002,17 +4255,31 @@ function viewProfile(userId) {
                     document.getElementById('profileAvatarText').innerText = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : (userData.username ? userData.username.charAt(1).toUpperCase() : 'U');
                 }
                 
-                document.getElementById('profileEditBtn').innerText = 'Seguir';
-                document.getElementById('profileEditBtn').onclick = () => followUser(userId);
+                // Carregar contagens de seguidores
+                const followersCount = await loadFollowersCount(userId);
+                const followingCount = await loadFollowingCount(userId);
+                document.getElementById('profileFollowers').innerText = followersCount;
+                document.getElementById('profileFollowing').innerText = followingCount;
+                
+                // Verificar se já segue
+                const isFollowing = await checkIfFollowing(userId);
+                const actionBtn = document.getElementById('profileActionBtn');
+                
+                if (isFollowing) {
+                    actionBtn.innerText = 'Seguindo';
+                    actionBtn.className = 'profile-action-btn following';
+                    actionBtn.onclick = () => unfollowUser(userId);
+                } else {
+                    actionBtn.innerText = 'Seguir';
+                    actionBtn.className = 'profile-action-btn primary';
+                    actionBtn.onclick = () => followUser(userId);
+                }
                 
                 loadProfilePosts(userId);
                 
                 db.collection('posts').where('user', '==', userId).get().then(snapshot => {
                     document.getElementById('profilePosts').innerText = snapshot.size;
                 });
-                
-                document.getElementById('profileFollowers').innerText = '128';
-                document.getElementById('profileFollowing').innerText = '56';
                 
                 showTab('profile');
             } else {
@@ -4030,10 +4297,6 @@ function viewOwnProfile() {
     loadProfile();
     loadProfilePosts();
     showTab('profile');
-}
-
-function followUser(userId) {
-    alert(`Seguindo usuário ${userId} (funcionalidade em desenvolvimento)`);
 }
 
 // ============================================================
@@ -4140,7 +4403,7 @@ function loadFeedComments(postId) {
                 
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar">
+                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">
                             ${userData?.avatarUrl ? `<img src="${userData.avatarUrl}" alt="Avatar">` : (userData?.username ? userData.username.charAt(1).toUpperCase() : 'U')}
                         </div>
                         <div class="comment-content">
@@ -4207,7 +4470,7 @@ function loadForumComments(postId) {
                 
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar">
+                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">
                             ${userData?.avatarUrl ? `<img src="${userData.avatarUrl}" alt="Avatar">` : (userData?.username ? userData.username.charAt(1).toUpperCase() : 'U')}
                         </div>
                         <div class="comment-content">
@@ -4470,7 +4733,7 @@ function loadForumPosts() {
                 postElement.id = 'forum-post-' + post.id;
                 postElement.innerHTML = `
                     <div class="forum-post-header">
-                        <div class="post-avatar">
+                        <div class="post-avatar" onclick="viewProfile('${post.user}')">
                             ${post.userData?.avatarUrl ? `<img src="${post.userData.avatarUrl}" alt="Avatar">` : (post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U')}
                         </div>
                         <div>
@@ -4655,7 +4918,7 @@ function loadFeed() {
             postElement.id = 'post-' + postId;
             postElement.innerHTML = `
                 <div class="post-header">
-                    <div class="post-avatar">
+                    <div class="post-avatar" onclick="viewProfile('${post.user}')">
                         ${userData?.avatarUrl ? `<img src="${userData.avatarUrl}" alt="Avatar">` : (userData?.username ? userData.username.charAt(1).toUpperCase() : 'U')}
                     </div>
                     <div class="post-info">
@@ -4846,14 +5109,14 @@ function sharePost(postId) {
 }
 
 // ============================================================
-// FUNÇÕES DO PERFIL
+// FUNÇÕES DO PERFIL (ATUALIZADAS)
 // ============================================================
 
 function loadProfile(userId = null) {
     const targetUserId = userId || auth.currentUser?.uid;
     if (!targetUserId) return;
     
-    db.collection('users').doc(targetUserId).get().then(doc => {
+    db.collection('users').doc(targetUserId).get().then(async doc => {
         const data = doc.data();
         userCache.set(targetUserId, data);
         
@@ -4881,12 +5144,17 @@ function loadProfile(userId = null) {
             document.getElementById('profileAvatarText').innerText = data.displayName ? data.displayName.charAt(0).toUpperCase() : (data.username ? data.username.charAt(1).toUpperCase() : 'U');
         }
         
+        // Carregar contagens de seguidores
+        const followersCount = await loadFollowersCount(targetUserId);
+        const followingCount = await loadFollowingCount(targetUserId);
+        document.getElementById('profileFollowers').innerText = followersCount;
+        document.getElementById('profileFollowing').innerText = followingCount;
+        
         if (targetUserId === auth.currentUser?.uid) {
-            document.getElementById('profileEditBtn').innerText = 'Editar perfil';
-            document.getElementById('profileEditBtn').onclick = toggleEditProfile;
-        } else {
-            document.getElementById('profileEditBtn').innerText = 'Seguir';
-            document.getElementById('profileEditBtn').onclick = () => followUser(targetUserId);
+            const actionBtn = document.getElementById('profileActionBtn');
+            actionBtn.innerText = 'Editar perfil';
+            actionBtn.className = 'profile-action-btn primary';
+            actionBtn.onclick = toggleEditProfile;
         }
         
         const whatsappDDI = document.getElementById('whatsappDDI');
@@ -4915,9 +5183,6 @@ function loadProfileStats(userId = null) {
     db.collection('posts').where('user', '==', targetUserId).get().then(snapshot => {
         document.getElementById('profilePosts').innerText = snapshot.size;
     }).catch(console.error);
-    
-    document.getElementById('profileFollowers').innerText = '128';
-    document.getElementById('profileFollowing').innerText = '56';
 }
 
 function loadProfilePosts(userId = null) {
@@ -5444,7 +5709,7 @@ async function displayMessage(message) {
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         messageElement.innerHTML = `
-            <div class="message-avatar ${onlineClass}">
+            <div class="message-avatar ${onlineClass}" onclick="viewProfile('${message.user}')">
                 ${userData?.avatarUrl ? `<img src="${userData.avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : displayName.charAt(0).toUpperCase()}
             </div>
             <div class="message-content">
@@ -5664,11 +5929,11 @@ function searchUsers() {
             selectChat(`private_${user.id}`, displayName, displayName.charAt(0).toUpperCase(), user.id);
         };
         li.innerHTML = `
-            <div class="user-search-avatar">
+            <div class="user-search-avatar" onclick="viewProfile('${user.id}')">
                 ${user.avatarUrl ? `<img src="${user.avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : displayName.charAt(0).toUpperCase()}
             </div>
             <div class="user-search-info">
-                <strong>${displayName}</strong>
+                <strong onclick="viewProfile('${user.id}')">${displayName}</strong>
                 <span>${user.username || ''}</span>
             </div>
         `;
