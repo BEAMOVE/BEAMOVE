@@ -3074,7 +3074,8 @@ header {
                         <span id="profileAvatarText">U</span>
                         <img id="profileAvatarImage" src="" alt="Avatar" style="display: none;">
                     </div>
-                    <button class="change-avatar-btn" onclick="document.getElementById('profileAvatarInput').click()">
+                    <!-- Botão de trocar foto só aparece se for o próprio perfil -->
+                    <button class="change-avatar-btn" id="changeAvatarBtn" onclick="document.getElementById('profileAvatarInput').click()" style="display: none;">
                         <i data-lucide="camera"></i>
                     </button>
                     <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;" onchange="uploadProfileAvatar(this)">
@@ -3414,7 +3415,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// Cloudinary config (usado via proxy server)
+// Cloudinary config
 const CLOUDINARY_CLOUD_NAME = 'beamove';
 const CLOUDINARY_UPLOAD_PRESET = 'beamove_preset';
 
@@ -3450,7 +3451,7 @@ let currentPostImageFile = null;
 let currentForumImageFile = null;
 
 // ============================================================
-// FUNÇÕES DE SEGUIR - NOVAS
+// FUNÇÕES DE SEGUIR
 // ============================================================
 
 async function followUser(userId) {
@@ -3462,29 +3463,25 @@ async function followUser(userId) {
     const currentUserId = auth.currentUser.uid;
     
     if (userId === currentUserId) {
-        return; // Não pode seguir a si mesmo
+        return;
     }
     
     try {
-        // Verificar se já segue
         const followDoc = await db.collection('follows')
             .where('followerId', '==', currentUserId)
             .where('followingId', '==', userId)
             .get();
         
         if (followDoc.empty) {
-            // Seguir
             await db.collection('follows').add({
                 followerId: currentUserId,
                 followingId: userId,
                 createdAt: new Date()
             });
             
-            // Atualizar contadores
             await updateFollowersCount(userId);
             await updateFollowingCount(currentUserId);
             
-            // Atualizar botão
             const actionBtn = document.getElementById('profileActionBtn');
             if (actionBtn) {
                 actionBtn.innerText = 'Seguindo';
@@ -3506,7 +3503,6 @@ async function unfollowUser(userId) {
     const currentUserId = auth.currentUser.uid;
     
     try {
-        // Buscar e deletar o follow
         const followDoc = await db.collection('follows')
             .where('followerId', '==', currentUserId)
             .where('followingId', '==', userId)
@@ -3515,11 +3511,9 @@ async function unfollowUser(userId) {
         if (!followDoc.empty) {
             await db.collection('follows').doc(followDoc.docs[0].id).delete();
             
-            // Atualizar contadores
             await updateFollowersCount(userId);
             await updateFollowingCount(currentUserId);
             
-            // Atualizar botão
             const actionBtn = document.getElementById('profileActionBtn');
             if (actionBtn) {
                 actionBtn.innerText = 'Seguir';
@@ -3543,12 +3537,10 @@ async function updateFollowersCount(userId) {
         
         const count = followersSnapshot.size;
         
-        // Atualizar no documento do usuário
         await db.collection('users').doc(userId).update({
             followersCount: count
         });
         
-        // Atualizar UI se for o perfil sendo visualizado
         if (viewingProfileId === userId || userId === auth.currentUser?.uid) {
             document.getElementById('profileFollowers').innerText = count;
         }
@@ -3567,12 +3559,10 @@ async function updateFollowingCount(userId) {
         
         const count = followingSnapshot.size;
         
-        // Atualizar no documento do usuário
         await db.collection('users').doc(userId).update({
             followingCount: count
         });
         
-        // Atualizar UI se for o perfil sendo visualizado
         if (viewingProfileId === userId || userId === auth.currentUser?.uid) {
             document.getElementById('profileFollowing').innerText = count;
         }
@@ -3639,10 +3629,8 @@ async function loadFollowingCount(userId) {
     }
 }
 
-// Função para lidar com a ação do botão no perfil (editar/seguir)
 function handleProfileAction() {
     if (viewingProfileId && viewingProfileId !== auth.currentUser?.uid) {
-        // É outro perfil - verificar se já segue
         const actionBtn = document.getElementById('profileActionBtn');
         if (actionBtn.innerText === 'Seguir') {
             followUser(viewingProfileId);
@@ -3650,7 +3638,6 @@ function handleProfileAction() {
             unfollowUser(viewingProfileId);
         }
     } else {
-        // É o próprio perfil - abrir edição
         toggleEditProfile();
     }
 }
@@ -3799,8 +3786,17 @@ function removeForumImage() {
     document.getElementById('forumImageInput').value = '';
 }
 
+// FUNÇÃO CORRIGIDA: uploadProfileAvatar agora verifica se é o próprio usuário
 async function uploadProfileAvatar(input) {
     if (!input.files || !input.files[0]) return;
+    
+    // Verificação de segurança - só permite upload se for o próprio perfil
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId || (viewingProfileId && viewingProfileId !== currentUserId)) {
+        alert('Você só pode alterar sua própria foto de perfil!');
+        input.value = '';
+        return;
+    }
     
     const file = input.files[0];
     const progressBar = document.getElementById('avatarUploadProgressBar');
@@ -3814,7 +3810,7 @@ async function uploadProfileAvatar(input) {
             progressBar.style.width = percent + '%';
         });
         
-        await db.collection('users').doc(auth.currentUser.uid).update({
+        await db.collection('users').doc(currentUserId).update({
             avatarUrl: imageUrl
         });
         
@@ -3977,7 +3973,6 @@ auth.onAuthStateChanged(user => {
                 avatarImg.style.objectFit = 'cover';
             }
             
-            // Carregar contagens de seguidores
             loadFollowersCount(user.uid).then(count => {
                 document.getElementById('profileFollowers').innerText = count;
             });
@@ -4255,13 +4250,14 @@ function viewProfile(userId) {
                     document.getElementById('profileAvatarText').innerText = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : (userData.username ? userData.username.charAt(1).toUpperCase() : 'U');
                 }
                 
-                // Carregar contagens de seguidores
+                // Esconder botão de trocar foto quando for outro perfil
+                document.getElementById('changeAvatarBtn').style.display = 'none';
+                
                 const followersCount = await loadFollowersCount(userId);
                 const followingCount = await loadFollowingCount(userId);
                 document.getElementById('profileFollowers').innerText = followersCount;
                 document.getElementById('profileFollowing').innerText = followingCount;
                 
-                // Verificar se já segue
                 const isFollowing = await checkIfFollowing(userId);
                 const actionBtn = document.getElementById('profileActionBtn');
                 
@@ -5013,7 +5009,6 @@ async function addPost() {
         input.style.height = 'auto';
         removePostImage();
         
-        // Resetar ações
         const postActions = document.getElementById('postActions');
         postActions.innerHTML = `
             <button class="message-bar-button" onclick="sendLike()">
@@ -5144,7 +5139,14 @@ function loadProfile(userId = null) {
             document.getElementById('profileAvatarText').innerText = data.displayName ? data.displayName.charAt(0).toUpperCase() : (data.username ? data.username.charAt(1).toUpperCase() : 'U');
         }
         
-        // Carregar contagens de seguidores
+        // Mostrar botão de trocar foto apenas se for o próprio perfil
+        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+        if (targetUserId === auth.currentUser?.uid) {
+            changeAvatarBtn.style.display = 'flex';
+        } else {
+            changeAvatarBtn.style.display = 'none';
+        }
+        
         const followersCount = await loadFollowersCount(targetUserId);
         const followingCount = await loadFollowingCount(targetUserId);
         document.getElementById('profileFollowers').innerText = followersCount;
@@ -5773,7 +5775,6 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     
     loadChat(chatId, userId);
     
-    // Reset chat input actions
     const chatActions = document.getElementById('chatActions');
     chatActions.innerHTML = `
         <button class="message-bar-button" onclick="sendAudioMessage()">
