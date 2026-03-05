@@ -455,11 +455,7 @@ header {
     color: white;
     font-weight: 600;
     font-size: 20px;
-    cursor: pointer;
-}
-
-.post-avatar:hover {
-    opacity: 0.8;
+    /* REMOVIDO: cursor: pointer; - Não abre mais perfil */
 }
 
 .post-info h4 {
@@ -573,11 +569,7 @@ header {
     font-weight: 600;
     font-size: 14px;
     flex-shrink: 0;
-    cursor: pointer;
-}
-
-.comment-avatar:hover {
-    opacity: 0.8;
+    /* REMOVIDO: cursor: pointer; - Não abre mais perfil */
 }
 
 .comment-content {
@@ -787,7 +779,6 @@ header {
     font-size: 18px;
     flex-shrink: 0;
     position: relative;
-    /* REMOVIDO: cursor: pointer; - Não deve abrir perfil na lista de conversas */
 }
 
 .chat-user-avatar.online::after {
@@ -817,7 +808,6 @@ header {
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 14px;
-    /* REMOVIDO: cursor: pointer; - Não deve abrir perfil na lista de conversas */
 }
 
 .chat-user-info span {
@@ -963,7 +953,7 @@ header {
     font-weight: 600;
     flex-shrink: 0;
     position: relative;
-    cursor: pointer;
+    /* REMOVIDO: cursor: pointer; - Não abre mais perfil */
 }
 
 .message-avatar.online::after {
@@ -2524,7 +2514,7 @@ header {
     <div id="profile" class="hidden">
         <!-- Top Bar com nome do usuário -->
         <div class="profile-top-bar">
-            <button class="back-btn" onclick="backToHome()">←</button>
+            <button class="back-btn" onclick="backFromProfile()">←</button>
             <span class="profile-username-top" id="profileUsernameTop">@usuario</span>
             <i data-lucide="verified" class="verified-badge hidden" id="verifiedBadge"></i>
             <div class="profile-actions-top">
@@ -2536,7 +2526,7 @@ header {
             <!-- Header Section com foto e estatísticas -->
             <div class="profile-header">
                 <div class="profile-avatar-section">
-                    <div class="profile-avatar-large clickable" id="profileAvatar" onclick="viewOwnProfile()">U</div>
+                    <div class="profile-avatar-large" id="profileAvatar">U</div>
                 </div>
                 
                 <div class="profile-info-compact">
@@ -3136,10 +3126,16 @@ function showTab(tabName) {
     
     document.getElementById(tabName).classList.remove('hidden');
     
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    
+    // Mostrar o bottom nav
     document.getElementById('bottomNav').classList.remove('hidden-nav');
+    
+    // Atualizar active state
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.querySelector('span').innerText.toLowerCase() === tabName) {
+            item.classList.add('active');
+        }
+    });
     
     if (tabName === 'profile') {
         if (!viewingProfileId) {
@@ -3213,6 +3209,15 @@ function backToHome() {
             stroke: 'currentColor'
         }
     });
+}
+
+// ============================================================
+// FUNÇÃO DE VOLTAR DO PERFIL
+// ============================================================
+
+function backFromProfile() {
+    viewingProfileId = null;
+    showTab('home');
 }
 
 // ============================================================
@@ -3386,7 +3391,7 @@ function loadFeedComments(postId) {
                 
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="comment-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div class="comment-content">
                             <div class="comment-header">
                                 <span class="comment-author" onclick="viewProfile('${comment.userId}')">${userData?.username || '@usuario'}</span>
@@ -3451,7 +3456,7 @@ function loadForumComments(postId) {
                 
                 html += `
                     <div class="comment-item">
-                        <div class="comment-avatar" onclick="viewProfile('${comment.userId}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="comment-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div class="comment-content">
                             <div class="comment-header">
                                 <span class="comment-author" onclick="viewProfile('${comment.userId}')">${userData?.username || '@usuario'}</span>
@@ -3686,7 +3691,7 @@ function loadForumPosts() {
                 postElement.id = 'forum-post-' + post.id;
                 postElement.innerHTML = `
                     <div class="forum-post-header">
-                        <div class="post-avatar" onclick="viewProfile('${post.user}')">${post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                        <div class="post-avatar">${post.userData?.username ? post.userData.username.charAt(1).toUpperCase() : 'U'}</div>
                         <div>
                             <div class="forum-post-author" onclick="viewProfile('${post.user}')">${post.userData?.username || '@usuario'}</div>
                             <div class="forum-post-date">${formatDate(post.created)}</div>
@@ -3867,7 +3872,7 @@ function loadFeed() {
             postElement.id = 'post-' + postId;
             postElement.innerHTML = `
                 <div class="post-header">
-                    <div class="post-avatar" onclick="viewProfile('${post.user}')">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
+                    <div class="post-avatar">${userData?.username ? userData.username.charAt(1).toUpperCase() : 'U'}</div>
                     <div class="post-info">
                         <h4 onclick="viewProfile('${post.user}')">${userData?.username || '@usuario'}</h4>
                         <span>${formatDate(post.created)}</span>
@@ -4065,7 +4070,9 @@ function loadProfile(userId = null) {
         if (editGender) editGender.value = data.gender || '';
         
         loadProfileStats(targetUserId);
-    }).catch(console.error);
+    }).catch(error => {
+        console.error('Erro ao carregar perfil:', error);
+    });
 }
 
 function loadProfileStats(userId = null) {
@@ -4123,7 +4130,9 @@ function loadProfilePosts(userId = null) {
                 stroke: 'currentColor'
             }
         });
-    }).catch(console.error);
+    }).catch(error => {
+        console.error('Erro ao carregar posts do perfil:', error);
+    });
 }
 
 function goToPostInFeed(postId) {
@@ -4515,7 +4524,6 @@ function loadChatList() {
                         const onlineClass = isOnline ? 'online' : '';
                         const lastSeenText = getLastSeenText(userData.lastSeen);
                         
-                        // IMPORTANTE: Sem onclick para viewProfile no avatar ou nome
                         chatItem.innerHTML = `
                             <div class="chat-user-avatar ${onlineClass}">
                                 ${displayName.charAt(0).toUpperCase()}
@@ -4598,7 +4606,7 @@ async function displayMessage(message) {
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
         messageElement.innerHTML = `
-            <div class="message-avatar ${onlineClass}" onclick="viewProfile('${message.user}')">${displayName.charAt(0).toUpperCase()}</div>
+            <div class="message-avatar ${onlineClass}">${displayName.charAt(0).toUpperCase()}</div>
             <div class="message-content">
                 <p>${messageText}</p>
                 <span class="message-time">${formatTime(message.created)}</span>
