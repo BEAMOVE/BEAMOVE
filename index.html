@@ -523,6 +523,18 @@ header {
     cursor: not-allowed;
 }
 
+.message-bar-button.recording {
+    background: var(--danger);
+    color: white;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
 /* Estilos para upload de imagens */
 .image-upload-btn {
     display: flex;
@@ -604,148 +616,66 @@ header {
     transition: width 0.3s ease;
 }
 
-.post-card.with-image .post-content {
-    margin-top: 10px;
-}
-
-.post-image {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin: 10px 0;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.post-image:hover {
-    opacity: 0.9;
-}
-
-.forum-post.with-image .forum-post-content {
-    margin-top: 10px;
-}
-
-.forum-post-image {
-    width: 100%;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin: 10px 0;
-    cursor: pointer;
-}
-
-.create-post-with-image {
+/* Estilos para áudio */
+.audio-preview {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 10px;
-}
-
-.create-post-image-preview {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-    border-radius: 12px;
-    border: 2px solid var(--border);
-}
-
-/* Modal de imagem expandida */
-.image-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
-    cursor: pointer;
-}
-
-.image-modal img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-}
-
-.image-modal-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.image-modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.profile-avatar-with-image {
-    position: relative;
-    display: inline-block;
-}
-
-.profile-avatar-image {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--border);
-}
-
-.profile-avatar-large.profile-avatar-image {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-@media (min-width: 1025px) {
-    .profile-avatar-large.profile-avatar-image {
-        width: 150px;
-        height: 150px;
-    }
-}
-
-.change-avatar-btn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--accent-gradient);
-    border: 2px solid var(--bg-secondary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    transition: var(--transition);
-}
-
-.change-avatar-btn:hover {
-    transform: scale(1.1);
-}
-
-.post-card {
-    background: var(--bg-secondary);
+    padding: 10px;
+    background: var(--bg-primary);
     border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--card-shadow);
-    animation: fadeIn 0.5s ease;
+    margin: 10px 0;
+}
+
+.audio-preview audio {
+    flex: 1;
+    height: 40px;
+}
+
+.audio-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-primary);
+    border-radius: 20px;
+    padding: 8px 12px;
+    margin-top: 5px;
+}
+
+.audio-message audio {
+    height: 40px;
+    flex: 1;
+}
+
+.audio-message .audio-duration {
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 45px;
+}
+
+/* Botão de deletar */
+.delete-btn {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    opacity: 0.7;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.delete-btn i {
+    width: 16px;
+    height: 16px;
 }
 
 .post-header {
@@ -753,6 +683,13 @@ header {
     align-items: center;
     gap: 12px;
     margin-bottom: 15px;
+    position: relative;
+}
+
+.post-header .delete-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 .post-avatar {
@@ -781,6 +718,7 @@ header {
     font-weight: 600;
     margin-bottom: 4px;
     cursor: pointer;
+    display: inline-block;
 }
 
 .post-info h4:hover {
@@ -790,6 +728,7 @@ header {
 .post-info span {
     font-size: 12px;
     color: var(--text-secondary);
+    margin-left: 8px;
 }
 
 .post-content {
@@ -887,6 +826,13 @@ header {
     background: var(--bg-secondary);
     border-radius: 12px;
     border: 1px solid var(--border);
+    position: relative;
+}
+
+.comment-item .delete-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 
 .comment-avatar {
@@ -913,6 +859,7 @@ header {
 
 .comment-content {
     flex: 1;
+    padding-right: 30px;
 }
 
 .comment-header {
@@ -1160,6 +1107,13 @@ header {
     align-items: center;
     gap: 12px;
     background: var(--bg-secondary);
+    position: relative;
+}
+
+.chat-header .delete-btn {
+    position: absolute;
+    right: 15px;
+    top: 15px;
 }
 
 .back-to-users {
@@ -1239,11 +1193,33 @@ header {
     align-items: flex-start;
     gap: 10px;
     max-width: 70%;
+    position: relative;
 }
 
 .message.sent {
     align-self: flex-end;
     flex-direction: row-reverse;
+}
+
+.message .delete-btn {
+    position: absolute;
+    top: 0;
+    right: -30px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.message:hover .delete-btn {
+    opacity: 0.5;
+}
+
+.message:hover .delete-btn:hover {
+    opacity: 1;
+}
+
+.message.sent .delete-btn {
+    right: auto;
+    left: -30px;
 }
 
 .message-avatar {
@@ -1318,6 +1294,7 @@ header {
     opacity: 0.7;
     display: block;
     text-align: right;
+    margin-top: 4px;
 }
 
 .user-search-modal {
@@ -2281,6 +2258,13 @@ header {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: var(--card-shadow);
+    position: relative;
+}
+
+.forum-post .delete-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
 }
 
 .forum-post-header {
@@ -2288,6 +2272,7 @@ header {
     align-items: center;
     gap: 12px;
     margin-bottom: 15px;
+    padding-right: 40px;
 }
 
 .forum-post-author {
@@ -2651,6 +2636,10 @@ header {
         padding: 10px 12px;
         font-size: 14px;
     }
+    
+    .message .delete-btn {
+        opacity: 0.3;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -3006,14 +2995,20 @@ header {
                         <h4 id="chatHeaderName">Geral</h4>
                         <p id="chatHeaderStatus">Online</p>
                     </div>
+                    <button class="delete-btn hidden" id="deleteChatBtn" onclick="deleteCurrentChat()">
+                        <i data-lucide="trash-2"></i>
+                    </button>
                 </div>
                 <div class="chat-messages" id="chatBox"></div>
                 
                 <!-- Barra de mensagem do chat -->
                 <div class="message-bar">
                     <div class="message-bar-left">
-                        <button class="message-bar-button" onclick="openChatCamera()">
-                            <i data-lucide="camera"></i>
+                        <button class="message-bar-button" onclick="toggleAudioRecording()" id="audioRecordBtn">
+                            <i data-lucide="mic"></i>
+                        </button>
+                        <button class="message-bar-button hidden" onclick="cancelAudioRecording()" id="audioCancelBtn">
+                            <i data-lucide="x"></i>
                         </button>
                     </div>
                     <div class="message-bar-center">
@@ -3025,15 +3020,19 @@ header {
                             oninput="autoResize(this); updateChatActions()"
                             onkeypress="handleChatKeyPress(event)"
                         ></textarea>
+                        <div id="audioPreviewContainer" class="audio-preview hidden">
+                            <audio id="audioPreview" controls></audio>
+                            <button class="remove-image-btn" onclick="cancelAudioRecording()">✕</button>
+                        </div>
                     </div>
                     <div class="message-bar-right" id="chatActions">
-                        <button class="message-bar-button" onclick="sendAudioMessage()" id="chatAudioBtn">
-                            <i data-lucide="mic"></i>
+                        <button class="message-bar-button" onclick="openAttachment()" id="chatAttachBtn">
+                            <i data-lucide="paperclip"></i>
                         </button>
-                        <button class="message-bar-button" onclick="sendLike()" id="chatLikeBtn">
-                            <i data-lucide="heart"></i>
+                        <button class="message-bar-button" onclick="openEmojiPicker()" id="chatEmojiBtn">
+                            <i data-lucide="smile"></i>
                         </button>
-                        <button class="message-bar-button primary" onclick="sendMessage()" id="chatSendBtn" style="display: none;">
+                        <button class="message-bar-button primary" onclick="sendMessage()" id="chatSendBtn">
                             <i data-lucide="send"></i>
                         </button>
                     </div>
@@ -3074,7 +3073,6 @@ header {
                         <span id="profileAvatarText">U</span>
                         <img id="profileAvatarImage" src="" alt="Avatar" style="display: none;">
                     </div>
-                    <!-- Botão de trocar foto só aparece se for o próprio perfil -->
                     <button class="change-avatar-btn" id="changeAvatarBtn" onclick="document.getElementById('profileAvatarInput').click()" style="display: none;">
                         <i data-lucide="camera"></i>
                     </button>
@@ -3369,6 +3367,18 @@ header {
         <img id="expandedImage" src="" alt="Imagem expandida">
     </div>
 
+    <!-- Modal de confirmação de exclusão -->
+    <div id="deleteConfirmModal" class="modal-overlay hidden" onclick="closeDeleteModal(event)">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 class="modal-title">Confirmar exclusão</h3>
+            <p style="margin-bottom: 20px; text-align: center;">Tem certeza que deseja excluir este item?</p>
+            <div class="edit-section-actions" style="justify-content: center;">
+                <button class="btn btn-primary" onclick="confirmDelete()">Excluir</button>
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bottom Navigation -->
     <nav class="bottom-nav" id="bottomNav">
         <div class="nav-item" onclick="showTab('home')">
@@ -3449,6 +3459,339 @@ let viewingProfileId = null;
 // Variáveis para upload de imagens
 let currentPostImageFile = null;
 let currentForumImageFile = null;
+
+// Variáveis para exclusão
+let pendingDeleteType = null;
+let pendingDeleteId = null;
+let pendingDeleteCallback = null;
+
+// Variáveis para gravação de áudio
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let audioStream = null;
+
+// ============================================================
+// FUNÇÕES DE EXCLUSÃO
+// ============================================================
+
+function showDeleteConfirm(type, id, callback) {
+    pendingDeleteType = type;
+    pendingDeleteId = id;
+    pendingDeleteCallback = callback;
+    document.getElementById('deleteConfirmModal').classList.remove('hidden');
+}
+
+function closeDeleteModal(event) {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (!event || event.target === modal) {
+        modal.classList.add('hidden');
+        pendingDeleteType = null;
+        pendingDeleteId = null;
+        pendingDeleteCallback = null;
+    }
+}
+
+async function confirmDelete() {
+    if (pendingDeleteCallback) {
+        await pendingDeleteCallback(pendingDeleteId);
+    }
+    closeDeleteModal();
+}
+
+async function deletePost(postId) {
+    if (!auth.currentUser) return;
+    
+    try {
+        const postRef = db.collection('posts').doc(postId);
+        const postDoc = await postRef.get();
+        
+        if (!postDoc.exists) {
+            alert('Post não encontrado');
+            return;
+        }
+        
+        const postData = postDoc.data();
+        
+        // Verificar se é o autor
+        if (postData.user !== auth.currentUser.uid) {
+            alert('Você só pode excluir seus próprios posts');
+            return;
+        }
+        
+        // Deletar todos os likes relacionados
+        const likesSnapshot = await db.collection('post_likes')
+            .where('postId', '==', postId)
+            .get();
+        
+        const batch = db.batch();
+        likesSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        // Deletar todos os comentários relacionados
+        const commentsSnapshot = await db.collection('post_comments')
+            .where('postId', '==', postId)
+            .get();
+        
+        commentsSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        // Deletar o post
+        batch.delete(postRef);
+        
+        await batch.commit();
+        
+        // Remover do cache
+        likesCache.delete(postId);
+        
+        alert('Post excluído com sucesso!');
+    } catch (error) {
+        console.error('Erro ao excluir post:', error);
+        alert('Erro ao excluir post. Tente novamente.');
+    }
+}
+
+async function deleteForumPost(postId) {
+    if (!auth.currentUser) return;
+    
+    try {
+        const postRef = db.collection('forum_posts').doc(postId);
+        const postDoc = await postRef.get();
+        
+        if (!postDoc.exists) {
+            alert('Post não encontrado');
+            return;
+        }
+        
+        const postData = postDoc.data();
+        
+        if (postData.user !== auth.currentUser.uid) {
+            alert('Você só pode excluir seus próprios posts');
+            return;
+        }
+        
+        const likesSnapshot = await db.collection('forum_post_likes')
+            .where('postId', '==', postId)
+            .get();
+        
+        const batch = db.batch();
+        likesSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        const commentsSnapshot = await db.collection('forum_comments')
+            .where('postId', '==', postId)
+            .get();
+        
+        commentsSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        batch.delete(postRef);
+        
+        await batch.commit();
+        
+        forumLikesCache.delete(postId);
+        
+        alert('Post excluído com sucesso!');
+        loadForumPosts();
+    } catch (error) {
+        console.error('Erro ao excluir post do fórum:', error);
+        alert('Erro ao excluir post. Tente novamente.');
+    }
+}
+
+async function deleteComment(commentId, postId, type) {
+    if (!auth.currentUser) return;
+    
+    try {
+        const collection = type === 'feed' ? 'post_comments' : 'forum_comments';
+        const commentRef = db.collection(collection).doc(commentId);
+        const commentDoc = await commentRef.get();
+        
+        if (!commentDoc.exists) {
+            alert('Comentário não encontrado');
+            return;
+        }
+        
+        const commentData = commentDoc.data();
+        
+        if (commentData.userId !== auth.currentUser.uid) {
+            alert('Você só pode excluir seus próprios comentários');
+            return;
+        }
+        
+        await commentRef.delete();
+        
+        // Decrementar contador de comentários no post
+        const postCollection = type === 'feed' ? 'posts' : 'forum_posts';
+        await db.collection(postCollection).doc(postId).update({
+            comments: firebase.firestore.FieldValue.increment(-1)
+        });
+        
+        // Atualizar UI
+        if (type === 'feed') {
+            loadFeedComments(postId);
+            const countSpan = document.getElementById('comment-count-' + postId);
+            if (countSpan) {
+                const current = parseInt(countSpan.innerText) || 0;
+                countSpan.innerText = Math.max(0, current - 1);
+            }
+        } else {
+            loadForumComments(postId);
+            const countSpan = document.getElementById('forum-comment-count-' + postId);
+            if (countSpan) {
+                const current = parseInt(countSpan.innerText) || 0;
+                countSpan.innerText = Math.max(0, current - 1);
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao excluir comentário:', error);
+        alert('Erro ao excluir comentário. Tente novamente.');
+    }
+}
+
+async function deleteMessage(messageId, chatId, isPrivate) {
+    if (!auth.currentUser) return;
+    
+    try {
+        const collection = isPrivate ? 'private_chats' : 'chat';
+        const messageRef = db.collection(collection).doc(messageId);
+        const messageDoc = await messageRef.get();
+        
+        if (!messageDoc.exists) {
+            alert('Mensagem não encontrada');
+            return;
+        }
+        
+        const messageData = messageDoc.data();
+        
+        if (messageData.user !== auth.currentUser.uid) {
+            alert('Você só pode excluir suas próprias mensagens');
+            return;
+        }
+        
+        await messageRef.delete();
+        
+        // Recarregar chat
+        if (isPrivate) {
+            loadChat(chatId, currentChatUser);
+        } else {
+            loadChat('geral');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir mensagem:', error);
+        alert('Erro ao excluir mensagem. Tente novamente.');
+    }
+}
+
+async function deleteCurrentChat() {
+    if (!auth.currentUser || !currentChatUser) return;
+    
+    if (!confirm('Tem certeza que deseja excluir toda esta conversa?')) return;
+    
+    try {
+        const snapshot = await db.collection('private_chats')
+            .where('participants', 'array-contains', auth.currentUser.uid)
+            .get();
+        
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.participants && data.participants.includes(currentChatUser)) {
+                batch.delete(doc.ref);
+            }
+        });
+        
+        await batch.commit();
+        
+        alert('Conversa excluída com sucesso!');
+        backToUsersList();
+    } catch (error) {
+        console.error('Erro ao excluir conversa:', error);
+        alert('Erro ao excluir conversa. Tente novamente.');
+    }
+}
+
+// ============================================================
+// FUNÇÕES DE GRAVAÇÃO DE ÁUDIO
+// ============================================================
+
+async function toggleAudioRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        await startRecording();
+    }
+}
+
+async function startRecording() {
+    try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(audioStream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            document.getElementById('audioPreview').src = audioUrl;
+            document.getElementById('audioPreviewContainer').classList.remove('hidden');
+            document.getElementById('audioRecordBtn').classList.add('hidden');
+            document.getElementById('audioCancelBtn').classList.remove('hidden');
+            
+            audioStream.getTracks().forEach(track => track.close());
+        };
+        
+        mediaRecorder.start();
+        isRecording = true;
+        
+        document.getElementById('audioRecordBtn').classList.add('recording');
+    } catch (error) {
+        console.error('Erro ao acessar microfone:', error);
+        alert('Não foi possível acessar o microfone. Verifique as permissões.');
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        document.getElementById('audioRecordBtn').classList.remove('recording');
+    }
+}
+
+function cancelAudioRecording() {
+    if (audioStream) {
+        audioStream.getTracks().forEach(track => track.close());
+    }
+    audioChunks = [];
+    isRecording = false;
+    document.getElementById('audioRecordBtn').classList.remove('recording');
+    document.getElementById('audioPreviewContainer').classList.add('hidden');
+    document.getElementById('audioRecordBtn').classList.remove('hidden');
+    document.getElementById('audioCancelBtn').classList.add('hidden');
+}
+
+async function sendAudioMessage() {
+    if (audioChunks.length === 0) {
+        alert('Grave um áudio primeiro');
+        return;
+    }
+    
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    
+    // Aqui você faria upload do áudio para o Cloudinary
+    // Por enquanto, vamos apenas simular
+    alert('Funcionalidade de envio de áudio em desenvolvimento');
+    cancelAudioRecording();
+}
 
 // ============================================================
 // FUNÇÕES DE SEGUIR
@@ -3653,32 +3996,9 @@ function autoResize(textarea) {
 
 function updateChatActions() {
     const input = document.getElementById('chatInput');
-    const chatActions = document.getElementById('chatActions');
     const hasText = input.value.trim().length > 0;
     
-    if (hasText) {
-        chatActions.innerHTML = `
-            <button class="message-bar-button" onclick="openAttachment()">
-                <i data-lucide="paperclip"></i>
-            </button>
-            <button class="message-bar-button" onclick="openEmojiPicker()">
-                <i data-lucide="smile"></i>
-            </button>
-            <button class="message-bar-button primary" onclick="sendMessage()">
-                <i data-lucide="send"></i>
-            </button>
-        `;
-    } else {
-        chatActions.innerHTML = `
-            <button class="message-bar-button" onclick="sendAudioMessage()">
-                <i data-lucide="mic"></i>
-            </button>
-            <button class="message-bar-button" onclick="sendLike()">
-                <i data-lucide="heart"></i>
-            </button>
-        `;
-    }
-    lucide.createIcons();
+    // As ações são fixas agora, não precisamos alterar
 }
 
 function sendLike() {
@@ -3700,20 +4020,12 @@ function sendLike() {
     }
 }
 
-function sendAudioMessage() {
-    alert('Funcionalidade de áudio em desenvolvimento');
-}
-
 function openAttachment() {
     alert('Anexar arquivo em desenvolvimento');
 }
 
 function openEmojiPicker() {
     alert('Emojis em desenvolvimento');
-}
-
-function openChatCamera() {
-    alert('Câmera em desenvolvimento');
 }
 
 // ============================================================
@@ -3786,11 +4098,9 @@ function removeForumImage() {
     document.getElementById('forumImageInput').value = '';
 }
 
-// FUNÇÃO CORRIGIDA: uploadProfileAvatar agora verifica se é o próprio usuário
 async function uploadProfileAvatar(input) {
     if (!input.files || !input.files[0]) return;
     
-    // Verificação de segurança - só permite upload se for o próprio perfil
     const currentUserId = auth.currentUser?.uid;
     if (!currentUserId || (viewingProfileId && viewingProfileId !== currentUserId)) {
         alert('Você só pode alterar sua própria foto de perfil!');
@@ -4154,6 +4464,7 @@ function showTab(tabName) {
         document.getElementById('chatHeaderAvatar').innerText = '👥';
         document.getElementById('chatHeaderStatus').innerText = '';
         document.getElementById('chatHeaderAvatar').classList.remove('online');
+        document.getElementById('deleteChatBtn').classList.add('hidden');
         setTimeout(updateAllUsersOnlineStatus, 500);
     }
     
@@ -4206,7 +4517,7 @@ function backFromProfile() {
 }
 
 // ============================================================
-// FUNÇÃO DE VISUALIZAR PERFIL (ATUALIZADA)
+// FUNÇÃO DE VISUALIZAR PERFIL
 // ============================================================
 
 function viewProfile(userId) {
@@ -4250,7 +4561,6 @@ function viewProfile(userId) {
                     document.getElementById('profileAvatarText').innerText = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : (userData.username ? userData.username.charAt(1).toUpperCase() : 'U');
                 }
                 
-                // Esconder botão de trocar foto quando for outro perfil
                 document.getElementById('changeAvatarBtn').style.display = 'none';
                 
                 const followersCount = await loadFollowersCount(userId);
@@ -4396,6 +4706,7 @@ function loadFeedComments(postId) {
                 }
                 
                 const commentText = makeMentionsClickable(comment.text);
+                const isOwner = auth.currentUser && comment.userId === auth.currentUser.uid;
                 
                 html += `
                     <div class="comment-item">
@@ -4409,11 +4720,17 @@ function loadFeedComments(postId) {
                             </div>
                             <div class="comment-text">${commentText}</div>
                         </div>
+                        ${isOwner ? `
+                            <button class="delete-btn" onclick="showDeleteConfirm('comment', '${comment.id}', () => deleteComment('${comment.id}', '${postId}', 'feed'))">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        ` : ''}
                     </div>
                 `;
             }
             
             commentsList.innerHTML = html;
+            lucide.createIcons();
         })
         .catch(error => {
             console.error('Erro ao carregar comentários:', error);
@@ -4463,6 +4780,7 @@ function loadForumComments(postId) {
                 }
                 
                 const commentText = makeMentionsClickable(comment.text);
+                const isOwner = auth.currentUser && comment.userId === auth.currentUser.uid;
                 
                 html += `
                     <div class="comment-item">
@@ -4476,11 +4794,17 @@ function loadForumComments(postId) {
                             </div>
                             <div class="comment-text">${commentText}</div>
                         </div>
+                        ${isOwner ? `
+                            <button class="delete-btn" onclick="showDeleteConfirm('comment', '${comment.id}', () => deleteComment('${comment.id}', '${postId}', 'forum'))">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        ` : ''}
                     </div>
                 `;
             }
             
             commentsList.innerHTML = html;
+            lucide.createIcons();
         })
         .catch(error => {
             console.error('Erro ao carregar comentários:', error);
@@ -4703,11 +5027,14 @@ function loadForumPosts() {
                     }
                 }
                 
+                const isOwner = auth.currentUser && post.user === auth.currentUser.uid;
+                
                 posts.push({
                     id: postId,
                     ...post,
                     userData: userData,
                     userLiked: userLiked,
+                    isOwner: isOwner,
                     createdDate: post.created ? new Date(post.created.seconds * 1000) : new Date(0)
                 });
             }
@@ -4751,6 +5078,11 @@ function loadForumPosts() {
                         <button class="post-action" onclick="shareForumPost('${post.id}')">
                             <i data-lucide="share-2"></i>
                         </button>
+                        ${post.isOwner ? `
+                            <button class="post-action" onclick="showDeleteConfirm('forum', '${post.id}', () => deleteForumPost('${post.id}'))">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        ` : ''}
                     </div>
                     <div class="comments-section ${commentsVisibleClass}" id="forum-comments-${post.id}">
                         <div class="comments-list" id="forum-comments-list-${post.id}"></div>
@@ -4905,6 +5237,7 @@ function loadFeed() {
             
             const likedClass = userLiked ? 'liked' : '';
             const commentsVisibleClass = commentsVisible.get('feed-' + postId) ? '' : 'hidden';
+            const isOwner = auth.currentUser && post.user === auth.currentUser.uid;
             
             const postContent = makeMentionsClickable(post.text || '');
             const imageHtml = post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" onclick="expandImage('${post.imageUrl}')" alt="Post image">` : '';
@@ -4921,6 +5254,11 @@ function loadFeed() {
                         <h4 onclick="viewProfile('${post.user}')">${userData?.username || '@usuario'}</h4>
                         <span>${formatDate(post.created)}</span>
                     </div>
+                    ${isOwner ? `
+                        <button class="delete-btn" onclick="showDeleteConfirm('post', '${postId}', () => deletePost('${postId}'))">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    ` : ''}
                 </div>
                 ${imageHtml}
                 <div class="post-content">${postContent}</div>
@@ -5008,17 +5346,6 @@ async function addPost() {
         input.value = '';
         input.style.height = 'auto';
         removePostImage();
-        
-        const postActions = document.getElementById('postActions');
-        postActions.innerHTML = `
-            <button class="message-bar-button" onclick="sendLike()">
-                <i data-lucide="heart"></i>
-            </button>
-            <button class="message-bar-button primary" onclick="addPost()" id="postSendBtn">
-                <i data-lucide="send"></i>
-            </button>
-        `;
-        lucide.createIcons();
     } catch (error) {
         console.error('Erro ao publicar:', error);
         alert('Erro: ' + error.message);
@@ -5104,7 +5431,7 @@ function sharePost(postId) {
 }
 
 // ============================================================
-// FUNÇÕES DO PERFIL (ATUALIZADAS)
+// FUNÇÕES DO PERFIL
 // ============================================================
 
 function loadProfile(userId = null) {
@@ -5139,7 +5466,6 @@ function loadProfile(userId = null) {
             document.getElementById('profileAvatarText').innerText = data.displayName ? data.displayName.charAt(0).toUpperCase() : (data.username ? data.username.charAt(1).toUpperCase() : 'U');
         }
         
-        // Mostrar botão de trocar foto apenas se for o próprio perfil
         const changeAvatarBtn = document.getElementById('changeAvatarBtn');
         if (targetUserId === auth.currentUser?.uid) {
             changeAvatarBtn.style.display = 'flex';
@@ -5663,7 +5989,7 @@ function loadChat(chatId, otherUserId = null) {
                 chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhuma mensagem ainda.</div>';
                 return;
             }
-            snapshot.forEach(doc => displayMessage(doc.data()));
+            snapshot.forEach(doc => displayMessage(doc.data(), false));
             chatBox.scrollTop = chatBox.scrollHeight;
         }, console.error);
     } else {
@@ -5686,14 +6012,14 @@ function loadChat(chatId, otherUserId = null) {
                 if (messages.length === 0) {
                     chatBox.innerHTML = '<div style="text-align: center; padding: 40px;">Nenhuma mensagem ainda.</div>';
                 } else {
-                    messages.forEach(message => displayMessage(message));
+                    messages.forEach(message => displayMessage(message, true));
                 }
                 chatBox.scrollTop = chatBox.scrollHeight;
             }, console.error);
     }
 }
 
-async function displayMessage(message) {
+async function displayMessage(message, isPrivate) {
     try {
         let userData = userCache.get(message.user);
         if (!userData) {
@@ -5705,11 +6031,13 @@ async function displayMessage(message) {
         const isOnline = isUserOnline(userData?.lastSeen);
         const onlineClass = isOnline ? 'online' : '';
         const displayName = userData?.displayName || userData?.username?.replace('@', '') || 'U';
+        const isOwner = auth.currentUser && message.user === auth.currentUser.uid;
         
         const messageText = makeMentionsClickable(message.text);
         
         const messageElement = document.createElement('div');
         messageElement.className = message.user === auth.currentUser.uid ? 'message sent' : 'message';
+        messageElement.id = 'msg-' + (message.id || Date.now());
         messageElement.innerHTML = `
             <div class="message-avatar ${onlineClass}" onclick="viewProfile('${message.user}')">
                 ${userData?.avatarUrl ? `<img src="${userData.avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : displayName.charAt(0).toUpperCase()}
@@ -5718,8 +6046,14 @@ async function displayMessage(message) {
                 <p>${messageText}</p>
                 <span class="message-time">${formatTime(message.created)}</span>
             </div>
+            ${isOwner ? `
+                <button class="delete-btn" onclick="showDeleteConfirm('message', '${message.id}', () => deleteMessage('${message.id}', '${currentChat}', ${isPrivate}))">
+                    <i data-lucide="trash-2"></i>
+                </button>
+            ` : ''}
         `;
         document.getElementById('chatBox').appendChild(messageElement);
+        lucide.createIcons();
     } catch (error) {
         console.error('Erro ao exibir mensagem:', error);
     }
@@ -5748,11 +6082,13 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
         
         document.getElementById('chatHeaderName').onclick = () => viewProfile(userId);
         document.getElementById('chatHeaderAvatar').onclick = () => viewProfile(userId);
+        document.getElementById('deleteChatBtn').classList.remove('hidden');
     } else {
         document.getElementById('chatHeaderStatus').innerText = 'Online';
         document.getElementById('chatHeaderAvatar').classList.remove('online');
         document.getElementById('chatHeaderName').onclick = null;
         document.getElementById('chatHeaderAvatar').onclick = null;
+        document.getElementById('deleteChatBtn').classList.add('hidden');
     }
     
     if (window.innerWidth <= 768) {
@@ -5774,19 +6110,7 @@ function selectChat(chatId, userName, userAvatar, userId = null) {
     });
     
     loadChat(chatId, userId);
-    
-    const chatActions = document.getElementById('chatActions');
-    chatActions.innerHTML = `
-        <button class="message-bar-button" onclick="sendAudioMessage()">
-            <i data-lucide="mic"></i>
-        </button>
-        <button class="message-bar-button" onclick="sendLike()">
-            <i data-lucide="heart"></i>
-        </button>
-    `;
-    document.getElementById('chatInput').value = '';
-    document.getElementById('chatInput').style.height = 'auto';
-    lucide.createIcons();
+    cancelAudioRecording();
 }
 
 function markAsRead(userId) {
@@ -5854,7 +6178,6 @@ function sendMessage() {
         }).then(() => {
             chatInput.value = '';
             chatInput.style.height = 'auto';
-            updateChatActions();
         }).catch(error => {
             alert('Erro: ' + error.message);
         });
@@ -5867,7 +6190,6 @@ function sendMessage() {
         }).then(() => {
             chatInput.value = '';
             chatInput.style.height = 'auto';
-            updateChatActions();
         }).catch(error => {
             alert('Erro: ' + error.message);
         });
