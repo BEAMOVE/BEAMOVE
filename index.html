@@ -440,7 +440,6 @@ header {
     color: var(--text-secondary);
 }
 
-/* Estilos para barra de mensagens */
 .message-bar {
     display: flex;
     align-items: center;
@@ -528,7 +527,6 @@ header {
     cursor: not-allowed;
 }
 
-/* Estilos para upload de imagens */
 .image-upload-btn {
     display: flex;
     align-items: center;
@@ -654,7 +652,6 @@ header {
     border: 2px solid var(--border);
 }
 
-/* Modal de imagem expandida */
 .image-modal {
     position: fixed;
     top: 0;
@@ -803,7 +800,6 @@ header {
     color: var(--text-secondary);
 }
 
-/* Botão de menu no estilo Instagram */
 .post-menu-btn {
     width: 40px;
     height: 40px;
@@ -1620,7 +1616,6 @@ header {
     color: var(--text-secondary);
 }
 
-/* Bottom Sheet - Menu de opções estilo Instagram */
 .bottom-sheet-overlay {
     position: fixed;
     top: 0;
@@ -1675,7 +1670,6 @@ header {
     margin: 8px 0;
 }
 
-/* Modal de confirmação estilo Instagram */
 .confirm-modal-overlay {
     position: fixed;
     top: 0;
@@ -1762,7 +1756,6 @@ header {
     cursor: not-allowed;
 }
 
-/* Menu contextual flutuante */
 .context-menu {
     position: fixed;
     background: var(--bottom-sheet-bg);
@@ -1798,7 +1791,6 @@ header {
     height: 18px;
 }
 
-/* PERFIL INSTAGRAM STYLE */
 .profile-container {
     max-width: 935px;
     margin: 0 auto;
@@ -3180,7 +3172,6 @@ header {
 
     <!-- Home Section -->
     <div id="home" class="container">
-        <!-- Stories (Instagram Style) -->
         <div class="stories">
             <div class="story-item" onclick="openForum('treino')">
                 <div class="story-circle">
@@ -3208,7 +3199,6 @@ header {
             </div>
         </div>
 
-        <!-- Featured Product Card -->
         <div class="featured-card">
             <div>
                 <h3>🥗 Acompanhamento Nutricional</h3>
@@ -3221,7 +3211,6 @@ header {
             <i data-lucide="apple" style="width: 80px; height: 80px; opacity: 0.5;"></i>
         </div>
 
-        <!-- Products Grid -->
         <h2 class="section-title">
             <i data-lucide="package"></i>
             Nossos Produtos
@@ -3264,7 +3253,6 @@ header {
     <div id="feed" class="hidden">
         <div class="feed-posts-container" id="feedPosts"></div>
         
-        <!-- Barra de mensagem do feed -->
         <div class="message-bar">
             <div class="message-bar-left">
                 <button class="message-bar-button" onclick="document.getElementById('postImageInput').click()">
@@ -3317,7 +3305,6 @@ header {
             </button>
         </div>
 
-        <!-- Add Forum Post Form -->
         <div id="addForumPostForm" class="create-post hidden">
             <div class="message-bar">
                 <div class="message-bar-left">
@@ -3351,14 +3338,12 @@ header {
             <button class="btn btn-secondary" onclick="hideAddForumPost()" style="margin-top: 10px;">Cancelar</button>
         </div>
 
-        <!-- Forum Posts -->
         <div id="forumPosts" class="forum-posts"></div>
     </div>
 
     <!-- Chat Section -->
     <div id="chat" class="hidden">
         <div class="chat-container">
-            <!-- Sidebar com lista de conversas -->
             <div class="chat-sidebar" id="chatSidebar">
                 <div class="chat-sidebar-header">
                     <h3>
@@ -3380,7 +3365,6 @@ header {
                 </ul>
             </div>
             
-            <!-- Área principal do chat -->
             <div class="chat-main" id="chatMain">
                 <div class="chat-header" id="chatHeader">
                     <button class="back-to-users" onclick="backToUsersList()">
@@ -3394,7 +3378,6 @@ header {
                 </div>
                 <div class="chat-messages" id="chatBox"></div>
                 
-                <!-- Barra de mensagem do chat -->
                 <div class="message-bar">
                     <div class="message-bar-left">
                         <button class="message-bar-button" onclick="startAudioRecording()" id="audioRecordBtn">
@@ -3424,7 +3407,6 @@ header {
         </div>
     </div>
 
-    <!-- Modal de busca de usuários -->
     <div id="userSearchModal" class="user-search-modal hidden">
         <div class="user-search-content">
             <h3>
@@ -3436,9 +3418,7 @@ header {
         </div>
     </div>
 
-    <!-- Profile Section - INSTAGRAM STYLE -->
     <div id="profile" class="hidden">
-        <!-- Top Bar com nome do usuário -->
         <div class="profile-top-bar">
             <button class="back-btn" onclick="backFromProfile()">←</button>
             <span class="profile-username-top" id="profileUsernameTop">@usuario</span>
@@ -3449,7 +3429,6 @@ header {
         </div>
 
         <div class="profile-container">
-            <!-- Header Section com foto e estatísticas -->
             <div class="profile-header">
                 <div class="profile-avatar-section">
                     <div class="profile-avatar-large" id="profileAvatar">
@@ -3488,7 +3467,6 @@ header {
                 </div>
             </div>
 
-            <!-- Nome e Bio -->
             <div class="profile-name-bio">
                 <div class="profile-fullname" id="profileFullName"></div>
                 <div class="profile-bio-text" id="profileBio">Olá, estou usando BEAMOVE! 💪</div>
@@ -3497,13 +3475,11 @@ header {
                 </a>
             </div>
 
-            <!-- Botões de Ação -->
             <div class="profile-action-buttons">
                 <button class="profile-action-btn primary" onclick="handleProfileAction()" id="profileActionBtn">Editar perfil</button>
                 <button class="profile-action-btn secondary" onclick="shareProfile()">Compartilhar</button>
             </div>
 
-            <!-- Highlights -->
             <div class="profile-highlights">
                 <div class="highlight-item" onclick="showFichaModal()">
                     <div class="highlight-circle">
@@ -3519,7 +3495,6 @@ header {
                 </div>
             </div>
 
-            <!-- Abas -->
             <div class="profile-tabs">
                 <button class="profile-tab active" onclick="showProfileTab('posts')">
                     <i data-lucide="grid"></i>
@@ -3535,7 +3510,6 @@ header {
                 </button>
             </div>
 
-            <!-- Configurações/Engrenagem -->
             <div id="settingsPanel" class="edit-section hidden">
                 <h4>
                     <i data-lucide="settings"></i>
@@ -3613,7 +3587,6 @@ header {
                 </div>
             </div>
 
-            <!-- Formulário de Edição de Perfil -->
             <div id="editProfileForm" class="edit-section hidden">
                 <h4><i data-lucide="edit-3"></i> Editar Perfil</h4>
                 <input type="text" id="editName" placeholder="Nome">
@@ -3625,7 +3598,6 @@ header {
                 </div>
             </div>
 
-            <!-- Formulário da Ficha do Usuário -->
             <div id="userCardForm" class="edit-section hidden">
                 <h4>
                     <i data-lucide="edit-3"></i>
@@ -3677,12 +3649,10 @@ header {
                 </div>
             </div>
 
-            <!-- Posts do Perfil - 3 COLUNAS -->
             <div class="profile-posts" id="profilePostsTab">
                 <div class="posts-grid" id="profilePostsGrid"></div>
             </div>
 
-            <!-- Saved Tab (placeholder) -->
             <div class="profile-posts hidden" id="profileSavedTab">
                 <div class="posts-grid" id="profileSavedGrid">
                     <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);">
@@ -3692,7 +3662,6 @@ header {
                 </div>
             </div>
 
-            <!-- Tagged Tab (placeholder) -->
             <div class="profile-posts hidden" id="profileTaggedTab">
                 <div class="posts-grid" id="profileTaggedGrid">
                     <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);">
@@ -3704,7 +3673,6 @@ header {
         </div>
     </div>
 
-    <!-- Modal Ficha -->
     <div id="fichaModal" class="modal-overlay hidden" onclick="closeModal(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -3735,7 +3703,6 @@ header {
         </div>
     </div>
 
-    <!-- Modal Histórico -->
     <div id="historicoModal" class="modal-overlay hidden" onclick="closeModal(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -3744,13 +3711,11 @@ header {
         </div>
     </div>
 
-    <!-- Modal de imagem expandida -->
     <div id="imageModal" class="image-modal hidden" onclick="closeImageModal()">
         <span class="image-modal-close" onclick="closeImageModal()">✕</span>
         <img id="expandedImage" src="" alt="Imagem expandida">
     </div>
 
-    <!-- Bottom Navigation -->
     <nav class="bottom-nav" id="bottomNav">
         <div class="nav-item" onclick="showTab('home')">
             <i data-lucide="home"></i>
@@ -3771,7 +3736,7 @@ header {
     </nav>
 </div>
 
-<!-- Bottom Sheet para opções de post - ESTILO INSTAGRAM -->
+<!-- Bottom Sheet para opções de post -->
 <div id="postOptionsSheet" class="bottom-sheet-overlay hidden" onclick="closeBottomSheet(event)">
     <div class="bottom-sheet">
         <div class="bottom-sheet-item danger" onclick="deletePost()">
@@ -3785,7 +3750,7 @@ header {
     </div>
 </div>
 
-<!-- Modal de confirmação de exclusão - ESTILO INSTAGRAM -->
+<!-- Modal de confirmação de exclusão -->
 <div id="confirmDeleteModal" class="confirm-modal-overlay hidden" onclick="closeConfirmModal(event)">
     <div class="confirm-modal">
         <h3>Excluir publicação?</h3>
@@ -4043,17 +4008,15 @@ function playAudio(messageId, audioUrl) {
 }
 
 // ============================================================
-// FUNÇÕES DE EXCLUSÃO DE POSTS - ESTILO INSTAGRAM
+// FUNÇÕES DE EXCLUSÃO DE POSTS - CORRIGIDAS
 // ============================================================
 
-// Abre o menu de opções do post
 function openPostOptions(postId, type) {
     currentPostId = postId;
     currentPostType = type;
     document.getElementById('postOptionsSheet').classList.remove('hidden');
 }
 
-// Fecha o bottom sheet
 function closeBottomSheet(event) {
     if (!event || event.target.classList.contains('bottom-sheet-overlay')) {
         document.getElementById('postOptionsSheet').classList.add('hidden');
@@ -4062,15 +4025,16 @@ function closeBottomSheet(event) {
     }
 }
 
-// Abre o modal de confirmação de exclusão
 function deletePost() {
     closeBottomSheet();
     document.getElementById('confirmDeleteModal').classList.remove('hidden');
 }
 
-// Função principal de exclusão - COMPLETA E FUNCIONAL
 async function confirmDeletePost() {
-    if (!currentPostId || !currentPostType) return;
+    if (!currentPostId || !currentPostType) {
+        closeConfirmModal();
+        return;
+    }
     
     try {
         const user = auth.currentUser;
@@ -4080,7 +4044,11 @@ async function confirmDeletePost() {
             return;
         }
         
-        // Referência ao documento do post
+        const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
+        const originalText = deleteBtn.innerText;
+        deleteBtn.innerText = 'Excluindo...';
+        deleteBtn.disabled = true;
+        
         let postRef;
         if (currentPostType === 'feed') {
             postRef = db.collection('posts').doc(currentPostId);
@@ -4092,39 +4060,30 @@ async function confirmDeletePost() {
             return;
         }
         
-        // Buscar o post
         const postSnapshot = await postRef.get();
         
         if (!postSnapshot.exists) {
             alert('Post não encontrado');
             closeConfirmModal();
+            deleteBtn.innerText = originalText;
+            deleteBtn.disabled = false;
             return;
         }
         
         const postData = postSnapshot.data();
         
-        // Verificar se o usuário é o dono
         if (postData.user !== user.uid) {
             alert('Você só pode excluir suas próprias postagens');
             closeConfirmModal();
+            deleteBtn.innerText = originalText;
+            deleteBtn.disabled = false;
             return;
         }
         
-        // Mostrar indicador de carregamento
-        const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
-        const originalText = deleteBtn.innerText;
-        deleteBtn.innerText = 'Excluindo...';
-        deleteBtn.disabled = true;
-        
-        // Criar um array de promises para todas as exclusões
         const deletePromises = [];
-        
-        // Adicionar exclusão do post principal
         deletePromises.push(postRef.delete());
         
-        // Excluir dados relacionados baseado no tipo
         if (currentPostType === 'feed') {
-            // Excluir likes do feed
             const likesSnapshot = await db.collection('post_likes')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4133,7 +4092,6 @@ async function confirmDeletePost() {
                 deletePromises.push(doc.ref.delete());
             });
             
-            // Excluir comentários do feed
             const commentsSnapshot = await db.collection('post_comments')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4143,7 +4101,6 @@ async function confirmDeletePost() {
             });
             
         } else if (currentPostType === 'forum') {
-            // Excluir likes do fórum
             const likesSnapshot = await db.collection('forum_post_likes')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4152,7 +4109,6 @@ async function confirmDeletePost() {
                 deletePromises.push(doc.ref.delete());
             });
             
-            // Excluir comentários do fórum
             const commentsSnapshot = await db.collection('forum_comments')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4162,13 +4118,10 @@ async function confirmDeletePost() {
             });
         }
         
-        // Executar todas as exclusões em paralelo
         await Promise.all(deletePromises);
         
-        // Fechar modal e mostrar mensagem de sucesso
         closeConfirmModal();
         
-        // Remover o post da interface imediatamente
         if (currentPostType === 'feed') {
             const postElement = document.getElementById(`post-${currentPostId}`);
             if (postElement) {
@@ -4185,22 +4138,18 @@ async function confirmDeletePost() {
         
     } catch (error) {
         console.error('Erro detalhado ao excluir post:', error);
-        alert('Erro ao excluir postagem. Verifique sua conexão e tente novamente.');
+        alert('Erro ao excluir postagem: ' + error.message);
     } finally {
-        // Restaurar botão
         const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
         if (deleteBtn) {
             deleteBtn.innerText = 'Excluir';
             deleteBtn.disabled = false;
         }
-        
-        // Limpar variáveis
         currentPostId = null;
         currentPostType = null;
     }
 }
 
-// Fecha o modal de confirmação
 function closeConfirmModal(event) {
     if (!event || event.target.classList.contains('confirm-modal-overlay') || event.target.classList.contains('confirm-modal-btn.cancel')) {
         document.getElementById('confirmDeleteModal').classList.add('hidden');
