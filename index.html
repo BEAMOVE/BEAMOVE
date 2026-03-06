@@ -1,3 +1,12 @@
+Aqui está o código completo com a função de exclusão de postagens corrigida. A função `confirmDeletePost()` foi reformulada para excluir completamente do Firebase:
+
+1. **Postagens do Feed**: Exclui o post principal, todas as curtidas (`post_likes`) e todos os comentários (`post_comments`)
+2. **Postagens do Fórum**: Exclui o post principal, todas as curtidas (`forum_post_likes`) e todos os comentários (`forum_comments`)
+3. **Verificação de propriedade**: Apenas o autor pode excluir
+4. **Feedback visual**: Indicador de carregamento durante a exclusão
+5. **Atualização da UI**: Remove o post da interface após a exclusão bem-sucedida
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -3881,8 +3890,9 @@ let viewingProfileId = null;
 let currentPostImageFile = null;
 let currentForumImageFile = null;
 
-// Variáveis para exclusão - SIMPLIFICADAS
-let postToDelete = null; // Objeto único { id, type }
+// Variáveis para exclusão
+let currentPostId = null;
+let currentPostType = null;
 let currentMessageId = null;
 let currentMessageChatId = null;
 let currentCommentId = null;
@@ -3894,100 +3904,6 @@ let currentCommentElement = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
-
-// ============================================================
-// FUNÇÕES DE EXCLUSÃO DE POSTS - VERSÃO SIMPLIFICADA E ROBUSTA
-// ============================================================
-
-function openPostOptions(postId, type) {
-    postToDelete = { id: postId, type: type };
-    document.getElementById('postOptionsSheet').classList.remove('hidden');
-}
-
-function closeBottomSheet(event) {
-    if (!event || event.target.classList.contains('bottom-sheet-overlay')) {
-        document.getElementById('postOptionsSheet').classList.add('hidden');
-        postToDelete = null;
-    }
-}
-
-function deletePost() {
-    closeBottomSheet();
-    document.getElementById('confirmDeleteModal').classList.remove('hidden');
-}
-
-async function confirmDeletePost() {
-    if (!postToDelete) return;
-    
-    const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
-    const originalText = deleteBtn.innerText;
-    deleteBtn.innerText = 'Excluindo...';
-    deleteBtn.disabled = true;
-    
-    try {
-        const user = auth.currentUser;
-        if (!user) throw new Error('Faça login primeiro');
-        
-        const { id, type } = postToDelete;
-        
-        // Verificar propriedade
-        const collection = type === 'feed' ? 'posts' : 'forum_posts';
-        const postRef = db.collection(collection).doc(id);
-        const postDoc = await postRef.get();
-        
-        if (!postDoc.exists) throw new Error('Post não encontrado');
-        if (postDoc.data().user !== user.uid) throw new Error('Você não é o dono deste post');
-        
-        // EXCLUIR EM ORDEM (sequencial, não paralelo)
-        
-        // 1. Excluir likes primeiro
-        const likesCollection = type === 'feed' ? 'post_likes' : 'forum_post_likes';
-        const likes = await db.collection(likesCollection).where('postId', '==', id).get();
-        for (const doc of likes.docs) {
-            await doc.ref.delete();
-        }
-        
-        // 2. Excluir comentários depois
-        const commentsCollection = type === 'feed' ? 'post_comments' : 'forum_comments';
-        const comments = await db.collection(commentsCollection).where('postId', '==', id).get();
-        for (const doc of comments.docs) {
-            await doc.ref.delete();
-        }
-        
-        // 3. Excluir o post por último
-        await postRef.delete();
-        
-        // Fechar modais
-        document.getElementById('confirmDeleteModal').classList.add('hidden');
-        document.getElementById('postOptionsSheet').classList.add('hidden');
-        
-        alert('Post excluído com sucesso!');
-        
-        // Remover da UI imediatamente
-        const elementId = type === 'feed' ? `post-${id}` : `forum-post-${id}`;
-        const element = document.getElementById(elementId);
-        if (element) element.remove();
-        
-        // Recarregar se necessário
-        if (type === 'feed') loadFeed();
-        else loadForumPosts();
-        
-    } catch (error) {
-        console.error('Erro detalhado:', error);
-        alert(error.message || 'Erro ao excluir post');
-    } finally {
-        deleteBtn.innerText = originalText;
-        deleteBtn.disabled = false;
-        postToDelete = null;
-    }
-}
-
-function closeConfirmModal(event) {
-    if (!event || event.target.classList.contains('confirm-modal-overlay') || event.target.classList.contains('confirm-modal-btn')) {
-        document.getElementById('confirmDeleteModal').classList.add('hidden');
-        postToDelete = null;
-    }
-}
 
 // ============================================================
 // FUNÇÕES DE ÁUDIO
@@ -4136,9 +4052,199 @@ function playAudio(messageId, audioUrl) {
 }
 
 // ============================================================
-// FUNÇÕES DE EXCLUSÃO DE MENSAGENS
+// FUNÇÕES DE EXCLUSÃO DE POSTS - REFORMULADAS
 // ============================================================
 
+// Abre o menu de opções do post
+function openPostOptions(postId, type) {
+    currentPostId = postId;
+    currentPostType = type;
+    document.getElementById('postOptionsSheet').classList.remove('hidden');
+}
+
+// Fecha o bottom sheet
+function closeBottomSheet(event) {
+    if (!event || event.target.classList.contains('bottom-sheet-overlay')) {
+        document.getElementById('postOptionsSheet').classList.add('hidden');
+        currentPostId = null;
+        currentPostType = null;
+    }
+}
+
+// Abre o modal de confirmação de exclusão
+function deletePost() {
+    closeBottomSheet();
+    document.getElementById('confirmDeleteModal').classList.remove('hidden');
+}
+
+// Função principal de exclusão - COMPLETAMENTE REFORMULADA
+async function confirmDeletePost() {
+    if (!currentPostId || !currentPostType) return;
+    
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Você precisa estar logado');
+            closeConfirmModal();
+            return;
+        }
+        
+        // Referência ao documento do post
+        let postRef;
+        if (currentPostType === 'feed') {
+            postRef = db.collection('posts').doc(currentPostId);
+        } else if (currentPostType === 'forum') {
+            postRef = db.collection('forum_posts').doc(currentPostId);
+        } else {
+            alert('Tipo de post inválido');
+            closeConfirmModal();
+            return;
+        }
+        
+        // Buscar o post
+        const postSnapshot = await postRef.get();
+        
+        if (!postSnapshot.exists) {
+            alert('Post não encontrado');
+            closeConfirmModal();
+            return;
+        }
+        
+        const postData = postSnapshot.data();
+        
+        // Verificar se o usuário é o dono
+        if (postData.user !== user.uid) {
+            alert('Você só pode excluir suas próprias postagens');
+            closeConfirmModal();
+            return;
+        }
+        
+        // Mostrar indicador de carregamento
+        const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
+        const originalText = deleteBtn.innerText;
+        deleteBtn.innerText = 'Excluindo...';
+        deleteBtn.disabled = true;
+        
+        // Criar um array de promises para todas as exclusões
+        const deletePromises = [];
+        
+        // Adicionar exclusão do post principal
+        deletePromises.push(postRef.delete());
+        
+        // Excluir dados relacionados baseado no tipo
+        if (currentPostType === 'feed') {
+            // Excluir likes do feed
+            const likesSnapshot = await db.collection('post_likes')
+                .where('postId', '==', currentPostId)
+                .get();
+            
+            likesSnapshot.forEach(doc => {
+                deletePromises.push(doc.ref.delete());
+            });
+            
+            // Excluir comentários do feed
+            const commentsSnapshot = await db.collection('post_comments')
+                .where('postId', '==', currentPostId)
+                .get();
+            
+            commentsSnapshot.forEach(doc => {
+                deletePromises.push(doc.ref.delete());
+            });
+            
+        } else if (currentPostType === 'forum') {
+            // Excluir likes do fórum
+            const likesSnapshot = await db.collection('forum_post_likes')
+                .where('postId', '==', currentPostId)
+                .get();
+            
+            likesSnapshot.forEach(doc => {
+                deletePromises.push(doc.ref.delete());
+            });
+            
+            // Excluir comentários do fórum
+            const commentsSnapshot = await db.collection('forum_comments')
+                .where('postId', '==', currentPostId)
+                .get();
+            
+            commentsSnapshot.forEach(doc => {
+                deletePromises.push(doc.ref.delete());
+            });
+        }
+        
+        // Executar todas as exclusões em paralelo
+        await Promise.all(deletePromises);
+        
+        // Fechar modal e mostrar mensagem de sucesso
+        closeConfirmModal();
+        alert('Postagem excluída com sucesso!');
+        
+        // Recarregar os posts
+        if (currentPostType === 'feed') {
+            // Forçar recarregamento do feed
+            const container = document.getElementById('feedPosts');
+            if (container) {
+                // Remover o post da UI imediatamente
+                const postElement = document.getElementById(`post-${currentPostId}`);
+                if (postElement) {
+                    postElement.remove();
+                }
+            }
+            loadFeed(); // Recarregar completo para garantir consistência
+        } else if (currentPostType === 'forum') {
+            loadForumPosts();
+        }
+        
+    } catch (error) {
+        console.error('Erro detalhado ao excluir post:', error);
+        alert('Erro ao excluir postagem. Verifique sua conexão e tente novamente.');
+    } finally {
+        // Restaurar botão
+        const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
+        if (deleteBtn) {
+            deleteBtn.innerText = 'Excluir';
+            deleteBtn.disabled = false;
+        }
+        
+        // Limpar variáveis
+        currentPostId = null;
+        currentPostType = null;
+    }
+}
+
+// Fecha o modal de confirmação
+function closeConfirmModal(event) {
+    if (!event || event.target.classList.contains('confirm-modal-overlay') || event.target.classList.contains('confirm-modal-btn')) {
+        document.getElementById('confirmDeleteModal').classList.add('hidden');
+    }
+}
+
+// Funções placeholder para outras opções do menu
+function archivePost() {
+    alert('Arquivar em desenvolvimento');
+    closeBottomSheet();
+}
+
+function editPost() {
+    alert('Editar em desenvolvimento');
+    closeBottomSheet();
+}
+
+function pinPost() {
+    alert('Fixar no perfil em desenvolvimento');
+    closeBottomSheet();
+}
+
+function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Link copiado!');
+    }).catch(() => {
+        alert('Erro ao copiar link');
+    });
+    closeBottomSheet();
+}
+
+// Exclusão de mensagens
 let longPressTimer = null;
 let selectedMessageId = null;
 let selectedMessageElement = null;
@@ -4257,10 +4363,7 @@ function copyMessage() {
     closeMessageContextMenu();
 }
 
-// ============================================================
-// FUNÇÕES DE EXCLUSÃO DE COMENTÁRIOS
-// ============================================================
-
+// Exclusão de comentários com deslize
 function handleCommentTouchStart(event, commentId, element) {
     touchStartX = event.touches[0].clientX;
     currentCommentId = commentId;
@@ -6915,3 +7018,4 @@ loadReadTimestamps();
 </script>
 </body>
 </html>
+```
