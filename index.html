@@ -3754,7 +3754,7 @@ header {
 <!-- Bottom Sheet para opções de post -->
 <div id="postOptionsSheet" class="bottom-sheet-overlay hidden" onclick="closeBottomSheet(event)">
     <div class="bottom-sheet">
-        <div class="bottom-sheet-item" onclick="deletePost()">
+        <div class="bottom-sheet-item danger" onclick="deletePost()">
             <i data-lucide="trash-2"></i>
             <span>Excluir</span>
         </div>
@@ -4076,30 +4076,78 @@ async function confirmDelete() {
     if (!currentPostId || !currentPostType) return;
     
     try {
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Você precisa estar logado');
+            closeConfirmModal();
+            return;
+        }
+        
+        // Verificar se o usuário é o dono do post
+        let postRef;
         if (currentPostType === 'feed') {
-            await db.collection('posts').doc(currentPostId).delete();
-            
-            // Deletar likes associados
+            postRef = db.collection('posts').doc(currentPostId);
+        } else if (currentPostType === 'forum') {
+            postRef = db.collection('forum_posts').doc(currentPostId);
+        }
+        
+        const postDoc = await postRef.get();
+        
+        if (!postDoc.exists) {
+            alert('Post não encontrado');
+            closeConfirmModal();
+            return;
+        }
+        
+        const postData = postDoc.data();
+        
+        // Verificar se o usuário atual é o dono do post
+        if (postData.user !== user.uid) {
+            alert('Você só pode excluir suas próprias postagens');
+            closeConfirmModal();
+            return;
+        }
+        
+        // Usar batch para garantir que todas as operações sejam atômicas
+        const batch = db.batch();
+        
+        // Excluir o post principal
+        batch.delete(postRef);
+        
+        if (currentPostType === 'feed') {
+            // Excluir likes do post
             const likes = await db.collection('post_likes').where('postId', '==', currentPostId).get();
-            likes.forEach(doc => doc.ref.delete());
+            likes.forEach(doc => {
+                batch.delete(doc.ref);
+            });
             
-            // Deletar comentários associados
+            // Excluir comentários do post
             const comments = await db.collection('post_comments').where('postId', '==', currentPostId).get();
-            comments.forEach(doc => doc.ref.delete());
+            comments.forEach(doc => {
+                batch.delete(doc.ref);
+            });
             
         } else if (currentPostType === 'forum') {
-            await db.collection('forum_posts').doc(currentPostId).delete();
-            
+            // Excluir likes do post do fórum
             const likes = await db.collection('forum_post_likes').where('postId', '==', currentPostId).get();
-            likes.forEach(doc => doc.ref.delete());
+            likes.forEach(doc => {
+                batch.delete(doc.ref);
+            });
             
+            // Excluir comentários do post do fórum
             const comments = await db.collection('forum_comments').where('postId', '==', currentPostId).get();
-            comments.forEach(doc => doc.ref.delete());
+            comments.forEach(doc => {
+                batch.delete(doc.ref);
+            });
         }
+        
+        // Executar todas as exclusões em uma única operação atômica
+        await batch.commit();
         
         closeConfirmModal();
         alert('Postagem excluída com sucesso!');
         
+        // Recarregar os posts
         if (currentPostType === 'feed') {
             loadFeed();
         } else if (currentPostType === 'forum') {
@@ -4107,8 +4155,12 @@ async function confirmDelete() {
         }
         
     } catch (error) {
-        console.error('Erro ao excluir post:', error);
-        alert('Erro ao excluir postagem. Tente novamente.');
+        console.error('Erro detalhado ao excluir post:', error);
+        alert('Erro ao excluir postagem: ' + error.message);
+    } finally {
+        // Limpar as variáveis
+        currentPostId = null;
+        currentPostType = null;
     }
 }
 
