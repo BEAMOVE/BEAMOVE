@@ -4008,7 +4008,7 @@ function playAudio(messageId, audioUrl) {
 }
 
 // ============================================================
-// FUNÇÕES DE EXCLUSÃO DE POSTS - CORRIGIDAS
+// FUNÇÕES DE EXCLUSÃO DE POSTS - VERSÃO SIMPLIFICADA E CORRIGIDA
 // ============================================================
 
 function openPostOptions(postId, type) {
@@ -4057,6 +4057,8 @@ async function confirmDeletePost() {
         } else {
             alert('Tipo de post inválido');
             closeConfirmModal();
+            deleteBtn.innerText = originalText;
+            deleteBtn.disabled = false;
             return;
         }
         
@@ -4080,10 +4082,15 @@ async function confirmDeletePost() {
             return;
         }
         
+        // Array para armazenar todas as promessas de exclusão
         const deletePromises = [];
+        
+        // Adicionar exclusão do post principal
         deletePromises.push(postRef.delete());
         
+        // Excluir dados relacionados
         if (currentPostType === 'feed') {
+            // Excluir likes
             const likesSnapshot = await db.collection('post_likes')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4092,6 +4099,7 @@ async function confirmDeletePost() {
                 deletePromises.push(doc.ref.delete());
             });
             
+            // Excluir comentários
             const commentsSnapshot = await db.collection('post_comments')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4101,6 +4109,7 @@ async function confirmDeletePost() {
             });
             
         } else if (currentPostType === 'forum') {
+            // Excluir likes do fórum
             const likesSnapshot = await db.collection('forum_post_likes')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4109,6 +4118,7 @@ async function confirmDeletePost() {
                 deletePromises.push(doc.ref.delete());
             });
             
+            // Excluir comentários do fórum
             const commentsSnapshot = await db.collection('forum_comments')
                 .where('postId', '==', currentPostId)
                 .get();
@@ -4118,14 +4128,22 @@ async function confirmDeletePost() {
             });
         }
         
+        // Executar todas as exclusões
         await Promise.all(deletePromises);
         
         closeConfirmModal();
         
+        // Remover da interface
         if (currentPostType === 'feed') {
             const postElement = document.getElementById(`post-${currentPostId}`);
             if (postElement) {
                 postElement.remove();
+            }
+            // Atualizar contagem de posts no perfil
+            if (viewingProfileId === user.uid) {
+                const profilePosts = document.getElementById('profilePosts');
+                const current = parseInt(profilePosts.innerText) || 0;
+                profilePosts.innerText = Math.max(0, current - 1);
             }
         } else if (currentPostType === 'forum') {
             const postElement = document.getElementById(`forum-post-${currentPostId}`);
@@ -4138,7 +4156,7 @@ async function confirmDeletePost() {
         
     } catch (error) {
         console.error('Erro detalhado ao excluir post:', error);
-        alert('Erro ao excluir postagem: ' + error.message);
+        alert('Erro ao excluir postagem. Verifique sua conexão e tente novamente.');
     } finally {
         const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
         if (deleteBtn) {
@@ -4153,6 +4171,8 @@ async function confirmDeletePost() {
 function closeConfirmModal(event) {
     if (!event || event.target.classList.contains('confirm-modal-overlay') || event.target.classList.contains('confirm-modal-btn.cancel')) {
         document.getElementById('confirmDeleteModal').classList.add('hidden');
+        currentPostId = null;
+        currentPostType = null;
     }
 }
 
