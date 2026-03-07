@@ -4008,189 +4008,271 @@ function playAudio(messageId, audioUrl) {
 }
 
 // ============================================================
-// FUNÇÕES DE EXCLUSÃO DE POSTS - CORRIGIDAS (COPIADO EXATAMENTE)
+// CONTROLE GLOBAL
+// ============================================================
+
+let isDeletingPost = false;
+
+
+// ============================================================
+// ABRIR MENU DO POST
 // ============================================================
 
 function openPostOptions(postId, type) {
     currentPostId = postId;
     currentPostType = type;
+
     document.getElementById('postOptionsSheet').classList.remove('hidden');
 }
 
+
+// ============================================================
+// FECHAR MENU
+// ============================================================
+
 function closeBottomSheet(event) {
+
     if (!event || event.target.classList.contains('bottom-sheet-overlay')) {
+
         document.getElementById('postOptionsSheet').classList.add('hidden');
+
         currentPostId = null;
         currentPostType = null;
+
     }
 }
+
+
+// ============================================================
+// ABRIR MODAL CONFIRMAÇÃO
+// ============================================================
 
 function deletePost() {
+
     closeBottomSheet();
+
     document.getElementById('confirmDeleteModal').classList.remove('hidden');
+
 }
 
-async function confirmDeletePost() {
 
-    if (!currentPostId || !currentPostType) {
-        closeConfirmModal();
-        return;
-    }
-
-    try {
-
-        const user = auth.currentUser;
-
-        if (!user) {
-            alert('Você precisa estar logado');
-            closeConfirmModal();
-            return;
-        }
-
-        const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
-        const originalText = deleteBtn.innerText;
-
-        deleteBtn.innerText = 'Excluindo...';
-        deleteBtn.disabled = true;
-
-        let postRef;
-
-        if (currentPostType === 'feed') {
-            postRef = db.collection('posts').doc(currentPostId);
-        } 
-        else if (currentPostType === 'forum') {
-            postRef = db.collection('forum_posts').doc(currentPostId);
-        } 
-        else {
-            alert('Tipo de post inválido');
-            closeConfirmModal();
-            return;
-        }
-
-        const postSnapshot = await postRef.get();
-
-        if (!postSnapshot.exists) {
-            alert('Post não encontrado');
-            closeConfirmModal();
-            deleteBtn.innerText = originalText;
-            deleteBtn.disabled = false;
-            return;
-        }
-
-        const postData = postSnapshot.data();
-
-        if (postData.user !== user.uid) {
-            alert('Você só pode excluir suas próprias postagens');
-            closeConfirmModal();
-            deleteBtn.innerText = originalText;
-            deleteBtn.disabled = false;
-            return;
-        }
-
-        const deletePromises = [];
-
-        deletePromises.push(postRef.delete());
-
-        // =========================
-        // FEED
-        // =========================
-
-        if (currentPostType === 'feed') {
-
-            const likesSnapshot = await db.collection('post_likes')
-                .where('postId', '==', currentPostId)
-                .get();
-
-            likesSnapshot.forEach(doc => {
-                deletePromises.push(doc.ref.delete());
-            });
-
-            const commentsSnapshot = await db.collection('post_comments')
-                .where('postId', '==', currentPostId)
-                .get();
-
-            commentsSnapshot.forEach(doc => {
-                deletePromises.push(doc.ref.delete());
-            });
-
-        }
-
-        // =========================
-        // FÓRUM
-        // =========================
-
-        if (currentPostType === 'forum') {
-
-            const likesSnapshot = await db.collection('forum_post_likes')
-                .where('postId', '==', currentPostId)
-                .get();
-
-            likesSnapshot.forEach(doc => {
-                deletePromises.push(doc.ref.delete());
-            });
-
-            const commentsSnapshot = await db.collection('forum_comments')
-                .where('postId', '==', currentPostId)
-                .get();
-
-            commentsSnapshot.forEach(doc => {
-                deletePromises.push(doc.ref.delete());
-            });
-
-        }
-
-        await Promise.all(deletePromises);
-
-        closeConfirmModal();
-
-        if (currentPostType === 'feed') {
-
-            const postElement = document.getElementById(`post-${currentPostId}`);
-
-            if (postElement) {
-                postElement.remove();
-            }
-
-        } 
-        else if (currentPostType === 'forum') {
-
-            const postElement = document.getElementById(`forum-post-${currentPostId}`);
-
-            if (postElement) {
-                postElement.remove();
-            }
-
-        }
-
-        alert('Postagem excluída com sucesso!');
-
-    } catch (error) {
-
-        console.error('Erro detalhado ao excluir post:', error);
-        alert('Erro ao excluir postagem: ' + error.message);
-
-    } finally {
-
-        const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
-
-        if (deleteBtn) {
-            deleteBtn.innerText = 'Excluir';
-            deleteBtn.disabled = false;
-        }
-
-        currentPostId = null;
-        currentPostType = null;
-
-    }
-}
+// ============================================================
+// FECHAR MODAL
+// ============================================================
 
 function closeConfirmModal(event) {
 
-    if (!event ||
+    if (
+        !event ||
         event.target.classList.contains('confirm-modal-overlay') ||
-        event.target.classList.contains('confirm-modal-btn.cancel')) {
+        event.target.classList.contains('confirm-modal-btn cancel')
+    ) {
 
         document.getElementById('confirmDeleteModal').classList.add('hidden');
+
+    }
+
+}
+
+
+// ============================================================
+// REMOVER IMAGEM DO CLOUDINARY
+// ============================================================
+
+async function deleteCloudinaryImage(imageUrl) {
+
+    try {
+
+        if (!imageUrl) return;
+
+        const parts = imageUrl.split('/');
+
+        const fileName = parts[parts.length - 1];
+
+        const publicId = fileName.split('.')[0];
+
+        await fetch('/delete-cloudinary-image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                public_id: publicId
+            })
+        });
+
+    } catch (error) {
+
+        console.warn("Falha ao remover imagem do Cloudinary", error);
+
+    }
+
+}
+
+
+// ============================================================
+// EXCLUSÃO PRINCIPAL
+// ============================================================
+
+async function confirmDeletePost() {
+
+    if (isDeletingPost) return;
+
+    if (!currentPostId || !currentPostType) return;
+
+    const user = auth.currentUser;
+
+    if (!user) {
+
+        alert("Você precisa estar logado.");
+
+        return;
+
+    }
+
+    isDeletingPost = true;
+
+    const deleteBtn = document.querySelector('.confirm-modal-btn.delete');
+
+    const originalText = deleteBtn.innerText;
+
+    deleteBtn.innerText = "Excluindo...";
+    deleteBtn.disabled = true;
+
+    try {
+
+        let postRef;
+
+        if (currentPostType === "feed") {
+
+            postRef = db.collection("posts").doc(currentPostId);
+
+        }
+
+        if (currentPostType === "forum") {
+
+            postRef = db.collection("forum_posts").doc(currentPostId);
+
+        }
+
+        const postDoc = await postRef.get();
+
+        if (!postDoc.exists) {
+
+            alert("Post não encontrado.");
+
+            return;
+
+        }
+
+        const postData = postDoc.data();
+
+        if (postData.user !== user.uid) {
+
+            alert("Você só pode excluir suas próprias postagens.");
+
+            return;
+
+        }
+
+        const batch = db.batch();
+
+        batch.delete(postRef);
+
+        // ====================================================
+        // REMOVER IMAGEM CLOUDINARY
+        // ====================================================
+
+        if (postData.imageUrl) {
+
+            await deleteCloudinaryImage(postData.imageUrl);
+
+        }
+
+        // ====================================================
+        // REMOVER LIKES
+        // ====================================================
+
+        const likesCollection =
+            currentPostType === "feed"
+                ? "post_likes"
+                : "forum_post_likes";
+
+        const likesSnapshot = await db
+            .collection(likesCollection)
+            .where("postId", "==", currentPostId)
+            .get();
+
+        likesSnapshot.forEach(doc => {
+
+            batch.delete(doc.ref);
+
+        });
+
+        // ====================================================
+        // REMOVER COMENTÁRIOS
+        // ====================================================
+
+        const commentsCollection =
+            currentPostType === "feed"
+                ? "post_comments"
+                : "forum_comments";
+
+        const commentsSnapshot = await db
+            .collection(commentsCollection)
+            .where("postId", "==", currentPostId)
+            .get();
+
+        commentsSnapshot.forEach(doc => {
+
+            batch.delete(doc.ref);
+
+        });
+
+        // ====================================================
+        // EXECUTAR BATCH
+        // ====================================================
+
+        await batch.commit();
+
+        // ====================================================
+        // REMOVER DO DOM (CACHE UI)
+        // ====================================================
+
+        const elementId =
+            currentPostType === "feed"
+                ? `post-${currentPostId}`
+                : `forum-post-${currentPostId}`;
+
+        const postElement = document.getElementById(elementId);
+
+        if (postElement) {
+
+            postElement.remove();
+
+        }
+
+        closeConfirmModal();
+
+        alert("Postagem excluída com sucesso!");
+
+    } catch (error) {
+
+        console.error("Erro ao excluir post:", error);
+
+        alert("Erro ao excluir postagem.");
+
+    } finally {
+
+        deleteBtn.innerText = originalText;
+
+        deleteBtn.disabled = false;
+
+        isDeletingPost = false;
+
+        currentPostId = null;
+
+        currentPostType = null;
 
     }
 
