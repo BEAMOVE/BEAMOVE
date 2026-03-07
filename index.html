@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+/* ... (todo o CSS permanece exatamente igual) ... */
 * {
     margin: 0;
     padding: 0;
@@ -4008,16 +4009,14 @@ function playAudio(messageId, audioUrl) {
 }
 
 // ============================================================
-// CONTROLE GLOBAL
+// FUNÇÕES DE EXCLUSÃO DE POSTS - VERSÃO CORRIGIDA (SEM CLOUDINARY)
 // ============================================================
 
+// CONTROLE GLOBAL
 let isDeletingPost = false;
 
 
-// ============================================================
 // ABRIR MENU DO POST
-// ============================================================
-
 function openPostOptions(postId, type) {
     currentPostId = postId;
     currentPostType = type;
@@ -4026,10 +4025,7 @@ function openPostOptions(postId, type) {
 }
 
 
-// ============================================================
 // FECHAR MENU
-// ============================================================
-
 function closeBottomSheet(event) {
 
     if (!event || event.target.classList.contains('bottom-sheet-overlay')) {
@@ -4043,10 +4039,7 @@ function closeBottomSheet(event) {
 }
 
 
-// ============================================================
 // ABRIR MODAL CONFIRMAÇÃO
-// ============================================================
-
 function deletePost() {
 
     closeBottomSheet();
@@ -4056,10 +4049,7 @@ function deletePost() {
 }
 
 
-// ============================================================
 // FECHAR MODAL
-// ============================================================
-
 function closeConfirmModal(event) {
 
     if (
@@ -4075,45 +4065,7 @@ function closeConfirmModal(event) {
 }
 
 
-// ============================================================
-// REMOVER IMAGEM DO CLOUDINARY
-// ============================================================
-
-async function deleteCloudinaryImage(imageUrl) {
-
-    try {
-
-        if (!imageUrl) return;
-
-        const parts = imageUrl.split('/');
-
-        const fileName = parts[parts.length - 1];
-
-        const publicId = fileName.split('.')[0];
-
-        await fetch('/delete-cloudinary-image', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                public_id: publicId
-            })
-        });
-
-    } catch (error) {
-
-        console.warn("Falha ao remover imagem do Cloudinary", error);
-
-    }
-
-}
-
-
-// ============================================================
 // EXCLUSÃO PRINCIPAL
-// ============================================================
-
 async function confirmDeletePost() {
 
     if (isDeletingPost) return;
@@ -4179,20 +4131,7 @@ async function confirmDeletePost() {
 
         batch.delete(postRef);
 
-        // ====================================================
-        // REMOVER IMAGEM CLOUDINARY
-        // ====================================================
-
-        if (postData.imageUrl) {
-
-            await deleteCloudinaryImage(postData.imageUrl);
-
-        }
-
-        // ====================================================
         // REMOVER LIKES
-        // ====================================================
-
         const likesCollection =
             currentPostType === "feed"
                 ? "post_likes"
@@ -4209,10 +4148,7 @@ async function confirmDeletePost() {
 
         });
 
-        // ====================================================
         // REMOVER COMENTÁRIOS
-        // ====================================================
-
         const commentsCollection =
             currentPostType === "feed"
                 ? "post_comments"
@@ -4229,16 +4165,10 @@ async function confirmDeletePost() {
 
         });
 
-        // ====================================================
         // EXECUTAR BATCH
-        // ====================================================
-
         await batch.commit();
 
-        // ====================================================
         // REMOVER DO DOM (CACHE UI)
-        // ====================================================
-
         const elementId =
             currentPostType === "feed"
                 ? `post-${currentPostId}`
@@ -4260,7 +4190,7 @@ async function confirmDeletePost() {
 
         console.error("Erro ao excluir post:", error);
 
-        alert("Erro ao excluir postagem.");
+        alert("Erro ao excluir postagem: " + error.message);
 
     } finally {
 
